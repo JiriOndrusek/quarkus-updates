@@ -1,10 +1,12 @@
 package org.apache.camel.quarkus.update;
 
+import org.apache.camel.catalog.RuntimeCamelCatalog;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.AddImport;
+import org.openrewrite.java.ChangeMethodName;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.MethodMatcher;
@@ -15,6 +17,7 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 
 import java.util.Collections;
+import java.util.regex.Pattern;
 
 public class ExtendedContextRecipe extends Recipe {
     private static final MethodMatcher MATCHER_CONTEXT_GET_EXT =
@@ -56,14 +59,19 @@ public class ExtendedContextRecipe extends Recipe {
 //                return super.visitVariableDeclarations(multiVariable, executionContext);
 //            }
 
-//            @Override
-//            public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext executionContext) {
-//
-//                if (new MethodMatcher("org.apache.camel.ExtendedCamelContext getComponentNameResolver").matches((J.MethodInvocation) method)) {
-//                    System.out.println(method);
-//                }
-//                return super.visitMethodInvocation(method, executionContext);
-//            }
+            @Override
+            public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext executionContext) {
+
+                //context.getExtension(RuntimeCamelCatalog.class) -> context.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class);
+                if (MATCHER_CONTEXT_GET_EXT_RUNTIME_CATALOG.matches(method) && method.getType().isAssignableFrom(Pattern.compile(
+                        RuntimeCamelCatalog.class.getCanonicalName()))) {
+                        method = method.withTemplate(JavaTemplate.builder(this::getCursor,
+                                        "#{any(org.apache.camel.CamelContext)}.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class)")
+                                        .build(),
+                                method.getCoordinates().replace(), method.getSelect());
+                }
+                return super.visitMethodInvocation(method, executionContext);
+            }
 
             @Override
             public Expression visitExpression(Expression expression, ExecutionContext executionContext) {

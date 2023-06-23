@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
+import org.openrewrite.test.TypeValidation;
 
 import static org.openrewrite.java.Assertions.java;
 import static org.openrewrite.test.RewriteTest.toRecipe;
@@ -15,11 +16,12 @@ public class ExtendedContextRecipeTest implements RewriteTest {
         spec.recipe(new ExtendedContextRecipe())
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
-                        .classpath("camel-api"));
+                        .classpath("camel-api"))
+                .typeValidationOptions(TypeValidation.none());
     }
 
     @Test
-    void test() {
+    void testComponentNameResolver() {
         rewriteRun(
                 spec -> spec.recipe(toRecipe(() -> new ExtendedContextRecipe().getVisitor())),
                 java(
@@ -53,6 +55,45 @@ public class ExtendedContextRecipeTest implements RewriteTest {
                                 
                                     public void test() {
                                         ComponentNameResolver ec = PluginHelper.getComponentNameResolver(context);
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testRuntimeCatalog() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new ExtendedContextRecipe().getVisitor())),
+                java(
+                        """
+                                package org.apache.camel.quarkus.component.test.it;
+                                
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.catalog.RuntimeCamelCatalog;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public void test() {
+                                        RuntimeCamelCatalog rc = context.getExtension(RuntimeCamelCatalog.class);
+                                    }
+                                }
+                            """,
+                        """
+                                package org.apache.camel.quarkus.component.test.it;
+                                
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.catalog.RuntimeCamelCatalog;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public void test() {
+                                        RuntimeCamelCatalog rc = context.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class);
                                     }
                                 }
                                 """
