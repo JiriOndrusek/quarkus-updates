@@ -16,7 +16,7 @@ public class ExtendedContextRecipeTest implements RewriteTest {
         spec.recipe(new ExtendedContextRecipe())
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
-                        .classpath("camel-api"))
+                        .classpath("camel-api", "camel-core-model"))
                 .typeValidationOptions(TypeValidation.none());
     }
 
@@ -63,7 +63,7 @@ public class ExtendedContextRecipeTest implements RewriteTest {
     }
 
     @Test
-    void testRuntimeCatalog() {
+    void testAdapt() {
         rewriteRun(
                 spec -> spec.recipe(toRecipe(() -> new ExtendedContextRecipe().getVisitor())),
                 java(
@@ -71,14 +71,14 @@ public class ExtendedContextRecipeTest implements RewriteTest {
                                 package org.apache.camel.quarkus.component.test.it;
                                 
                                 import org.apache.camel.CamelContext;
-                                import org.apache.camel.catalog.RuntimeCamelCatalog;
+                                import org.apache.camel.model.ModelCamelContext;
                                 
                                 public class Test {
                                 
                                     CamelContext context;
                                 
                                     public void test() {
-                                        RuntimeCamelCatalog rc = context.getExtension(RuntimeCamelCatalog.class);
+                                        context.adapt(ModelCamelContext.class);
                                     }
                                 }
                             """,
@@ -86,14 +86,14 @@ public class ExtendedContextRecipeTest implements RewriteTest {
                                 package org.apache.camel.quarkus.component.test.it;
                                 
                                 import org.apache.camel.CamelContext;
-                                import org.apache.camel.catalog.RuntimeCamelCatalog;
+                                import org.apache.camel.model.ModelCamelContext;
                                 
                                 public class Test {
                                 
                                     CamelContext context;
                                 
                                     public void test() {
-                                        RuntimeCamelCatalog rc = context.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class);
+                                        (ModelCamelContext)context;
                                     }
                                 }
                                 """
@@ -102,41 +102,45 @@ public class ExtendedContextRecipeTest implements RewriteTest {
     }
 
     @Test
-    void expandsExpectedCustomerInfoMethod() {
+    void testAdapt2() {
         rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new ExtendedContextRecipe().getVisitor())),
                 java(
                         """
-                                    package com.yourorg;
-                                        
-                                    import java.util.Date;
-                                        
-                                    public abstract class Customer {
-                                        private Date dateOfBirth;
-                                        private String firstName;
-                                        private String lastName;
-                                        
-                                        public abstract void setCustomerInfo(String lastName);
+                                package org.apache.camel.quarkus.component.test.it;
+                                
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.model.ModelCamelContext;
+                                import org.apache.camel.impl.engine.DefaultHeadersMapFactory;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public DefaultHeadersMapFactory test() {
+                                        return context.adapt(ExtendedCamelContext.class).getHeadersMapFactory()
                                     }
+                                }
                                 """,
                         """
-                                    package com.yourorg;
-                                        
-                                    import java.util.Date;
-                                        
-                                    public abstract class Customer {
-                                        private Date dateOfBirth;
-                                        private String firstName;
-                                        private String lastName;
-                                        
-                                        public void setCustomerInfo(Date dateOfBirth, String firstName, String lastName) {
-                                            this.dateOfBirth = dateOfBirth;
-                                            this.firstName = firstName;
-                                            this.lastName = lastName;
-                                        }
+                                package org.apache.camel.quarkus.component.test.it;
+                                
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.model.ModelCamelContext;
+                                import org.apache.camel.impl.engine.DefaultHeadersMapFactory;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public DefaultHeadersMapFactory test() {
+                                        return ((ExtendedCamelContext)context).getHeadersMapFactory()
                                     }
+                                }
                                 """
                 )
         );
     }
+
 }
 
