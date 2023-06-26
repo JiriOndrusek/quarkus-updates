@@ -2,19 +2,11 @@ package org.apache.camel.quarkus.update;
 
 import org.apache.camel.catalog.RuntimeCamelCatalog;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
-import org.openrewrite.java.AddImport;
-import org.openrewrite.java.ChangeMethodName;
 import org.openrewrite.java.JavaIsoVisitor;
-import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.MethodMatcher;
-import org.openrewrite.java.RemoveImport;
-import org.openrewrite.java.RemoveUnusedImports;
-import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.JavaType;
 
 import java.util.Collections;
 import java.util.regex.Pattern;
@@ -39,7 +31,7 @@ public class ExtendedContextRecipe extends Recipe {
     }
 
     @Override
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new JavaIsoVisitor<>() {
 
             @Override
@@ -51,24 +43,25 @@ public class ExtendedContextRecipe extends Recipe {
                     if (mi.getSelect() instanceof J.MethodInvocation && MATCHER_CONTEXT_GET_EXT.matches(((J.MethodInvocation) mi.getSelect()).getMethodType())) {
                         J.MethodInvocation innerInvocation = (J.MethodInvocation) mi.getSelect();
 
-                        mi = mi.withTemplate(JavaTemplate.builder(() -> getCursor().getParentOrThrow(), "PluginHelper.getComponentNameResolver(#{any(org.apache.camel.CamelContext)})")
-                                        .build(),
-                                mi.getCoordinates().replace(), innerInvocation.getSelect());
+                        mi = mi.withName(mi.getName().withSimpleName("PluginHelper.getComponentNameResolver"))
+                                .withMethodType(mi.getMethodType())
+                                .withSelect(null)
+                                .withArguments(Collections.singletonList(innerInvocation.getSelect()));
+                        maybeAddImport("org.apache.camel.support.PluginHelper",false);
 
-                        doAfterVisit(new AddImport<>("org.apache.camel.support.PluginHelper", null, false));
+                        return mi;
                     }
                 }
+
                 //context.getExtension(RuntimeCamelCatalog.class) -> context.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class);
                 if (MATCHER_CONTEXT_GET_EXT_RUNTIME_CATALOG.matches(method) && method.getType().isAssignableFrom(Pattern.compile(
                         RuntimeCamelCatalog.class.getCanonicalName()))) {
-                    mi = method.withTemplate(JavaTemplate.builder(this::getCursor,
-                                            "#{any(org.apache.camel.CamelContext)}.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class)")
-                                    .build(),
-                            mi.getCoordinates().replace(), mi.getSelect());
+
+                    mi = mi.withName(mi.getName().withSimpleName("getCamelContextExtension().getContextPlugin"))
+                            .withMethodType(mi.getMethodType());
                 }
 
                 return mi;
-
             }
         };
     }

@@ -100,5 +100,43 @@ public class ExtendedContextRecipeTest implements RewriteTest {
                 )
         );
     }
+
+    @Test
+    void expandsExpectedCustomerInfoMethod() {
+        rewriteRun(
+                java(
+                        """
+                                    package com.yourorg;
+                                        
+                                    import java.util.Date;
+                                        
+                                    public abstract class Customer {
+                                        private Date dateOfBirth;
+                                        private String firstName;
+                                        private String lastName;
+                                        
+                                        public abstract void setCustomerInfo(String lastName);
+                                    }
+                                """,
+                        """
+                                    package com.yourorg;
+                                        
+                                    import java.util.Date;
+                                        
+                                    public abstract class Customer {
+                                        private Date dateOfBirth;
+                                        private String firstName;
+                                        private String lastName;
+                                        
+                                        public void setCustomerInfo(Date dateOfBirth, String firstName, String lastName) {
+                                            this.dateOfBirth = dateOfBirth;
+                                            this.firstName = firstName;
+                                            this.lastName = lastName;
+                                        }
+                                    }
+                                """
+                )
+        );
+    }
 }
 
