@@ -18,6 +18,7 @@ import org.openrewrite.java.tree.J;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -62,29 +63,42 @@ public class ExtendedContextRecipe extends Recipe {
                         return mi;
                     }
                 } else
-                //context.getExtension(RuntimeCamelCatalog.class) -> context.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class);
-                if (MATCHER_CONTEXT_GET_EXT.matches(method) && method.getType().isAssignableFrom(Pattern.compile(
-                        RuntimeCamelCatalog.class.getCanonicalName()))) {
+                    //context.getExtension(RuntimeCamelCatalog.class) -> context.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class);
+                    if (MATCHER_CONTEXT_GET_EXT.matches(method) && method.getType().isAssignableFrom(Pattern.compile(
+                            RuntimeCamelCatalog.class.getCanonicalName()))) {
 
-                    mi = mi.withName(mi.getName().withSimpleName("getCamelContextExtension().getContextPlugin"))
-                            .withMethodType(mi.getMethodType());
+                        mi = mi.withName(mi.getName().withSimpleName("getCamelContextExtension().getContextPlugin"))
+                                .withMethodType(mi.getMethodType());
 
                 } else
-                //context.adapt(ModelCamelContext.class) -> ((ModelCamelContext) context)
-                if (MATCHER_CONTEXT_ADAPT.matches(method) && method.getType().isAssignableFrom(Pattern.compile(
-                        "org.apache.camel.model.ModelCamelContext"))) {
+
+                if (MATCHER_CONTEXT_ADAPT.matches(method)) {
+                    //context.adapt(ModelCamelContext.class) -> ((ModelCamelContext) context)
+                    if (method.getType().isAssignableFrom(Pattern.compile("org.apache.camel.model.ModelCamelContext"))) {
+                        mi = mi.withName(mi.getName().withSimpleName("(ModelCamelContext)"))
+                                .withMethodType(mi.getMethodType())
+                                .withArguments(Collections.singletonList(method.getSelect()))
+                                .withSelect(null);
+                    } else if(method.getType().isAssignableFrom(Pattern.compile("org.apache.camel.ExtendedCamelContext"))) {
+                        JavaTemplate jt = JavaTemplate.builder("#{any()}aaaa)").build();
+                        Expression e = jt.apply(getCursor(), mi.getCoordinates().replace(), mi.getSelect());
+                        mi = mi.withName(mi.getName().withSimpleName("((ExtendedCamelContext)"))
+                                .withMethodType(mi.getMethodType())
+                                .withArguments(Collections.singletonList(new J.Identifier(mi.getSelect().getId(), mi.getSelect().getPrefix(), mi.getSelect().getMarkers(), ((J.Identifier) mi.getSelect()).getSimpleName() + ")", mi.getSelect().getType(), null)))
+                                .withSelect(null);
+                    }
 
 
 
-                    JavaTemplate jt2 = JavaTemplate.builder("#{any()}").build();
-                    Object o = jt2.apply(getCursor(), mi.getCoordinates().replace(), mi.getSelect());
-
-                    JavaTemplate jt = JavaTemplate.builder("(ModelCamelContext)#{any()}").build();
-
-                    J.TypeCast tc = jt.apply(getCursor(), mi.getCoordinates().replace(), mi.getSelect());
-
-                    super.getCursor().putMessage("typeCast", jt);
-                    return null;
+//                    JavaTemplate jt2 = JavaTemplate.builder("#{any()}").build();
+//                    Object o = jt2.apply(getCursor(), mi.getCoordinates().replace(), mi.getSelect());
+//
+//                    JavaTemplate jt = JavaTemplate.builder("(ModelCamelContext)#{any()}").build();
+//
+//                    J.TypeCast tc = jt.apply(getCursor(), mi.getCoordinates().replace(), mi.getSelect());
+//
+//                    super.getCursor().putMessage("typeCast", tc);
+//                    return null;
 //                    super.visitExpression(tc, executionContext);
 //                    return null;
 //                    mi = ((J.MethodInvocation) tc.getExpression()).withSelect(method.getSelect()).withArguments(method.getArguments());
@@ -95,15 +109,17 @@ public class ExtendedContextRecipe extends Recipe {
 //                            .withMethodType(mi.getMethodType())
 //                            .withArguments(Collections.singletonList(method.getSelect()))
 //                            .withSelect(null);
-                }
+                    }
 
                 return mi;
             }
 
-//            @Override
-//            public Expression visitExpression(Expression expression, ExecutionContext executionContext) {
-//                Expression ex =  super.visitExpression(expression, executionContext);
-//
+            @Override
+            public Expression visitExpression(Expression expression, ExecutionContext executionContext) {
+                Expression ex =  super.visitExpression(expression, executionContext);
+                Expression storedExpression = getCursor().getMessage("typeCast");
+
+
 //                //context.adapt(ModelCamelContext.class) -> ((ModelCamelContext) context)
 //                if (expression instanceof J.MethodInvocation && MATCHER_CONTEXT_ADAPT.matches((J.MethodInvocation) ex) && ((J.MethodInvocation)ex).getType().isAssignableFrom(Pattern.compile(
 //                        "org.apache.camel.model.ModelCamelContext"))) {
@@ -112,10 +128,10 @@ public class ExtendedContextRecipe extends Recipe {
 //                    Expression e = jt.apply(getCursor(), ex.getCoordinates().replace(), ((J.MethodInvocation)ex).getSelect());
 //                    ex = e;
 //                }
-//
-//                return ex;
-//            }
-//
+
+                return ex;
+            }
+
             @Override
             public J.TypeCast visitTypeCast(J.TypeCast typeCast, ExecutionContext executionContext) {
                 // Retrieve the stored expression from the cursor

@@ -9,6 +9,7 @@ import org.openrewrite.test.TypeValidation;
 import static org.openrewrite.java.Assertions.java;
 import static org.openrewrite.test.RewriteTest.toRecipe;
 
+
 public class ExtendedContextRecipeTest implements RewriteTest {
 
     @Override
@@ -63,6 +64,45 @@ public class ExtendedContextRecipeTest implements RewriteTest {
     }
 
     @Test
+    void testRuntimeCatalog() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new ExtendedContextRecipe().getVisitor())),
+                java(
+                        """
+                                package org.apache.camel.quarkus.component.test.it;
+                                
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.catalog.RuntimeCamelCatalog;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public void test() {
+                                        final CamelRuntimeCatalog catalog = (CamelRuntimeCatalog) context.getExtension(RuntimeCamelCatalog.class);
+                                    }
+                                }
+                            """,
+                        """
+                                package org.apache.camel.quarkus.component.test.it;
+                                
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.catalog.RuntimeCamelCatalog;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public void test() {
+                                        final CamelRuntimeCatalog catalog = (CamelRuntimeCatalog) context.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class);
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
+    @Test
     void testAdapt() {
         rewriteRun(
                 spec -> spec.recipe(toRecipe(() -> new ExtendedContextRecipe().getVisitor())),
@@ -93,7 +133,7 @@ public class ExtendedContextRecipeTest implements RewriteTest {
                                     CamelContext context;
                                 
                                     public void test() {
-                                        (ModelCamelContext)context;
+                                        (ModelCamelContext)(context);
                                     }
                                 }
                                 """
@@ -110,7 +150,7 @@ public class ExtendedContextRecipeTest implements RewriteTest {
                                 package org.apache.camel.quarkus.component.test.it;
                                 
                                 import org.apache.camel.CamelContext;
-                                import org.apache.camel.model.ModelCamelContext;
+                                import org.apache.camel.ExtendedCamelContext;
                                 import org.apache.camel.impl.engine.DefaultHeadersMapFactory;
                                 
                                 public class Test {
@@ -118,7 +158,7 @@ public class ExtendedContextRecipeTest implements RewriteTest {
                                     CamelContext context;
                                 
                                     public DefaultHeadersMapFactory test() {
-                                        return context.adapt(ExtendedCamelContext.class).getHeadersMapFactory()
+                                        return context.adapt(ExtendedCamelContext.class).getHeadersMapFactory();
                                     }
                                 }
                                 """,
@@ -126,7 +166,7 @@ public class ExtendedContextRecipeTest implements RewriteTest {
                                 package org.apache.camel.quarkus.component.test.it;
                                 
                                 import org.apache.camel.CamelContext;
-                                import org.apache.camel.model.ModelCamelContext;
+                                import org.apache.camel.ExtendedCamelContext;
                                 import org.apache.camel.impl.engine.DefaultHeadersMapFactory;
                                 
                                 public class Test {
@@ -134,7 +174,7 @@ public class ExtendedContextRecipeTest implements RewriteTest {
                                     CamelContext context;
                                 
                                     public DefaultHeadersMapFactory test() {
-                                        return ((ExtendedCamelContext)context).getHeadersMapFactory()
+                                        return ((ExtendedCamelContext)(context)).getHeadersMapFactory();
                                     }
                                 }
                                 """
