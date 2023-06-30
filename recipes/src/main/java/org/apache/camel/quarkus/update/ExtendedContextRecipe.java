@@ -74,11 +74,21 @@ public class ExtendedContextRecipe extends Recipe {
 
                 if (MATCHER_CONTEXT_ADAPT.matches(method)) {
                     //context.adapt(ModelCamelContext.class) -> ((ModelCamelContext) context)
+
+
+
                     if (method.getType().isAssignableFrom(Pattern.compile("org.apache.camel.model.ModelCamelContext"))) {
+                        JavaTemplate jt2 = JavaTemplate.builder("((ModelCamelContext)#{any()})").build();
+                    Object o = jt2.apply(getCursor(), mi.getCoordinates().replace(), mi.getSelect());
+
                         mi = mi.withName(mi.getName().withSimpleName("(ModelCamelContext)"))
+                                .withPrefix(mi.getPrefix().withWhitespace("("))
                                 .withMethodType(mi.getMethodType())
                                 .withArguments(Collections.singletonList(method.getSelect()))
                                 .withSelect(null);
+
+
+//                        J.Modifier firstModifier =    .iterator().next();
                     } else if(method.getType().isAssignableFrom(Pattern.compile("org.apache.camel.ExtendedCamelContext"))) {
                         JavaTemplate jt = JavaTemplate.builder("#{any()}aaaa)").build();
                         Expression e = jt.apply(getCursor(), mi.getCoordinates().replace(), mi.getSelect());

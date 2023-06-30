@@ -182,5 +182,46 @@ public class ExtendedContextRecipeTest implements RewriteTest {
         );
     }
 
+    @Test
+    void testAdaptRouteDefinition() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new ExtendedContextRecipe().getVisitor())),
+                java(
+                        """
+                                package org.apache.camel.quarkus.component.test.it;
+                                
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.model.ModelCamelContext;
+                                import org.apache.camel.impl.engine.DefaultHeadersMapFactory;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public DefaultHeadersMapFactory test() {
+                                        AdviceWith.adviceWith(context.adapt(ModelCamelContext.class).getRouteDefinition("forMocking"), context, null);
+                                    }
+                                }
+                                """,
+                        """
+                                package org.apache.camel.quarkus.component.test.it;
+                                
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.model.ModelCamelContext;
+                                import org.apache.camel.impl.engine.DefaultHeadersMapFactory;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public DefaultHeadersMapFactory test() {
+                                        AdviceWith.adviceWith(((ModelCamelContext)(context)).getRouteDefinition("forMocking"), context, null);
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
 }
 
