@@ -65,4 +65,111 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
+    @Test
+    void testRemovedFullyExchangePatternInOptionalOut() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.builder.RouteBuilder;
+                                
+                                public class MySimpleToDRoute extends RouteBuilder {
+                                
+                                    @Override
+                                    public void configure() {
+                                
+                                        String uri = "log:c";
+                                
+                                        from("direct:start")
+                                                .toD("log:a", true)
+                                                .to(org.apache.camel.ExchangePattern.InOptionalOut, "log:b")
+                                                .to(uri);
+                                    }
+                                }
+                            """
+                        ,
+                        """
+                                import org.apache.camel.builder.RouteBuilder;
+
+                                public class MySimpleToDRoute extends RouteBuilder {
+                                
+                                    @Override
+                                    public void configure() {
+                                
+                                        String uri = "log:c";
+                                
+                                        from("direct:start")
+                                                .toD("log:a", true)
+                                                .to(org.apache.camel.ExchangePattern./* InOptionalOut has been removed */, "log:b")
+                                                .to(uri);
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testComponentNameResolver() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.CamelContext;
+
+                                public class Test {
+
+                                    CamelContext context;
+
+                                    public void test() {
+                                        context.getEndpointMap().containsKey("bar://order");
+                                    }
+                                }
+                            """,
+                        """
+                                import org.apache.camel.CamelContext;
+
+                                public class Test {
+
+                                    CamelContext context;
+
+                                    public void test() {
+                                        context./* getEndpointMap has been removed, consider getEndpointRegistry() instead */().containsKey("bar://order");
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testFallbackConverter() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.FallbackConverter;
+
+                                public class Test {
+
+                                    @FallbackConverter
+                                    public void test() {
+                                    }
+                                }
+                            """,
+                        """
+                                import org.apache.camel.Converter;
+                                
+                                public class Test {
+
+                                    @Converter(fallback = true)
+                                    public void test() {
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
 }
