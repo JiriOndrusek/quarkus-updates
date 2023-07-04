@@ -144,7 +144,7 @@ public class CamelAPIsTest implements RewriteTest {
     }
 
     @Test
-    void testFallbackConverter() {
+    void testFallbackConverterOnMethod() {
         rewriteRun(
                 spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
                 java(
@@ -167,6 +167,123 @@ public class CamelAPIsTest implements RewriteTest {
                                     public void test() {
                                     }
                                 }
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testFallbackConverterOnClassDef() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.FallbackConverter;
+
+                                @FallbackConverter
+                                public class Test {
+                                }
+                            """,
+                        """
+                                import org.apache.camel.Converter;
+                                
+                                @Converter(fallback = true)
+                                public class Test {
+                                }
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testEndpointInject() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                    import org.apache.camel.component.mock.MockEndpoint;
+                                    import org.apache.camel.EndpointInject;
+
+                                    public class Test {
+                                         
+                                             @EndpointInject(uri = "mock:out")
+                                             private MockEndpoint endpoint;
+                                    }
+                                """,
+                        """
+                                    import org.apache.camel.component.mock.MockEndpoint;
+                                    import org.apache.camel.EndpointInject;
+
+                                    public class Test {
+                                         
+                                             @EndpointInject("mock:out")
+                                             private MockEndpoint endpoint;
+                                    }
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testProduce() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                    import org.apache.camel.component.mock.MockEndpoint;
+                                    import org.apache.camel.Produce;
+
+                                    public class Test {
+                                         
+                                             @Produce(uri = "test")
+                                             private MockEndpoint endpoint() {
+                                                return null;
+                                             }
+                                    }
+                                """,
+                        """
+                                    import org.apache.camel.component.mock.MockEndpoint;
+                                    import org.apache.camel.Produce;
+
+                                    public class Test {
+                                         
+                                             @Produce("test")
+                                             private MockEndpoint endpoint() {
+                                                return null;
+                                             }
+                                    }
+                                """
+                )
+        );
+    }
+    @Test
+    void testConsume() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                    import org.apache.camel.component.mock.MockEndpoint;
+                                    import org.apache.camel.Consume;
+
+                                    public class Test {
+                                         
+                                             @Consume(uri = "test")
+                                             private MockEndpoint endpoint() {
+                                                return null;
+                                             }
+                                    }
+                                """,
+                        """
+                                    import org.apache.camel.component.mock.MockEndpoint;
+                                    import org.apache.camel.Consume;
+
+                                    public class Test {
+                                         
+                                             @Consume("test")
+                                             private MockEndpoint endpoint() {
+                                                return null;
+                                             }
+                                    }
                                 """
                 )
         );

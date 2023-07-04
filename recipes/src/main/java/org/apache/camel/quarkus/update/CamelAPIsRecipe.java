@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -67,34 +68,92 @@ public class CamelAPIsRecipe extends Recipe {
                 return mi;
             }
 
+//            @Override
+//            public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, ExecutionContext executionContext) {
+//                J.MethodDeclaration md = super.visitMethodDeclaration(method, executionContext);
+//
+//                for (J.Annotation annotation : md.getLeadingAnnotations()) {
+//                    if (annotation.getType().toString().equals("org.apache.camel.FallbackConverter")) {
+//                        J.Identifier newAnnotationIdentifier =  new J.Identifier(randomId(), annotation.getPrefix(), Markers.EMPTY, "Converter",
+//                                JavaType.ShallowClass.build("java.lang.Object"), null);
+//                        JContainer<Expression> args = JContainer.build(
+//                                Space.EMPTY,
+//                                Collections.singletonList(new JRightPadded(new J.Empty(randomId(), Space.format("fallback = true"), Markers.EMPTY), Space.EMPTY, Markers.EMPTY)),
+//                                Markers.EMPTY);
+//                        J.Annotation newAnnotation = RecipesUtil.createAnnotation(annotation, "Converter", "fallback = true");
+//                        List<J.Annotation> annotations = new LinkedList<>(md.getLeadingAnnotations());
+//                        annotations.remove(annotation);
+//                        annotations.add(newAnnotation);
+//
+//                        maybeAddImport("org.apache.camel.Converter", null, false);
+//                        maybeRemoveImport("org.apache.camel.FallbackConverter");
+//
+//                        return md.withLeadingAnnotations(annotations);
+//                    }
+//                }
+//
+//                return md;
+//            }
+
+//            @Override
+//            public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
+//                J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
+//
+//                for (J.Annotation annotation : cd.getLeadingAnnotations()) {
+//                    if (annotation.getType().toString().equals("org.apache.camel.FallbackConverter")) {
+//                        J.Identifier newAnnotationIdentifier =  new J.Identifier(randomId(), annotation.getPrefix(), Markers.EMPTY, "Converter",
+//                                JavaType.ShallowClass.build("java.lang.Object"), null);
+//                        JContainer<Expression> args = JContainer.build(
+//                                Space.EMPTY,
+//                                Collections.singletonList(new JRightPadded(new J.Empty(randomId(), Space.format("fallback = true"), Markers.EMPTY), Space.EMPTY, Markers.EMPTY)),
+//                                Markers.EMPTY);
+//                        J.Annotation newAnnotation = RecipesUtil.createAnnotation(annotation, "Converter", "fallback = true");
+//                        List<J.Annotation> annotations = new LinkedList<>(cd.getLeadingAnnotations());
+//                        annotations.remove(annotation);
+//                        annotations.add(newAnnotation);
+//
+//                        maybeAddImport("org.apache.camel.Converter", null, false);
+//                        maybeRemoveImport("org.apache.camel.FallbackConverter");
+//
+//                        return cd.withLeadingAnnotations(annotations);
+//                    }
+//                }
+//
+//                return cd;
+//            }
+
             @Override
-            public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, ExecutionContext executionContext) {
-                J.MethodDeclaration md = super.visitMethodDeclaration(method, executionContext);
+            public J.Annotation visitAnnotation(J.Annotation annotation, ExecutionContext executionContext) {
+                J.Annotation a = super.visitAnnotation(annotation, executionContext);
 
-                for (J.Annotation annotation : md.getLeadingAnnotations()) {
-                    if (annotation.getType().toString().equals("org.apache.camel.FallbackConverter")) {
-                        J.Identifier newAnnotationIdentifier =  new J.Identifier(randomId(), annotation.getPrefix(), Markers.EMPTY, "Converter",
-                                JavaType.ShallowClass.build("java.lang.Object"), null);
-                        JContainer<Expression> args = JContainer.build(
-                                Space.EMPTY,
-                                Collections.singletonList(new JRightPadded(new J.Empty(randomId(), Space.format("fallback = true"), Markers.EMPTY), Space.EMPTY, Markers.EMPTY)),
-                                Markers.EMPTY);
-                        J.Annotation newAnnotation = new J.Annotation(UUID.randomUUID(), annotation.getPrefix(), Markers.EMPTY,
-                                newAnnotationIdentifier, args);
-                        List<J.Annotation> annotations = new LinkedList<>(md.getLeadingAnnotations());
-                        annotations.remove(annotation);
-                        annotations.add(newAnnotation);
+                if (a.getType().toString().equals("org.apache.camel.FallbackConverter")) {
+                    maybeAddImport("org.apache.camel.Converter", null, false);
+                    maybeRemoveImport("org.apache.camel.FallbackConverter");
 
-                        maybeAddImport("org.apache.camel.Converter", null, false);
-                        maybeRemoveImport("org.apache.camel.FallbackConverter");
-
-                        return md.withLeadingAnnotations(annotations);
-                    }
+                    return RecipesUtil.createAnnotation(annotation, "Converter", null, "fallback = true");
+                }
+                else if (a.getType().toString().equals("org.apache.camel.EndpointInject")) {
+                   Optional<String> originalValue = RecipesUtil.getValueOfArgs(a.getArguments(), "uri");
+                   if(originalValue.isPresent()) {
+                       return RecipesUtil.createAnnotation(annotation, "EndpointInject", s -> s.startsWith("uri="), originalValue.get());
+                   }
+                }
+                else if (a.getType().toString().equals("org.apache.camel.Produce")) {
+                   Optional<String> originalValue = RecipesUtil.getValueOfArgs(a.getArguments(), "uri");
+                   if(originalValue.isPresent()) {
+                       return RecipesUtil.createAnnotation(annotation, "Produce", s -> s.startsWith("uri="), originalValue.get());
+                   }
+                }
+                else if (a.getType().toString().equals("org.apache.camel.Consume")) {
+                   Optional<String> originalValue = RecipesUtil.getValueOfArgs(a.getArguments(), "uri");
+                   if(originalValue.isPresent()) {
+                       return RecipesUtil.createAnnotation(annotation, "Consume", s -> s.startsWith("uri="), originalValue.get());
+                   }
                 }
 
-                return md;
-            }
+                return a;
 
+            }
         };
     }
 }
