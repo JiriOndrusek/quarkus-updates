@@ -1,11 +1,13 @@
 package org.apache.camel.quarkus.update;
 
+import org.openrewrite.java.tree.Comment;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JContainer;
 import org.openrewrite.java.tree.JRightPadded;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.Space;
+import org.openrewrite.java.tree.TextComment;
 import org.openrewrite.marker.Markers;
 
 import java.util.ArrayList;
@@ -74,5 +76,9 @@ public class RecipesUtil {
 //        }
 //
 //        return null;
+    }
+
+    static Comment createComment(String text) {
+        return new TextComment(false, text, null, Markers.EMPTY);
     }
 }

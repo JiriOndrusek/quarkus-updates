@@ -1,5 +1,7 @@
 package org.apache.camel.quarkus.update;
 
+import org.apache.camel.Category;
+import org.apache.camel.ProducerTemplate;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
@@ -7,12 +9,14 @@ import org.openrewrite.java.AddImport;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.MethodMatcher;
+import org.openrewrite.java.tree.Comment;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JContainer;
 import org.openrewrite.java.tree.JRightPadded;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.Space;
+import org.openrewrite.java.tree.TextComment;
 import org.openrewrite.marker.Markers;
 
 import java.util.Collections;
@@ -65,8 +69,20 @@ public class CamelAPIsRecipe extends Recipe {
                             "/* " + mi.getSimpleName() + " has been removed, consider getEndpointRegistry() instead */", mi.getType(), null));
                 }
 
+                else if(mi.getSimpleName().equals("asyncCallback") && mi.getSelect().getType().toString().equals(ProducerTemplate.class.getName()) ) {
+                    mi = mi.withComments(Collections.singletonList(RecipesUtil.createComment(" Method '" + mi.getSimpleName() + "(' has been replaced by 'asyncSend(' or 'asyncRequest('.\n").withSuffix(mi.getPrefix().getIndent())));
+
+
+
+//                        return mi.withPrefix(Space.format("/* Method '" + mi.getSimpleName() + "(' has been replaced by 'asyncSend(' or 'asyncRequest(' instead */\n")
+//                                .withWhitespace(mi.getPrefix().getWhitespace()));
+
+//                    return mi.withComments(Collections.singletonList(Comment))
+                }
+
                 return mi;
             }
+
 
 //            @Override
 //            public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, ExecutionContext executionContext) {
@@ -150,8 +166,28 @@ public class CamelAPIsRecipe extends Recipe {
                        return RecipesUtil.createAnnotation(annotation, "Consume", s -> s.startsWith("uri="), originalValue.get());
                    }
                 }
+                else if (a.getType().toString().equals("org.apache.camel.spi.UriEndpoint")) {
 
-                return a;
+                    Optional<String> originalValue = RecipesUtil.getValueOfArgs(a.getArguments(), "label");
+                    if(originalValue.isPresent()) {
+                        maybeAddImport("org.apache.camel.Category", null, false);
+
+                        String newValue;
+                         try {
+                             newValue = Category.valueOf(originalValue.get().toUpperCase().replaceAll("\"", "")).getValue();
+                         } catch(IllegalArgumentException e) {
+                             newValue = originalValue.get() + "/*unknown_value*/";
+                         }
+
+                        return RecipesUtil.createAnnotation(annotation, "UriEndpoint", s -> s.startsWith("label="), "category = {Category." + newValue + "}");
+                    }
+
+
+
+                    System.out.println(a);
+                }
+
+                    return a;
 
             }
         };

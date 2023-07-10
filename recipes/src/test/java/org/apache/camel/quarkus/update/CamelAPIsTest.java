@@ -16,7 +16,7 @@ public class CamelAPIsTest implements RewriteTest {
         spec.recipe(new CamelAPIsRecipe())
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
-                        .classpath("camel-api"))
+                        .classpath("camel-api","camel-support"))
                 .typeValidationOptions(TypeValidation.none());;
     }
 
@@ -284,6 +284,98 @@ public class CamelAPIsTest implements RewriteTest {
                                                 return null;
                                              }
                                     }
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testUriEndpoint() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.spi.UriEndpoint;
+                                import org.apache.camel.support.DefaultEndpoint;
+                                
+                                @UriEndpoint(firstVersion = "2.0.0", label = "rest", lenientProperties = true)
+                                public class MicrometerEndpoint extends DefaultEndpoint {
+                                }
+                                """,
+                        """
+                                import org.apache.camel.Category;
+                                import org.apache.camel.spi.UriEndpoint;
+                                import org.apache.camel.support.DefaultEndpoint;
+                                
+                                @UriEndpoint(firstVersion = "2.0.0",category = {Category.REST}, lenientProperties = true)
+                                public class MicrometerEndpoint extends DefaultEndpoint {
+                                }
+                                """
+                )
+        );
+    }
+    @Test
+    void testUriEndpointWithUnknownValue() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.spi.UriEndpoint;
+                                import org.apache.camel.support.DefaultEndpoint;
+                                
+                                @UriEndpoint(firstVersion = "2.0.0", label = "test", lenientProperties = true)
+                                public class MicrometerEndpoint extends DefaultEndpoint {
+                                }
+                                """,
+                        """
+                                import org.apache.camel.Category;
+                                import org.apache.camel.spi.UriEndpoint;
+                                import org.apache.camel.support.DefaultEndpoint;
+                                
+                                @UriEndpoint(firstVersion = "2.0.0",category = {Category."test"/*unknown_value*/}, lenientProperties = true)
+                                public class MicrometerEndpoint extends DefaultEndpoint {
+                                }
+                                """
+                )
+        );
+    }
+  @Test
+    void testAsyncCallback() {
+        rewriteRun(
+                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.ProducerTemplate;
+                                import org.apache.camel.Exchange;
+                                
+                                public class Test {
+                                    ProducerTemplate template;
+                                    
+                                    public void test() {
+                                        Exchange exchange = context.getEndpoint("direct:start").createExchange();
+                                        exchange.getIn().setBody("Hello");
+                                
+                                        template.asyncCallback("direct:start", exchange, null);
+                                    }
+                                
+                                }
+                                """,
+                        """
+                                import org.apache.camel.ProducerTemplate;
+                                import org.apache.camel.Exchange;
+                                
+                                public class Test {
+                                    ProducerTemplate template;
+                                    
+                                    public void test() {
+                                        Exchange exchange = context.getEndpoint("direct:start").createExchange();
+                                        exchange.getIn().setBody("Hello");
+                                
+                                        // Method 'asyncCallback(' has been replaced by 'asyncSend(' or 'asyncRequest('.
+                                        template.asyncCallback("direct:start", exchange, null);
+                                    }
+                                
+                                }
                                 """
                 )
         );
