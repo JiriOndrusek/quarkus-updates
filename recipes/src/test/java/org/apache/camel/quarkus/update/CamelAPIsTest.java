@@ -408,4 +408,31 @@ public class CamelAPIsTest implements RewriteTest {
         );
     }
 
+    @Test
+    void testOnCamelContextStop() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.spi.OnCamelContextStop;
+                                import org.apache.camel.CamelContext;
+                                
+                                public class Test implements OnCamelContextStop{
+                                    public void onContextStop(CamelContext context) {
+                                    }
+                                }
+                                """,
+                        """
+                                import org.apache.camel.spi.OnCamelContextStopping;
+                                import org.apache.camel.CamelContext;
+                                
+                                public class Test implements OnCamelContextStopping{
+                                    public void onContextStop(CamelContext context) {
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
 }

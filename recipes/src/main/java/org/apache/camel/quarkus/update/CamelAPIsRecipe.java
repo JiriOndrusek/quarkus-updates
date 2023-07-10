@@ -4,6 +4,7 @@ import org.apache.camel.Category;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.spi.OnCamelContextStart;
 import org.apache.camel.spi.OnCamelContextStarting;
+import org.apache.camel.spi.OnCamelContextStop;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
@@ -120,11 +121,19 @@ public class CamelAPIsRecipe extends Recipe {
             public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
                 J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
 
-                if(cd.getImplements() != null || cd.getImplements().stream()
+                //Removed org.apache.camel.spi.OnCamelContextStart. Use org.apache.camel.spi.OnCamelContextStarting instead.
+                if(cd.getImplements() != null && cd.getImplements().stream()
                         .anyMatch(f -> TypeUtils.isOfClassType(f.getType(), OnCamelContextStart.class.getCanonicalName()))) {
 
                     doAfterVisit(new ImplementInterface<ExecutionContext>(cd, "org.apache.camel.spi.OnCamelContextStarting"));
                     doAfterVisit(new RemoveImplements(OnCamelContextStart.class.getCanonicalName(), null));
+
+                } //Removed org.apache.camel.spi.OnCamelContextStop. Use org.apache.camel.spi.OnCamelContextStopping instead.
+                else if(cd.getImplements() != null && cd.getImplements().stream()
+                        .anyMatch(f -> TypeUtils.isOfClassType(f.getType(), OnCamelContextStop.class.getCanonicalName()))) {
+
+                    doAfterVisit(new ImplementInterface<ExecutionContext>(cd, "org.apache.camel.spi.OnCamelContextStopping"));
+                    doAfterVisit(new RemoveImplements(OnCamelContextStop.class.getCanonicalName(), null));
 
                 }
 //                for (J.Annotation annotation : cd.getLeadingAnnotations()) {
