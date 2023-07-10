@@ -1,5 +1,6 @@
 package org.apache.camel.quarkus.update;
 
+import org.openrewrite.Tree;
 import org.openrewrite.java.tree.Comment;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
@@ -80,5 +81,31 @@ public class RecipesUtil {
 
     static Comment createComment(String text) {
         return new TextComment(false, text, null, Markers.EMPTY);
+    }
+
+    static J createTypeCast(Object type, Expression arg) {
+       return new J.TypeCast(
+                Tree.randomId(),
+                Space.EMPTY,
+                Markers.EMPTY,
+                RecipesUtil.createParentheses(type),
+                arg);
+    }
+
+    static <T> J.ControlParentheses createParentheses(T t) {
+        return new J.ControlParentheses(
+                Tree.randomId(),
+                Space.EMPTY,
+                Markers.EMPTY,
+                padRight(t));
+    }
+
+    static J.Identifier createIdentifier(Space prefix, String name, String type) {
+       return new J.Identifier(randomId(), prefix, Markers.EMPTY, name,
+                JavaType.ShallowClass.build(type), null);
+    }
+
+    private static <T> JRightPadded<T> padRight(T tree) {
+        return new JRightPadded<>(tree, Space.EMPTY, Markers.EMPTY);
     }
 }

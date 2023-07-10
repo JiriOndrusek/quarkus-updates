@@ -16,7 +16,7 @@ public class CamelAPIsTest implements RewriteTest {
         spec.recipe(new CamelAPIsRecipe())
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
-                        .classpath("camel-api","camel-support"))
+                        .classpath("camel-api","camel-support","camel-core-model"))
                 .typeValidationOptions(TypeValidation.none());;
     }
 
@@ -307,7 +307,7 @@ public class CamelAPIsTest implements RewriteTest {
                                 import org.apache.camel.spi.UriEndpoint;
                                 import org.apache.camel.support.DefaultEndpoint;
                                 
-                                @UriEndpoint(firstVersion = "2.0.0",category = {Category.REST}, lenientProperties = true)
+                                @UriEndpoint(firstVersion = "2.0.0",category = {Category.rest}, lenientProperties = true)
                                 public class MicrometerEndpoint extends DefaultEndpoint {
                                 }
                                 """
@@ -428,6 +428,123 @@ public class CamelAPIsTest implements RewriteTest {
                                 
                                 public class Test implements OnCamelContextStopping{
                                     public void onContextStop(CamelContext context) {
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testAdapt() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.model.ModelCamelContext;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public void test() {
+                                        context.adapt(ModelCamelContext.class).getRouteDefinition("forMocking");
+                                    }
+                                }
+                            """,
+                        """
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.model.ModelCamelContext;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public void test() {
+                                        ((ModelCamelContext)context).getRouteDefinition("forMocking");
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testAdapt2() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                package org.apache.camel.quarkus.component.test.it;
+                                
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.ExtendedCamelContext;
+                                import org.apache.camel.impl.engine.DefaultHeadersMapFactory;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public DefaultHeadersMapFactory test() {
+                                        return context.adapt(ExtendedCamelContext.class).getHeadersMapFactory();
+                                    }
+                                }
+                                """,
+                        """
+                                package org.apache.camel.quarkus.component.test.it;
+                                
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.ExtendedCamelContext;
+                                import org.apache.camel.impl.engine.DefaultHeadersMapFactory;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public DefaultHeadersMapFactory test() {
+                                        return ((ExtendedCamelContext)context).getHeadersMapFactory();
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testAdaptRouteDefinition() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                package org.apache.camel.quarkus.component.test.it;
+                                
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.model.ModelCamelContext;
+                                import org.apache.camel.impl.engine.DefaultHeadersMapFactory;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public DefaultHeadersMapFactory test() {
+                                        AdviceWith.adviceWith(context.adapt(ModelCamelContext.class).getRouteDefinition("forMocking"), context, null);
+                                    }
+                                }
+                                """,
+                        """
+                                package org.apache.camel.quarkus.component.test.it;
+                                
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.model.ModelCamelContext;
+                                import org.apache.camel.impl.engine.DefaultHeadersMapFactory;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public DefaultHeadersMapFactory test() {
+                                        AdviceWith.adviceWith(((ModelCamelContext)context).getRouteDefinition("forMocking"), context, null);
                                     }
                                 }
                                 """
