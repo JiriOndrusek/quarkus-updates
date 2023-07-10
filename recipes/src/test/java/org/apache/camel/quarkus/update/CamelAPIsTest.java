@@ -381,4 +381,31 @@ public class CamelAPIsTest implements RewriteTest {
         );
     }
 
+    @Test
+    void testOnCamelContextStart() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.spi.OnCamelContextStart;
+                                import org.apache.camel.CamelContext;
+                                
+                                public class Test implements OnCamelContextStart{
+                                    public void onContextStart(CamelContext context) {
+                                    }
+                                }
+                                """,
+                        """
+                                import org.apache.camel.spi.OnCamelContextStarting;
+                                import org.apache.camel.CamelContext;
+                                
+                                public class Test implements OnCamelContextStarting{
+                                    public void onContextStart(CamelContext context) {
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
 }

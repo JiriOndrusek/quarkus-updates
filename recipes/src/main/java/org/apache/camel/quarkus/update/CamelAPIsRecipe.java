@@ -2,13 +2,17 @@ package org.apache.camel.quarkus.update;
 
 import org.apache.camel.Category;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.spi.OnCamelContextStart;
+import org.apache.camel.spi.OnCamelContextStarting;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.AddImport;
+import org.openrewrite.java.ImplementInterface;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.MethodMatcher;
+import org.openrewrite.java.RemoveImplements;
 import org.openrewrite.java.tree.Comment;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
@@ -17,6 +21,7 @@ import org.openrewrite.java.tree.JRightPadded;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.Space;
 import org.openrewrite.java.tree.TextComment;
+import org.openrewrite.java.tree.TypeUtils;
 import org.openrewrite.marker.Markers;
 
 import java.util.Collections;
@@ -111,10 +116,17 @@ public class CamelAPIsRecipe extends Recipe {
 //                return md;
 //            }
 
-//            @Override
-//            public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
-//                J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
-//
+            @Override
+            public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
+                J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
+
+                if(cd.getImplements() != null || cd.getImplements().stream()
+                        .anyMatch(f -> TypeUtils.isOfClassType(f.getType(), OnCamelContextStart.class.getCanonicalName()))) {
+
+                    doAfterVisit(new ImplementInterface<ExecutionContext>(cd, "org.apache.camel.spi.OnCamelContextStarting"));
+                    doAfterVisit(new RemoveImplements(OnCamelContextStart.class.getCanonicalName(), null));
+
+                }
 //                for (J.Annotation annotation : cd.getLeadingAnnotations()) {
 //                    if (annotation.getType().toString().equals("org.apache.camel.FallbackConverter")) {
 //                        J.Identifier newAnnotationIdentifier =  new J.Identifier(randomId(), annotation.getPrefix(), Markers.EMPTY, "Converter",
@@ -135,8 +147,8 @@ public class CamelAPIsRecipe extends Recipe {
 //                    }
 //                }
 //
-//                return cd;
-//            }
+                return cd;
+            }
 
             @Override
             public J.Annotation visitAnnotation(J.Annotation annotation, ExecutionContext executionContext) {
@@ -188,8 +200,9 @@ public class CamelAPIsRecipe extends Recipe {
                 }
 
                     return a;
-
             }
+
+
         };
     }
 }
