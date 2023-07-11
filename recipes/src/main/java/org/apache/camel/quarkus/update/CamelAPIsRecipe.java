@@ -8,6 +8,7 @@ import org.apache.camel.ExtendedCamelContext;
 import org.apache.camel.ExtendedExchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.SimpleBuilder;
+import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spi.OnCamelContextStart;
 import org.apache.camel.spi.OnCamelContextStarting;
@@ -186,6 +187,10 @@ public class CamelAPIsRecipe extends Recipe {
                                     .withSimpleName("getExchangeExtension().setFailureHandled"))
                             .withArguments(Collections.singletonList(mi.getArguments().get(1).withPrefix(Space.EMPTY)));
                     maybeRemoveImport(ExchangePropertyKey.class.getCanonicalName());
+                }
+                //'org.apache.camel.catalogCamelCatalog.archetypeCatalogAsXml()` has been removed
+                else if(mi.getSimpleName().equals("archetypeCatalogAsXml") && mi.getSelect().getType().toString().equals(CamelCatalog.class.getName()) ) {
+                    mi = mi.withComments(Collections.singletonList(RecipesUtil.createMultinlineComment(" Method '" + mi.getSimpleName() + "' has been removed. ")));
                 }
 
 

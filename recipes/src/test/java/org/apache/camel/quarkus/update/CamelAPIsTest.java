@@ -16,7 +16,7 @@ public class CamelAPIsTest implements RewriteTest {
         spec.recipe(new CamelAPIsRecipe())
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
-                        .classpath("camel-api","camel-support","camel-core-model", "camel-util"))
+                        .classpath("camel-api","camel-support","camel-core-model", "camel-util", "camel-catalog"))
                 .typeValidationOptions(TypeValidation.none());;
     }
 
@@ -755,6 +755,38 @@ public class CamelAPIsTest implements RewriteTest {
                                     import org.apache.camel.impl.engine.IntrospectionSupport;
                                     
                                     import static org.apache.camel.impl.engine.IntrospectionSupport.*;
+                                """
+                )
+        );
+    }
+    @Test
+    void testarchetypeCatalogAsXml() {
+        rewriteRun(
+                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                    import org.apache.camel.catalog.CamelCatalog;
+                                    
+                                    public class Test {
+                                    
+                                        static CamelCatalog catalog;
+    
+                                        public void test() {
+                                            String schema = catalog.archetypeCatalogAsXml();
+                                        }
+                                    }
+                                """,
+                        """
+                                    import org.apache.camel.catalog.CamelCatalog;
+                                    
+                                    public class Test {
+                                    
+                                        static CamelCatalog catalog;
+    
+                                        public void test() {
+                                            String schema = /* Method 'archetypeCatalogAsXml' has been removed. */catalog.archetypeCatalogAsXml();
+                                        }
+                                    }
                                 """
                 )
         );
