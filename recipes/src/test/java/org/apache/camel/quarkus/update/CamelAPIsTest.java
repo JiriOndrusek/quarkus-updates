@@ -495,7 +495,6 @@ public class CamelAPIsTest implements RewriteTest {
                                 package org.apache.camel.quarkus.component.test.it;
                                 
                                 import org.apache.camel.CamelContext;
-                                import org.apache.camel.ExtendedCamelContext;
                                 import org.apache.camel.impl.engine.DefaultHeadersMapFactory;
                                 
                                 public class Test {
@@ -503,7 +502,7 @@ public class CamelAPIsTest implements RewriteTest {
                                     CamelContext context;
                                 
                                     public DefaultHeadersMapFactory test() {
-                                        return ((ExtendedCamelContext)context).getHeadersMapFactory();
+                                        return context.getCamelContextExtension().getHeadersMapFactory();
                                     }
                                 }
                                 """
@@ -545,6 +544,81 @@ public class CamelAPIsTest implements RewriteTest {
                                 
                                     public DefaultHeadersMapFactory test() {
                                         AdviceWith.adviceWith(((ModelCamelContext)context).getRouteDefinition("forMocking"), context, null);
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+    @Test
+    void testDecoupleExtendedCamelContext() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.ExtendedCamelContext;
+                                
+                                public class Test {
+                                
+                                    CamelContext getCamelContext() {
+                                        return null;
+                                    }
+                                
+                                    public Object test() {
+                                        return getCamelContext().adapt(ExtendedCamelContext.class).getPeriodTaskScheduler();
+                                    }
+                                }
+                                """,
+                        """
+                                import org.apache.camel.CamelContext;
+                                
+                                public class Test {
+                                
+                                    CamelContext getCamelContext() {
+                                        return null;
+                                    }
+                                
+                                    public Object test() {
+                                        return getCamelContext().getCamelContextExtension().getPeriodTaskScheduler();
+                                    }
+                                }
+                                """
+                )
+        );
+    }    @Test
+    void testDecoupleExtendedExchange() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.Exchange;
+                                import org.apache.camel.ExtendedExchange;
+                                import org.apache.camel.spi.Synchronization;
+                                
+                                public class Test {
+                                
+                                    Exchange exchange;
+                                    Synchronization onCompletion;
+                                
+                                    public void test() {
+                                          // add exchange callback
+                                          exchange.adapt(ExtendedExchange.class).addOnCompletion(onCompletion);
+                                    }
+                                }
+                                """,
+                        """
+                                import org.apache.camel.Exchange;
+                                import org.apache.camel.spi.Synchronization;
+                                
+                                public class Test {
+                                
+                                    Exchange exchange;
+                                    Synchronization onCompletion;
+                                
+                                    public void test() {
+                                          // add exchange callback
+                                          exchange.getExchangeExtension().addOnCompletion(onCompletion);
                                     }
                                 }
                                 """

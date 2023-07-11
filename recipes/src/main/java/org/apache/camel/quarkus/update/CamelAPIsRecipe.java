@@ -2,7 +2,9 @@ package org.apache.camel.quarkus.update;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Category;
+import org.apache.camel.Exchange;
 import org.apache.camel.ExtendedCamelContext;
+import org.apache.camel.ExtendedExchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spi.OnCamelContextStart;
@@ -89,12 +91,21 @@ public class CamelAPIsRecipe extends Recipe {
                 //context.adapt(ModelCamelContext.class) -> ((ModelCamelContext) context)
                 else if ("adapt".equals(mi.getSimpleName())
                             && mi.getSelect().getType().isAssignableFrom(Pattern.compile(CamelContext.class.getCanonicalName()))) {
-                    if(mi.getType().isAssignableFrom(Pattern.compile(ModelCamelContext.class.getCanonicalName()))) {
+                    if (mi.getType().isAssignableFrom(Pattern.compile(ModelCamelContext.class.getCanonicalName()))) {
                         getCursor().putMessage("type_cast", ModelCamelContext.class.getSimpleName());
+                    } else if (mi.getType().isAssignableFrom(Pattern.compile(ExtendedCamelContext.class.getCanonicalName()))) {
+                        mi = mi.withName(mi.getName().withSimpleName("getCamelContextExtension")).withArguments(Collections.emptyList());
+
+                        maybeRemoveImport(ExtendedCamelContext.class.getCanonicalName());
                     }
-                    else if(mi.getType().isAssignableFrom(Pattern.compile(ExtendedCamelContext.class.getCanonicalName()))) {
-                        getCursor().putMessage("type_cast", ExtendedCamelContext.class.getSimpleName());
-                    }
+                }
+                //exchange.adapt(ExtendedExchange.class) -> exchange.getExchangeExtension()
+                else if ("adapt".equals(mi.getSimpleName())
+                        && mi.getSelect().getType().isAssignableFrom(Pattern.compile(Exchange.class.getCanonicalName()))
+                        && mi.getType().isAssignableFrom(Pattern.compile(ExtendedExchange.class.getCanonicalName()))) {
+                    mi = mi.withName(mi.getName().withSimpleName("getExchangeExtension")).withArguments(Collections.emptyList());
+
+                    maybeRemoveImport(ExtendedExchange.class.getCanonicalName());
                 }
 
 
