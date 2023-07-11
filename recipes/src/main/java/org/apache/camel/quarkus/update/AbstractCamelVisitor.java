@@ -4,10 +4,13 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaIsoVisitor;
+import org.openrewrite.java.MethodMatcher;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -19,6 +22,11 @@ public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionConte
     private boolean camel = false;
 
     private LinkedList<JavaType> implementsList = new LinkedList<>();
+
+    //There is no need to  initialize all patterns at the class start.
+    //Map is a cache for created patterns
+    //TODO having the map static, mat increase performance
+    private Map<String, MethodMatcher> methodMatchers = new HashMap();
 
     @Override
     public final J.Import visitImport(J.Import _import, ExecutionContext context) {
@@ -116,10 +124,20 @@ public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionConte
         return super.postVisit(tree, context);
     }
 
-     // ------------------------------------------ getters and setters -------------------------------------------
+     // ------------------------------------------ helper methods -------------------------------------------
 
-
-    public LinkedList<JavaType> getImplementsList() {
+    LinkedList<JavaType> getImplementsList() {
         return implementsList;
+    }
+
+    public MethodMatcher getMethodMatcher(String signature) {
+        MethodMatcher matcher = methodMatchers.get(signature);
+
+        if(matcher == null) {
+            matcher = new MethodMatcher(signature);
+            methodMatchers.put(signature, matcher);
+        }
+
+        return matcher;
     }
 }

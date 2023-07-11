@@ -9,6 +9,7 @@ import org.apache.camel.ExtendedExchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.RuntimeCamelCatalog;
 import org.apache.camel.main.MainListener;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spi.OnCamelContextStart;
@@ -19,8 +20,9 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.internal.lang.Nullable;
+import org.openrewrite.java.AddImport;
 import org.openrewrite.java.ImplementInterface;
-import org.openrewrite.java.JavaIsoVisitor;
+import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.MethodMatcher;
 import org.openrewrite.java.RemoveImplements;
 import org.openrewrite.java.tree.Comment;
@@ -32,18 +34,14 @@ import org.openrewrite.marker.Markers;
 
 import java.beans.SimpleBeanInfo;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class CamelAPIsRecipe extends Recipe {
-    private static final MethodMatcher MATCHER_CONTEXT_GET_ENDPOINT_MAP =
-            new MethodMatcher("org.apache.camel.CamelContext getEndpointMap()");
-
-    private static final MethodMatcher MATCHER_CONTEXT_ADAPT =
-            new MethodMatcher("org.apache.camel.CamelContext adapt(java.lang.Class.class)");
+    private static final String MATCHER_CONTEXT_GET_ENDPOINT_MAP = "org.apache.camel.CamelContext getEndpointMap()";
+    private static final String MATCHER_CONTEXT_GET_EXT = "org.apache.camel.CamelContext getExtension(java.lang.Class)";
+    private static final String MATCHER_GET_NAME_RESOLVER = "org.apache.camel.ExtendedCamelContext getComponentNameResolver()";
 
     @Override
     public String getDisplayName() {
@@ -163,7 +161,7 @@ public class CamelAPIsRecipe extends Recipe {
                 J.MethodInvocation mi = super.doVisitMethodInvocation(method, executionContext);
 
                 // context.getExtension(ExtendedCamelContext.class).getComponentNameResolver() -> PluginHelper.getComponentNameResolver(context)
-                if (MATCHER_CONTEXT_GET_ENDPOINT_MAP.matches(mi)) {
+                if (getMethodMatcher(MATCHER_CONTEXT_GET_ENDPOINT_MAP).matches(mi)) {
                     return mi.withName(new J.Identifier(UUID.randomUUID(), mi.getPrefix(), Markers.EMPTY,
                             "/* " + mi.getSimpleName() + " has been removed, consider getEndpointRegistry() instead */", mi.getType(), null));
                 }
@@ -234,10 +232,25 @@ public class CamelAPIsRecipe extends Recipe {
                 else if("isDumpRoutes".equals(mi.getSimpleName()) && mi.getSelect().getType().toString().equals(CamelContext.class.getName())  ) {
                     mi = mi.withName(mi.getName().withSimpleName("getDumpRoutes")).withComments(Collections.singletonList(RecipesUtil.createMultinlineComment(" Method 'getDumpRoutes' returns String value ('xml' or 'yaml' or 'false'). ")));
                 }
+                // context.getExtension(ExtendedCamelContext.class).getComponentNameResolver() -> PluginHelper.getComponentNameResolver(context)
+                if (getMethodMatcher(MATCHER_GET_NAME_RESOLVER).matches(mi)) {
+                    if (mi.getSelect() instanceof J.MethodInvocation && getMethodMatcher(MATCHER_CONTEXT_GET_EXT).matches(((J.MethodInvocation) mi.getSelect()).getMethodType())) {
+                        J.MethodInvocation innerInvocation = (J.MethodInvocation) mi.getSelect();
+                        mi = mi.withTemplate(JavaTemplate.builder(() -> getCursor().getParentOrThrow(), "PluginHelper.getComponentNameResolver(#{any(org.apache.camel.CamelContext)})")
+                                        .build(),
+                                mi.getCoordinates().replace(), innerInvocation.getSelect());
+                        doAfterVisit(new AddImport<>("org.apache.camel.support.PluginHelper", null, false));
+                    }
+                }
+                else if (getMethodMatcher(MATCHER_CONTEXT_GET_EXT).matches(mi) && mi.getType().isAssignableFrom(Pattern.compile(
+                        RuntimeCamelCatalog.class.getCanonicalName()))) {
+
+                    mi = mi.withName(mi.getName().withSimpleName("getCamelContextExtension().getContextPlugin"))
+                            .withMethodType(mi.getMethodType());
+                }
 
 
-
-                return mi;
+                    return mi;
             }
 
 

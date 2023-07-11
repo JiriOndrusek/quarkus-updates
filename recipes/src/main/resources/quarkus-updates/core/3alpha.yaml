@@ -30,7 +30,6 @@ name: custom
 displayName: customNme
 description: customDesc
 recipeList:
-  - org.apache.camel.quarkus.update.ExtendedContextRecipe
   - org.apache.camel.quarkus.update.CamelAPIsRecipe
 ---
 type: specs.openrewrite.org/v1beta/recipe
