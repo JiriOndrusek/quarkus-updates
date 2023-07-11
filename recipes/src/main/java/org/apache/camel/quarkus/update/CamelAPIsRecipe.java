@@ -94,7 +94,7 @@ public class CamelAPIsRecipe extends Recipe {
 
 
             @Override
-            public J.ClassDeclaration doVisitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
+            J.ClassDeclaration doVisitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
 
                 J.ClassDeclaration cd = super.doVisitClassDeclaration(classDecl, executionContext);
 
@@ -119,8 +119,8 @@ public class CamelAPIsRecipe extends Recipe {
             }
 
             @Override
-            public J.FieldAccess visitFieldAccess(J.FieldAccess fieldAccess, ExecutionContext executionContext) {
-                J.FieldAccess fa =  super.visitFieldAccess(fieldAccess, executionContext);
+            J.FieldAccess doVisitFieldAccess(J.FieldAccess fieldAccess, ExecutionContext executionContext) {
+                J.FieldAccess fa =  super.doVisitFieldAccess(fieldAccess, executionContext);
                 //The org.apache.camel.ExchangePattern has removed InOptionalOut.
                 if("InOptionalOut".equals(fieldAccess.getSimpleName()) && fa.getType() != null && fa.getType().isAssignableFrom(Pattern.compile("org.apache.camel.ExchangePattern"))) {
                     return fa.withName(new J.Identifier(UUID.randomUUID(), fa.getPrefix(), Markers.EMPTY, "/* " + fa.getSimpleName() + " has been removed */", fa.getType(), null));
@@ -139,8 +139,8 @@ public class CamelAPIsRecipe extends Recipe {
             }
 
             @Override
-            public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, ExecutionContext executionContext) {
-                J.MethodDeclaration md = super.visitMethodDeclaration(method, executionContext);
+            J.MethodDeclaration doVisitMethodDeclaration(J.MethodDeclaration method, ExecutionContext executionContext) {
+                J.MethodDeclaration md = super.doVisitMethodDeclaration(method, executionContext);
 
                 //Method 'configure' was removed from `org.apache.camel.main.MainListener`, consider using 'beforeConfigure' or 'afterConfigure'.
                 if("configure".equals(md.getSimpleName())
@@ -159,8 +159,8 @@ public class CamelAPIsRecipe extends Recipe {
             }
 
             @Override
-            public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext executionContext) {
-                J.MethodInvocation mi = super.visitMethodInvocation(method, executionContext);
+            J.MethodInvocation doVisitMethodInvocation(J.MethodInvocation method, ExecutionContext executionContext) {
+                J.MethodInvocation mi = super.doVisitMethodInvocation(method, executionContext);
 
                 // context.getExtension(ExtendedCamelContext.class).getComponentNameResolver() -> PluginHelper.getComponentNameResolver(context)
                 if (MATCHER_CONTEXT_GET_ENDPOINT_MAP.matches(mi)) {
@@ -242,8 +242,8 @@ public class CamelAPIsRecipe extends Recipe {
 
 
             @Override
-            public J.Annotation visitAnnotation(J.Annotation annotation, ExecutionContext executionContext) {
-                J.Annotation a = super.visitAnnotation(annotation, executionContext);
+            J.Annotation doVisitAnnotation(J.Annotation annotation, ExecutionContext executionContext) {
+                J.Annotation a = super.doVisitAnnotation(annotation, executionContext);
 
                 if (a.getType().toString().equals("org.apache.camel.FallbackConverter")) {
                     maybeAddImport("org.apache.camel.Converter", null, false);
@@ -290,8 +290,8 @@ public class CamelAPIsRecipe extends Recipe {
             }
 
             @Override
-            public @Nullable J postVisit(J tree, ExecutionContext executionContext) {
-                J j =  super.postVisit(tree, executionContext);
+            @Nullable J doPostVisit(J tree, ExecutionContext executionContext) {
+                J j =  super.doPostVisit(tree, executionContext);
 
                 String toType = getCursor().getMessage("type_cast");
 
