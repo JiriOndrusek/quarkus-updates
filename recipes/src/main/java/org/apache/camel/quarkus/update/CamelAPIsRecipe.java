@@ -3,6 +3,7 @@ package org.apache.camel.quarkus.update;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Category;
 import org.apache.camel.Exchange;
+import org.apache.camel.ExchangePropertyKey;
 import org.apache.camel.ExtendedCamelContext;
 import org.apache.camel.ExtendedExchange;
 import org.apache.camel.ProducerTemplate;
@@ -107,6 +108,39 @@ public class CamelAPIsRecipe extends Recipe {
 
                     maybeRemoveImport(ExtendedExchange.class.getCanonicalName());
                 }
+                //newExchange.getProperty(ExchangePropertyKey.FAILURE_HANDLED) -> newExchange.getExchangeExtension().isFailureHandled()
+                else if(mi.getSimpleName().equals("getProperty")
+                        && mi.getSelect().getType().isAssignableFrom(Pattern.compile(Exchange.class.getCanonicalName()))
+                        && !mi.getArguments().isEmpty()
+                        && mi.getArguments().size() == 1
+                        && mi.getArguments().get(0).getType().isAssignableFrom(Pattern.compile(ExchangePropertyKey.class.getCanonicalName()))
+                        && mi.getArguments().get(0).toString().endsWith("FAILURE_HANDLED")) {
+                    mi = mi.withName(mi.getName().withSimpleName("getExchangeExtension().isFailureHandled")).withArguments(Collections.emptyList());
+                    maybeRemoveImport(ExchangePropertyKey.class.getCanonicalName());
+                }
+                //exchange.removeProperty(ExchangePropertyKey.FAILURE_HANDLED); -> exchange.getExchangeExtension().setFailureHandled(false);
+                else if(mi.getSimpleName().equals("removeProperty")
+                        && mi.getSelect().getType().isAssignableFrom(Pattern.compile(Exchange.class.getCanonicalName()))
+                        && !mi.getArguments().isEmpty()
+                        && mi.getArguments().size() == 1
+                        && mi.getArguments().get(0).getType().isAssignableFrom(Pattern.compile(ExchangePropertyKey.class.getCanonicalName()))
+                        && mi.getArguments().get(0).toString().endsWith("FAILURE_HANDLED")) {
+                    mi = mi.withName(mi.getName().withSimpleName("getExchangeExtension().setFailureHandled")).withArguments(Collections.singletonList(RecipesUtil.createIdentifier(Space.EMPTY, "false", "java.lang.Boolean")));
+                    maybeRemoveImport(ExchangePropertyKey.class.getCanonicalName());
+                }
+                //exchange.setProperty(ExchangePropertyKey.FAILURE_HANDLED, failureHandled); -> exchange.getExchangeExtension().setFailureHandled(failureHandled);
+                else if(mi.getSimpleName().equals("setProperty")
+                        && mi.getSelect().getType().isAssignableFrom(Pattern.compile(Exchange.class.getCanonicalName()))
+                        && !mi.getArguments().isEmpty()
+                        && mi.getArguments().size() == 2
+                        && mi.getArguments().get(0).getType().isAssignableFrom(Pattern.compile(ExchangePropertyKey.class.getCanonicalName()))
+                        && mi.getArguments().get(0).toString().endsWith("FAILURE_HANDLED")) {
+                    mi = mi.withName(mi.getName()
+                                    .withSimpleName("getExchangeExtension().setFailureHandled"))
+                            .withArguments(Collections.singletonList(mi.getArguments().get(1).withPrefix(Space.EMPTY)));
+                    maybeRemoveImport(ExchangePropertyKey.class.getCanonicalName());
+                }
+
 
 
 
