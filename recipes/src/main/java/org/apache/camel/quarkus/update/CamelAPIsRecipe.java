@@ -2,13 +2,10 @@ package org.apache.camel.quarkus.update;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Category;
-import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePropertyKey;
 import org.apache.camel.ExtendedCamelContext;
 import org.apache.camel.ExtendedExchange;
-import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.SimpleBuilder;
-import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.RuntimeCamelCatalog;
 import org.apache.camel.main.MainListener;
 import org.apache.camel.model.ModelCamelContext;
@@ -23,7 +20,6 @@ import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.AddImport;
 import org.openrewrite.java.ImplementInterface;
 import org.openrewrite.java.JavaTemplate;
-import org.openrewrite.java.MethodMatcher;
 import org.openrewrite.java.RemoveImplements;
 import org.openrewrite.java.tree.Comment;
 import org.openrewrite.java.tree.J;
@@ -42,6 +38,15 @@ public class CamelAPIsRecipe extends Recipe {
     private static final String MATCHER_CONTEXT_GET_ENDPOINT_MAP = "org.apache.camel.CamelContext getEndpointMap()";
     private static final String MATCHER_CONTEXT_GET_EXT = "org.apache.camel.CamelContext getExtension(java.lang.Class)";
     private static final String MATCHER_GET_NAME_RESOLVER = "org.apache.camel.ExtendedCamelContext getComponentNameResolver()";
+    private static final String M_PRODUCER_TEMPLATE_ASYNC_CALLBACK = "org.apache.camel.ProducerTemplate asyncCallback(..)";
+    private static final String M_CONTEXT_ADAPT = "org.apache.camel.CamelContext adapt(java.lang.Class)";
+    private static final String M_CONTEXT_SET_DUMP_ROUTES = "org.apache.camel.CamelContext setDumpRoutes(java.lang.Boolean)";
+    private static final String M_EXCHANGE_ADAPT = "org.apache.camel.Exchange adapt(java.lang.Class)";
+    private static final String M_EXCHANGE_GET_PROPERTY = "org.apache.camel.Exchange getProperty(org.apache.camel.ExchangePropertyKey)";
+    private static final String M_EXCHANGE_REMOVE_PROPERTY = "org.apache.camel.Exchange removeProperty(org.apache.camel.ExchangePropertyKey)";
+    //TODO should work (*,*) or (org.apache.camel.ExchangePropertyKey,*)
+    private static final String M_EXCHANGE_SET_PROPERTY = "org.apache.camel.Exchange setProperty(..)";
+    private static final String M_CATALOG_ARCHETYPE_AS_XML = "org.apache.camel.catalog.CamelCatalog archetypeCatalogAsXml()";
 
     @Override
     public String getDisplayName() {
@@ -162,58 +167,43 @@ public class CamelAPIsRecipe extends Recipe {
 
                 // context.getExtension(ExtendedCamelContext.class).getComponentNameResolver() -> PluginHelper.getComponentNameResolver(context)
                 if (getMethodMatcher(MATCHER_CONTEXT_GET_ENDPOINT_MAP).matches(mi)) {
-                    return mi.withName(new J.Identifier(UUID.randomUUID(), mi.getPrefix(), Markers.EMPTY,
+                    mi = mi.withName(new J.Identifier(UUID.randomUUID(), mi.getPrefix(), Markers.EMPTY,
                             "/* " + mi.getSimpleName() + " has been removed, consider getEndpointRegistry() instead */", mi.getType(), null));
                 }
-
-                else if(mi.getSimpleName().equals("asyncCallback") && mi.getSelect().getType().toString().equals(ProducerTemplate.class.getName()) ) {
-                    mi = mi.withComments(Collections.singletonList(RecipesUtil.createComment(" Method '" + mi.getSimpleName() + "(' has been replaced by 'asyncSend(' or 'asyncRequest('.\n").withSuffix(mi.getPrefix().getIndent())));
+                // ProducerTemplate.asyncCallback() has been replaced by 'asyncSend(') or 'asyncRequest()'
+                else if(getMethodMatcher(M_PRODUCER_TEMPLATE_ASYNC_CALLBACK).matches(mi)) {
+                    Comment comment = RecipesUtil.createMultinlineComment(String.format(" Method '%s()' has been replaced by 'asyncSend()' or 'asyncRequest()'.", mi.getSimpleName()));
+                    mi = mi.withComments(Collections.singletonList(comment));
                 }
                 //context.adapt(ModelCamelContext.class) -> ((ModelCamelContext) context)
-                else if ("adapt".equals(mi.getSimpleName())
-                            && mi.getSelect().getType().isAssignableFrom(Pattern.compile(CamelContext.class.getCanonicalName()))) {
+                else if (getMethodMatcher(M_CONTEXT_ADAPT).matches(mi)) {
                     if (mi.getType().isAssignableFrom(Pattern.compile(ModelCamelContext.class.getCanonicalName()))) {
                         getCursor().putMessage("type_cast", ModelCamelContext.class.getSimpleName());
                     } else if (mi.getType().isAssignableFrom(Pattern.compile(ExtendedCamelContext.class.getCanonicalName()))) {
                         mi = mi.withName(mi.getName().withSimpleName("getCamelContextExtension")).withArguments(Collections.emptyList());
-
                         maybeRemoveImport(ExtendedCamelContext.class.getCanonicalName());
                     }
                 }
                 //exchange.adapt(ExtendedExchange.class) -> exchange.getExchangeExtension()
-                else if ("adapt".equals(mi.getSimpleName())
-                        && mi.getSelect().getType().isAssignableFrom(Pattern.compile(Exchange.class.getCanonicalName()))
+                else if (getMethodMatcher(M_EXCHANGE_ADAPT).matches(mi)
                         && mi.getType().isAssignableFrom(Pattern.compile(ExtendedExchange.class.getCanonicalName()))) {
                     mi = mi.withName(mi.getName().withSimpleName("getExchangeExtension")).withArguments(Collections.emptyList());
-
                     maybeRemoveImport(ExtendedExchange.class.getCanonicalName());
                 }
                 //newExchange.getProperty(ExchangePropertyKey.FAILURE_HANDLED) -> newExchange.getExchangeExtension().isFailureHandled()
-                else if(mi.getSimpleName().equals("getProperty")
-                        && mi.getSelect().getType().isAssignableFrom(Pattern.compile(Exchange.class.getCanonicalName()))
-                        && !mi.getArguments().isEmpty()
-                        && mi.getArguments().size() == 1
-                        && mi.getArguments().get(0).getType().isAssignableFrom(Pattern.compile(ExchangePropertyKey.class.getCanonicalName()))
+                else if(getMethodMatcher(M_EXCHANGE_GET_PROPERTY).matches(mi)
                         && mi.getArguments().get(0).toString().endsWith("FAILURE_HANDLED")) {
                     mi = mi.withName(mi.getName().withSimpleName("getExchangeExtension().isFailureHandled")).withArguments(Collections.emptyList());
                     maybeRemoveImport(ExchangePropertyKey.class.getCanonicalName());
                 }
                 //exchange.removeProperty(ExchangePropertyKey.FAILURE_HANDLED); -> exchange.getExchangeExtension().setFailureHandled(false);
-                else if(mi.getSimpleName().equals("removeProperty")
-                        && mi.getSelect().getType().isAssignableFrom(Pattern.compile(Exchange.class.getCanonicalName()))
-                        && !mi.getArguments().isEmpty()
-                        && mi.getArguments().size() == 1
-                        && mi.getArguments().get(0).getType().isAssignableFrom(Pattern.compile(ExchangePropertyKey.class.getCanonicalName()))
+                else if(getMethodMatcher(M_EXCHANGE_REMOVE_PROPERTY).matches(mi)
                         && mi.getArguments().get(0).toString().endsWith("FAILURE_HANDLED")) {
                     mi = mi.withName(mi.getName().withSimpleName("getExchangeExtension().setFailureHandled")).withArguments(Collections.singletonList(RecipesUtil.createIdentifier(Space.EMPTY, "false", "java.lang.Boolean")));
                     maybeRemoveImport(ExchangePropertyKey.class.getCanonicalName());
                 }
                 //exchange.setProperty(ExchangePropertyKey.FAILURE_HANDLED, failureHandled); -> exchange.getExchangeExtension().setFailureHandled(failureHandled);
-                else if(mi.getSimpleName().equals("setProperty")
-                        && mi.getSelect().getType().isAssignableFrom(Pattern.compile(Exchange.class.getCanonicalName()))
-                        && !mi.getArguments().isEmpty()
-                        && mi.getArguments().size() == 2
-                        && mi.getArguments().get(0).getType().isAssignableFrom(Pattern.compile(ExchangePropertyKey.class.getCanonicalName()))
+                else if(getMethodMatcher(M_EXCHANGE_SET_PROPERTY).matches(mi)
                         && mi.getArguments().get(0).toString().endsWith("FAILURE_HANDLED")) {
                     mi = mi.withName(mi.getName()
                                     .withSimpleName("getExchangeExtension().setFailureHandled"))
@@ -221,11 +211,11 @@ public class CamelAPIsRecipe extends Recipe {
                     maybeRemoveImport(ExchangePropertyKey.class.getCanonicalName());
                 }
                 //'org.apache.camel.catalogCamelCatalog.archetypeCatalogAsXml()` has been removed
-                else if(mi.getSimpleName().equals("archetypeCatalogAsXml") && mi.getSelect().getType().toString().equals(CamelCatalog.class.getName()) ) {
+                else if(getMethodMatcher(M_CATALOG_ARCHETYPE_AS_XML).matches(mi)) {
                     mi = mi.withComments(Collections.singletonList(RecipesUtil.createMultinlineComment(" Method '" + mi.getSimpleName() + "' has been removed. ")));
                 }
                 //context().setDumpRoutes(true); -> context().setDumpRoutes("xml");(or "yaml")
-                else if("setDumpRoutes".equals(mi.getSimpleName()) && mi.getSelect().getType().toString().equals(CamelContext.class.getName())  ) {
+                else if(getMethodMatcher(M_CONTEXT_SET_DUMP_ROUTES).matches(mi)) {
                     mi = mi.withComments(Collections.singletonList(RecipesUtil.createMultinlineComment(" Method '" + mi.getSimpleName() + "' accepts String parameter ('xml' or 'yaml' or 'false'). ")));
                 }
                 //Boolean isDumpRoutes(); -> getDumpRoutes(); with returned type String

@@ -371,8 +371,7 @@ public class CamelAPIsTest implements RewriteTest {
                                         Exchange exchange = context.getEndpoint("direct:start").createExchange();
                                         exchange.getIn().setBody("Hello");
                                 
-                                        // Method 'asyncCallback(' has been replaced by 'asyncSend(' or 'asyncRequest('.
-                                        template.asyncCallback("direct:start", exchange, null);
+                                        /* Method 'asyncCallback()' has been replaced by 'asyncSend()' or 'asyncRequest()'.*/template.asyncCallback("direct:start", exchange, null);
                                     }
                                 
                                 }
