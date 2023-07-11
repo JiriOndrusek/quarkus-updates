@@ -11,6 +11,7 @@ import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spi.OnCamelContextStart;
 import org.apache.camel.spi.OnCamelContextStarting;
 import org.apache.camel.spi.OnCamelContextStop;
+import org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Tree;
@@ -65,11 +66,35 @@ public class CamelAPIsRecipe extends Recipe {
         return new JavaIsoVisitor<>() {
 
             @Override
+            public J.Import visitImport(J.Import _import, ExecutionContext executionContext) {
+                J.Import im = super.visitImport(_import, executionContext);
+
+                if(im.isStatic() && im.getTypeName().equals(ThreadPoolRejectedPolicy.class.getCanonicalName())
+                        && im.getQualid() != null
+                        && ("Discard".equals(im.getQualid().getSimpleName()) || "DiscardOldest".equals(im.getQualid().getSimpleName()))) {
+                    Comment comment = RecipesUtil.createMultinlineComment(String.format("'ThreadPoolRejectedPolicy.%s' has been removed, consider using 'ThreadPoolRejectedPolicy.Abort'.", im.getQualid().getSimpleName()));
+                    im = im.withComments(Collections.singletonList(comment));
+
+                }
+
+                return im;
+            }
+
+
+            @Override
             public J.FieldAccess visitFieldAccess(J.FieldAccess fieldAccess, ExecutionContext executionContext) {
                 J.FieldAccess fa =  super.visitFieldAccess(fieldAccess, executionContext);
                 //The org.apache.camel.ExchangePattern has removed InOptionalOut.
-                if("InOptionalOut".equals(fieldAccess.getSimpleName()) && fieldAccess.getType().isAssignableFrom(Pattern.compile("org.apache.camel.ExchangePattern"))) {
+                if("InOptionalOut".equals(fieldAccess.getSimpleName()) && fa.getType() != null && fa.getType().isAssignableFrom(Pattern.compile("org.apache.camel.ExchangePattern"))) {
                     return fa.withName(new J.Identifier(UUID.randomUUID(), fa.getPrefix(), Markers.EMPTY, "/* " + fa.getSimpleName() + " has been removed */", fa.getType(), null));
+                }
+
+                else if(("Discard".equals(fa.getSimpleName()) || "DiscardOldest".equals(fa.getSimpleName()))
+                        && fa.getType() != null && fa.getType().isAssignableFrom(Pattern.compile(ThreadPoolRejectedPolicy.class.getCanonicalName()))
+                        ) {
+                    Comment comment = RecipesUtil.createMultinlineComment(String.format("'ThreadPoolRejectedPolicy.%s' has been removed, consider using 'ThreadPoolRejectedPolicy.Abort'.", fa.getSimpleName()));
+                    fa = fa.withComments(Collections.singletonList(comment));
+
                 }
 
 

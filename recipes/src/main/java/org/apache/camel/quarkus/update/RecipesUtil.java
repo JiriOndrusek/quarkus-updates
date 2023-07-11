@@ -79,6 +79,9 @@ public class RecipesUtil {
 //        return null;
     }
 
+    static Comment createMultinlineComment(String text) {
+        return new TextComment(true, text, null, Markers.EMPTY);
+    }
     static Comment createComment(String text) {
         return new TextComment(false, text, null, Markers.EMPTY);
     }

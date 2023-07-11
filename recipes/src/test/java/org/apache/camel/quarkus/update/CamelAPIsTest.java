@@ -16,7 +16,7 @@ public class CamelAPIsTest implements RewriteTest {
         spec.recipe(new CamelAPIsRecipe())
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
-                        .classpath("camel-api","camel-support","camel-core-model"))
+                        .classpath("camel-api","camel-support","camel-core-model", "camel-util"))
                 .typeValidationOptions(TypeValidation.none());;
     }
 
@@ -656,6 +656,46 @@ public class CamelAPIsTest implements RewriteTest {
                                         boolean failureHandled = exchange.getExchangeExtension().isFailureHandled();
                                         exchange.getExchangeExtension().setFailureHandled(false);
                                         exchange.getExchangeExtension().setFailureHandled(failureHandled);
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+    @Test
+    void testThreadPoolRejectedPolicy() {
+        rewriteRun(
+                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy;
+                                
+                                import static org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy.Discard;
+                                import static org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy.DiscardOldest;
+                                
+                                public class Test {
+                                
+                                    public void test() {
+                                        ThreadPoolRejectedPolicy policy = ThreadPoolRejectedPolicy.Discard;
+                                        ThreadPoolRejectedPolicy policy2 = Discard;
+                                        ThreadPoolRejectedPolicy policy3 = ThreadPoolRejectedPolicy.DiscardOldest;
+                                        ThreadPoolRejectedPolicy policy4 = DiscardOldest;
+                                    }
+                                }
+                                """,
+                        """
+                                import org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy;
+                                  
+                                /*'ThreadPoolRejectedPolicy.Discard' has been removed, consider using 'ThreadPoolRejectedPolicy.Abort'.*/import static org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy.Discard;
+                                /*'ThreadPoolRejectedPolicy.DiscardOldest' has been removed, consider using 'ThreadPoolRejectedPolicy.Abort'.*/import static org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy.DiscardOldest;
+
+                                public class Test {
+
+                                    public void test() {
+                                        ThreadPoolRejectedPolicy policy = /*'ThreadPoolRejectedPolicy.Discard' has been removed, consider using 'ThreadPoolRejectedPolicy.Abort'.*/ThreadPoolRejectedPolicy.Discard;
+                                        ThreadPoolRejectedPolicy policy2 = Discard;
+                                        ThreadPoolRejectedPolicy policy3 = /*'ThreadPoolRejectedPolicy.DiscardOldest' has been removed, consider using 'ThreadPoolRejectedPolicy.Abort'.*/ThreadPoolRejectedPolicy.DiscardOldest;
+                                        ThreadPoolRejectedPolicy policy4 = DiscardOldest;
                                     }
                                 }
                                 """
