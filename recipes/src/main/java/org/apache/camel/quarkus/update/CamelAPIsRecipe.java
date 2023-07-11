@@ -9,6 +9,7 @@ import org.apache.camel.ExtendedExchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.main.MainListener;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spi.OnCamelContextStart;
 import org.apache.camel.spi.OnCamelContextStarting;
@@ -26,6 +27,7 @@ import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.MethodMatcher;
 import org.openrewrite.java.RemoveImplements;
+import org.openrewrite.java.template.Primitive;
 import org.openrewrite.java.tree.Comment;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
@@ -34,6 +36,7 @@ import org.openrewrite.java.tree.JRightPadded;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.Space;
 import org.openrewrite.java.tree.TextComment;
+import org.openrewrite.java.tree.TypeTree;
 import org.openrewrite.java.tree.TypeUtils;
 import org.openrewrite.marker.Markers;
 
@@ -45,6 +48,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.openrewrite.Tree.randomId;
 
@@ -68,6 +72,7 @@ public class CamelAPIsRecipe extends Recipe {
     @Override
     protected TreeVisitor<?, ExecutionContext> getVisitor() {
         return new JavaIsoVisitor<>() {
+            private LinkedList<JavaType> implementsList = new LinkedList<>();
 
             @Override
             public J.Import visitImport(J.Import _import, ExecutionContext executionContext) {
@@ -105,6 +110,32 @@ public class CamelAPIsRecipe extends Recipe {
 
 
             @Override
+            public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
+                implementsList.addAll(classDecl.getImplements().stream().map(i -> i.getType()).collect(Collectors.toList()));
+
+                J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
+
+
+
+                //Removed org.apache.camel.spi.OnCamelContextStart. Use org.apache.camel.spi.OnCamelContextStarting instead.
+                if(cd.getImplements() != null && cd.getImplements().stream()
+                        .anyMatch(f -> TypeUtils.isOfClassType(f.getType(), OnCamelContextStart.class.getCanonicalName()))) {
+
+                    doAfterVisit(new ImplementInterface<ExecutionContext>(cd, "org.apache.camel.spi.OnCamelContextStarting"));
+                    doAfterVisit(new RemoveImplements(OnCamelContextStart.class.getCanonicalName(), null));
+
+                } //Removed org.apache.camel.spi.OnCamelContextStop. Use org.apache.camel.spi.OnCamelContextStopping instead.
+                else if(cd.getImplements() != null && cd.getImplements().stream()
+                        .anyMatch(f -> TypeUtils.isOfClassType(f.getType(), OnCamelContextStop.class.getCanonicalName()))) {
+
+                    doAfterVisit(new ImplementInterface<ExecutionContext>(cd, "org.apache.camel.spi.OnCamelContextStopping"));
+                    doAfterVisit(new RemoveImplements(OnCamelContextStop.class.getCanonicalName(), null));
+
+                }
+                return cd;
+            }
+
+            @Override
             public J.FieldAccess visitFieldAccess(J.FieldAccess fieldAccess, ExecutionContext executionContext) {
                 J.FieldAccess fa =  super.visitFieldAccess(fieldAccess, executionContext);
                 //The org.apache.camel.ExchangePattern has removed InOptionalOut.
@@ -122,6 +153,26 @@ public class CamelAPIsRecipe extends Recipe {
 
 
                 return fa;
+            }
+
+            @Override
+            public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, ExecutionContext executionContext) {
+                J.MethodDeclaration md = super.visitMethodDeclaration(method, executionContext);
+
+                //Method 'configure' was removed from `org.apache.camel.main.MainListener`, consider using 'beforeConfigure' or 'afterConfigure'.
+                if("configure".equals(md.getSimpleName())
+                        && md.getReturnTypeExpression().getType().equals(JavaType.Primitive.Void)
+                        && implementsList.stream().anyMatch(jt -> MainListener.class.getCanonicalName().equals(jt.toString()))
+                        && !md.getParameters().isEmpty()
+                        && md.getParameters().size() == 1
+                        && md.getParameters().get(0) instanceof J.VariableDeclarations
+                        && ((J.VariableDeclarations)md.getParameters().get(0)).getType().isAssignableFrom(Pattern.compile(CamelContext.class.getCanonicalName()))
+                        ) {
+                    Comment comment = RecipesUtil.createMultinlineComment(String.format(" Method '%s' was removed from `%s`, consider using 'beforeConfigure' or 'afterConfigure'. ", md.getSimpleName(), MainListener.class.getCanonicalName()));
+                    md = md.withComments(Collections.singletonList(comment));
+                }
+
+                return md;
             }
 
             @Override
@@ -199,27 +250,6 @@ public class CamelAPIsRecipe extends Recipe {
                 return mi;
             }
 
-            @Override
-            public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
-                J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
-
-                //Removed org.apache.camel.spi.OnCamelContextStart. Use org.apache.camel.spi.OnCamelContextStarting instead.
-                if(cd.getImplements() != null && cd.getImplements().stream()
-                        .anyMatch(f -> TypeUtils.isOfClassType(f.getType(), OnCamelContextStart.class.getCanonicalName()))) {
-
-                    doAfterVisit(new ImplementInterface<ExecutionContext>(cd, "org.apache.camel.spi.OnCamelContextStarting"));
-                    doAfterVisit(new RemoveImplements(OnCamelContextStart.class.getCanonicalName(), null));
-
-                } //Removed org.apache.camel.spi.OnCamelContextStop. Use org.apache.camel.spi.OnCamelContextStopping instead.
-                else if(cd.getImplements() != null && cd.getImplements().stream()
-                        .anyMatch(f -> TypeUtils.isOfClassType(f.getType(), OnCamelContextStop.class.getCanonicalName()))) {
-
-                    doAfterVisit(new ImplementInterface<ExecutionContext>(cd, "org.apache.camel.spi.OnCamelContextStopping"));
-                    doAfterVisit(new RemoveImplements(OnCamelContextStop.class.getCanonicalName(), null));
-
-                }
-                return cd;
-            }
 
             @Override
             public J.Annotation visitAnnotation(J.Annotation annotation, ExecutionContext executionContext) {

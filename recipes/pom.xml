@@ -138,6 +138,11 @@
             <artifactId>camel-catalog</artifactId>
             <version>3.18.7</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-main</artifactId>
+            <version>3.18.7</version>
+        </dependency>
     </dependencies>
 
     <build>

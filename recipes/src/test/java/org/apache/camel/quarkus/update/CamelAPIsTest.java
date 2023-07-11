@@ -16,7 +16,7 @@ public class CamelAPIsTest implements RewriteTest {
         spec.recipe(new CamelAPIsRecipe())
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
-                        .classpath("camel-api","camel-support","camel-core-model", "camel-util", "camel-catalog"))
+                        .classpath("camel-api","camel-support","camel-core-model", "camel-util", "camel-catalog", "camel-main"))
                 .typeValidationOptions(TypeValidation.none());;
     }
 
@@ -785,6 +785,38 @@ public class CamelAPIsTest implements RewriteTest {
     
                                         public void test() {
                                             String schema = /* Method 'archetypeCatalogAsXml' has been removed. */catalog.archetypeCatalogAsXml();
+                                        }
+                                    }
+                                """
+                )
+        );
+    }
+    @Test
+    void testMainListenerConfigureImpl() {
+        rewriteRun(
+                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                    import org.apache.camel.CamelContext;
+                                    import org.apache.camel.main.MainListener;
+                                    
+                                    public class Test implements MainListener {
+                                    
+                                        @Override
+                                        public void configure(CamelContext context) {
+                                            //do something
+                                        }
+                                    }
+                                """,
+                        """
+                                    import org.apache.camel.CamelContext;
+                                    import org.apache.camel.main.MainListener;
+                                    
+                                    public class Test implements MainListener {
+                                    
+                                        /* Method 'configure' was removed from `org.apache.camel.main.MainListener`, consider using 'beforeConfigure' or 'afterConfigure'. */@Override
+                                        public void configure(CamelContext context) {
+                                            //do something
                                         }
                                     }
                                 """

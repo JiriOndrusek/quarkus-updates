@@ -1,6 +1,7 @@
 package org.apache.camel.quarkus.update;
 
 import org.openrewrite.Tree;
+import org.openrewrite.java.template.Primitive;
 import org.openrewrite.java.tree.Comment;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
@@ -111,4 +112,6 @@ public class RecipesUtil {
     private static <T> JRightPadded<T> padRight(T tree) {
         return new JRightPadded<>(tree, Space.EMPTY, Markers.EMPTY);
     }
+
+
 }
