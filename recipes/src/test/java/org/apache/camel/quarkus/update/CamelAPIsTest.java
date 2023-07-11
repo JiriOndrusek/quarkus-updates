@@ -843,7 +843,7 @@ public class CamelAPIsTest implements RewriteTest {
                                     
                                     public class Test {
                                         public void test(CamelContext context) {
-                                            boolean dump = /* Method 'isDumpRoutes' returns String value ('xml' or 'yaml' or 'false'). */context.getDumpRoutes();
+                                            boolean dump = /* Method 'getDumpRoutes' returns String value ('xml' or 'yaml' or 'false'). */context.getDumpRoutes();
                                             /* Method 'setDumpRoutes' accepts String parameter ('xml' or 'yaml' or 'false'). */context.setDumpRoutes(true);
                                         }
                                     }
@@ -851,5 +851,4 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
-
 }

@@ -57,12 +57,10 @@ public class CamelAPIsRecipe extends Recipe {
 
     @Override
     protected TreeVisitor<?, ExecutionContext> getVisitor() {
-        return new JavaIsoVisitor<>() {
-            private LinkedList<JavaType> implementsList = new LinkedList<>();
-
+        return new AbstractCamelVisitor() {
             @Override
-            public J.Import visitImport(J.Import _import, ExecutionContext executionContext) {
-                J.Import im = super.visitImport(_import, executionContext);
+            J.Import doVisitImport(J.Import _import, ExecutionContext executionContext) {
+                J.Import im = super.doVisitImport(_import, executionContext);
 
                 if(im.isStatic() && im.getTypeName().equals(ThreadPoolRejectedPolicy.class.getCanonicalName())
                         && im.getQualid() != null
@@ -96,12 +94,9 @@ public class CamelAPIsRecipe extends Recipe {
 
 
             @Override
-            public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
-                if(classDecl.getImplements() != null && !classDecl.getImplements().isEmpty()) {
-                    implementsList.addAll(classDecl.getImplements().stream().map(i -> i.getType()).collect(Collectors.toList()));
-                }
+            public J.ClassDeclaration doVisitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
 
-                J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
+                J.ClassDeclaration cd = super.doVisitClassDeclaration(classDecl, executionContext);
 
 
 
@@ -150,7 +145,7 @@ public class CamelAPIsRecipe extends Recipe {
                 //Method 'configure' was removed from `org.apache.camel.main.MainListener`, consider using 'beforeConfigure' or 'afterConfigure'.
                 if("configure".equals(md.getSimpleName())
                         && md.getReturnTypeExpression().getType().equals(JavaType.Primitive.Void)
-                        && implementsList.stream().anyMatch(jt -> MainListener.class.getCanonicalName().equals(jt.toString()))
+                        && getImplementsList().stream().anyMatch(jt -> MainListener.class.getCanonicalName().equals(jt.toString()))
                         && !md.getParameters().isEmpty()
                         && md.getParameters().size() == 1
                         && md.getParameters().get(0) instanceof J.VariableDeclarations
@@ -237,7 +232,7 @@ public class CamelAPIsRecipe extends Recipe {
                 }
                 //Boolean isDumpRoutes(); -> getDumpRoutes(); with returned type String
                 else if("isDumpRoutes".equals(mi.getSimpleName()) && mi.getSelect().getType().toString().equals(CamelContext.class.getName())  ) {
-                    mi = mi.withName(mi.getName().withSimpleName("getDumpRoutes")).withComments(Collections.singletonList(RecipesUtil.createMultinlineComment(" Method '" + mi.getSimpleName() + "' returns String value ('xml' or 'yaml' or 'false'). ")));
+                    mi = mi.withName(mi.getName().withSimpleName("getDumpRoutes")).withComments(Collections.singletonList(RecipesUtil.createMultinlineComment(" Method 'getDumpRoutes' returns String value ('xml' or 'yaml' or 'false'). ")));
                 }
 
 
