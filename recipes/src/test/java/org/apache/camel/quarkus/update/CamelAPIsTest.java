@@ -702,5 +702,19 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+    @Test
+    void testSimpleBuilder() {
+        rewriteRun(
+                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.builder.SimpleBuilder;
+                                """,
+                        """
+                                /*'java.beans.SimpleBeanInfo' has been removed, (class was used internally).*/import org.apache.camel.builder.SimpleBuilder;
+                              """
+                )
+        );
+    }
 
 }

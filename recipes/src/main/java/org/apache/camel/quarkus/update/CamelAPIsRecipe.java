@@ -7,6 +7,7 @@ import org.apache.camel.ExchangePropertyKey;
 import org.apache.camel.ExtendedCamelContext;
 import org.apache.camel.ExtendedExchange;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spi.OnCamelContextStart;
 import org.apache.camel.spi.OnCamelContextStarting;
@@ -34,6 +35,7 @@ import org.openrewrite.java.tree.TextComment;
 import org.openrewrite.java.tree.TypeUtils;
 import org.openrewrite.marker.Markers;
 
+import java.beans.SimpleBeanInfo;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -73,6 +75,12 @@ public class CamelAPIsRecipe extends Recipe {
                         && im.getQualid() != null
                         && ("Discard".equals(im.getQualid().getSimpleName()) || "DiscardOldest".equals(im.getQualid().getSimpleName()))) {
                     Comment comment = RecipesUtil.createMultinlineComment(String.format("'ThreadPoolRejectedPolicy.%s' has been removed, consider using 'ThreadPoolRejectedPolicy.Abort'.", im.getQualid().getSimpleName()));
+                    im = im.withComments(Collections.singletonList(comment));
+
+                }
+                //removed `org.apache.camel.builder.SimpleBuilder; typically used internally`
+                else if(SimpleBuilder.class.getCanonicalName().equals(im.getTypeName())) {
+                    Comment comment = RecipesUtil.createMultinlineComment(String.format("'%s' has been removed, (class was used internally).", SimpleBeanInfo.class.getCanonicalName()));
                     im = im.withComments(Collections.singletonList(comment));
 
                 }
