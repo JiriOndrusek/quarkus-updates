@@ -716,5 +716,48 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+    @Test
+    void test1IntrospectionSupport() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                    import org.apache.camel.support.IntrospectionSupport;
+
+                                    import static org.apache.camel.support.IntrospectionSupport.extractProperties;
+                                """,
+                        """
+                                    import org.apache.camel.impl.engine.IntrospectionSupport;
+                                    
+                                    import static org.apache.camel.impl.engine.IntrospectionSupport.extractProperties;
+                                """
+                )
+        );
+    }
+    @Test
+    void testIntrospectionSupport() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                    import org.apache.camel.support.IntrospectionSupport;
+
+                                    import static org.apache.camel.support.IntrospectionSupport.extractProperties;
+                                    import static org.apache.camel.support.IntrospectionSupport.findSetterMethodsOrderedByParameterType;
+                                    import static org.apache.camel.support.IntrospectionSupport.getProperties;
+                                    import static org.apache.camel.support.IntrospectionSupport.getProperty;
+                                    import static org.apache.camel.support.IntrospectionSupport.getPropertyGetter;
+                                    import static org.apache.camel.support.IntrospectionSupport.getPropertySetter;
+                                    import static org.apache.camel.support.IntrospectionSupport.isGetter;
+                                    import static org.apache.camel.support.IntrospectionSupport.isSetter;
+                                """,
+                        """
+                                    import org.apache.camel.impl.engine.IntrospectionSupport;
+                                    
+                                    import static org.apache.camel.impl.engine.IntrospectionSupport.*;
+                                """
+                )
+        );
+    }
 
 }

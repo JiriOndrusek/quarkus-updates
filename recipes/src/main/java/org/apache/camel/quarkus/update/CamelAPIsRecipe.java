@@ -12,6 +12,7 @@ import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spi.OnCamelContextStart;
 import org.apache.camel.spi.OnCamelContextStarting;
 import org.apache.camel.spi.OnCamelContextStop;
+import org.apache.camel.support.IntrospectionSupport;
 import org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -82,6 +83,19 @@ public class CamelAPIsRecipe extends Recipe {
                 else if(SimpleBuilder.class.getCanonicalName().equals(im.getTypeName())) {
                     Comment comment = RecipesUtil.createMultinlineComment(String.format("'%s' has been removed, (class was used internally).", SimpleBeanInfo.class.getCanonicalName()));
                     im = im.withComments(Collections.singletonList(comment));
+
+                }
+                //IntrospectionSupport moved from `org.apache.camel.support` to  `org.apache.camel.impl.engine`
+                else if(IntrospectionSupport.class.getCanonicalName().equals(im.getTypeName())) {
+                    maybeRemoveImport(im.getTypeName());
+                    String newImportName = im.getQualid() == null ? im.getTypeName() : im.getTypeName() /*+ "." + im.getQualid().getSimpleName()*/;
+                    newImportName = newImportName.replaceAll(".support.", ".impl.engine.");
+                    if(im.isStatic() && im.getQualid() != null) {
+                        maybeAddImport(newImportName, im.getQualid().getSimpleName(), false);
+                    } else {
+                        maybeAddImport(newImportName, null, false);
+                    }
+;
 
                 }
 
