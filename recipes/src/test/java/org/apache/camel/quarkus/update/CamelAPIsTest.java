@@ -823,5 +823,33 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+    @Test
+    void testDumpRoutes() {
+        rewriteRun(
+                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                    import org.apache.camel.CamelContext;
+                                    
+                                    public class Test {
+                                        public void test(CamelContext context) {
+                                            boolean dump = context.isDumpRoutes();
+                                            context.setDumpRoutes(true);
+                                        }
+                                    }
+                                """,
+                        """
+                                    import org.apache.camel.CamelContext;
+                                    
+                                    public class Test {
+                                        public void test(CamelContext context) {
+                                            boolean dump = /* Method 'isDumpRoutes' returns String value ('xml' or 'yaml' or 'false'). */context.getDumpRoutes();
+                                            /* Method 'setDumpRoutes' accepts String parameter ('xml' or 'yaml' or 'false'). */context.setDumpRoutes(true);
+                                        }
+                                    }
+                                """
+                )
+        );
+    }
 
 }

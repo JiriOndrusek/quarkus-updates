@@ -12,45 +12,31 @@ import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.main.MainListener;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spi.OnCamelContextStart;
-import org.apache.camel.spi.OnCamelContextStarting;
 import org.apache.camel.spi.OnCamelContextStop;
 import org.apache.camel.support.IntrospectionSupport;
 import org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
-import org.openrewrite.Tree;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.internal.lang.Nullable;
-import org.openrewrite.java.AddImport;
 import org.openrewrite.java.ImplementInterface;
 import org.openrewrite.java.JavaIsoVisitor;
-import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.MethodMatcher;
 import org.openrewrite.java.RemoveImplements;
-import org.openrewrite.java.template.Primitive;
 import org.openrewrite.java.tree.Comment;
-import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.JContainer;
-import org.openrewrite.java.tree.JRightPadded;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.Space;
-import org.openrewrite.java.tree.TextComment;
-import org.openrewrite.java.tree.TypeTree;
 import org.openrewrite.java.tree.TypeUtils;
 import org.openrewrite.marker.Markers;
 
 import java.beans.SimpleBeanInfo;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static org.openrewrite.Tree.randomId;
 
 public class CamelAPIsRecipe extends Recipe {
     private static final MethodMatcher MATCHER_CONTEXT_GET_ENDPOINT_MAP =
@@ -111,7 +97,9 @@ public class CamelAPIsRecipe extends Recipe {
 
             @Override
             public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
-                implementsList.addAll(classDecl.getImplements().stream().map(i -> i.getType()).collect(Collectors.toList()));
+                if(classDecl.getImplements() != null && !classDecl.getImplements().isEmpty()) {
+                    implementsList.addAll(classDecl.getImplements().stream().map(i -> i.getType()).collect(Collectors.toList()));
+                }
 
                 J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
 
@@ -243,7 +231,14 @@ public class CamelAPIsRecipe extends Recipe {
                 else if(mi.getSimpleName().equals("archetypeCatalogAsXml") && mi.getSelect().getType().toString().equals(CamelCatalog.class.getName()) ) {
                     mi = mi.withComments(Collections.singletonList(RecipesUtil.createMultinlineComment(" Method '" + mi.getSimpleName() + "' has been removed. ")));
                 }
-
+                //context().setDumpRoutes(true); -> context().setDumpRoutes("xml");(or "yaml")
+                else if("setDumpRoutes".equals(mi.getSimpleName()) && mi.getSelect().getType().toString().equals(CamelContext.class.getName())  ) {
+                    mi = mi.withComments(Collections.singletonList(RecipesUtil.createMultinlineComment(" Method '" + mi.getSimpleName() + "' accepts String parameter ('xml' or 'yaml' or 'false'). ")));
+                }
+                //Boolean isDumpRoutes(); -> getDumpRoutes(); with returned type String
+                else if("isDumpRoutes".equals(mi.getSimpleName()) && mi.getSelect().getType().toString().equals(CamelContext.class.getName())  ) {
+                    mi = mi.withName(mi.getName().withSimpleName("getDumpRoutes")).withComments(Collections.singletonList(RecipesUtil.createMultinlineComment(" Method '" + mi.getSimpleName() + "' returns String value ('xml' or 'yaml' or 'false'). ")));
+                }
 
 
 

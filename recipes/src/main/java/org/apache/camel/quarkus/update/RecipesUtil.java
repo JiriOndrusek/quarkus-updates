@@ -65,19 +65,6 @@ public class RecipesUtil {
                .filter(e -> e.toString().replaceAll("\\s", "").startsWith(parameter + "="))
                .map(e -> e.toString().replaceAll("\\s", "").replaceFirst(parameter + "=", ""))
                .findFirst();
-
-//       ;
-//            if (trimmedName.equals(parameter + "=")) {
-//                return trimmedName.replaceFirst(parameter + "=", "");
-//            }
-//        }        for(Expression expression : expressions) {
-//            String trimmedName = expression.toString().replaceAll("\\s", "");
-//            if (trimmedName.equals(parameter + "=")) {
-//                return trimmedName.replaceFirst(parameter + "=", "");
-//            }
-//        }
-//
-//        return null;
     }
 
     static Comment createMultinlineComment(String text) {
