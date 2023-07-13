@@ -102,6 +102,12 @@
             <artifactId>rewrite-xml</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- rewrite-maven dependency is required for pom.xml recipe testing -->
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-maven</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- lombok is optional, but recommended for authoring recipes -->
         <dependency>

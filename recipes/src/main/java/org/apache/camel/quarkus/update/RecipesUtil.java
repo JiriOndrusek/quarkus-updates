@@ -11,6 +11,7 @@ import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.Space;
 import org.openrewrite.java.tree.TextComment;
 import org.openrewrite.marker.Markers;
+import org.openrewrite.xml.tree.Xml;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,6 +73,9 @@ public class RecipesUtil {
     }
     static Comment createComment(String text) {
         return new TextComment(false, text, null, Markers.EMPTY);
+    }
+    static Xml.Comment createXmlComment(String text) {
+        return new Xml.Comment(UUID.randomUUID(), null, Markers.EMPTY, text);
     }
 
     static J createTypeCast(Object type, Expression arg) {
