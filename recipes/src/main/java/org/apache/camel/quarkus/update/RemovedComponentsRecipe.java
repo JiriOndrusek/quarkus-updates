@@ -39,8 +39,8 @@ public class RemovedComponentsRecipe extends Recipe {
             "camel-quarkus-xstream"));
     private static Map<String, List<String>> ALTERNATIVE_COMPONENTS = Stream.of(new String[][] {
         { "camel-quarkus-johnzon", "camel-quarkus-jsonb" },
-        { "camel-quarkus-microprofile-metrics", "camel-quarkus-opentlemetry", "camel-quarkus-micrometer" },
-        { "camel-quarkus-opentracing", "camel-quarkus-opentlemetry", "camel-quarkus-micrometer" },
+        { "camel-quarkus-microprofile-metrics", "camel-quarkus-opentelemetry", "camel-quarkus-micrometer" },
+        { "camel-quarkus-opentracing", "camel-quarkus-opentelemetry", "camel-quarkus-micrometer" },
         { "camel-quarkus-rabbitmq", "camel-quarkus-spring-rabbitmq???" },
         { "camel-quarkus-xstream", "camel-quarkus-jacksonxml" },
     }).collect(Collectors.toMap(data -> data[0], data -> Arrays.asList(Arrays.copyOfRange(data, 1, data.length))));
@@ -94,7 +94,7 @@ public class RemovedComponentsRecipe extends Recipe {
 
             private static String commentToRemovedArtifactId(String artifactId) {
                 if (ALTERNATIVE_COMPONENTS.containsKey(artifactId)) {
-                    return String.format("Extension %s was removed, consider %s instead", artifactId, ALTERNATIVE_COMPONENTS.get(artifactId).stream().collect(Collectors.joining("or")));
+                    return String.format("Extension %s was removed, consider %s instead.", artifactId, ALTERNATIVE_COMPONENTS.get(artifactId).stream().collect(Collectors.joining(" or ")));
                 } else {
                     return String.format("Extension %s was removed.", artifactId);
                 }

@@ -57,13 +57,17 @@ public class RemovedComponentsTest implements RewriteTest {
                                             </dependency>
                                             <dependency>
                                                 <groupId>org.apache.camel.quarkus</groupId>
+                                                <artifactId>camel-quarkus-bean</artifactId>
+                                            </dependency>
+                                            <dependency>
+                                                <groupId>org.apache.camel.quarkus</groupId>
                                                 <artifactId>camel-quarkus-dozer</artifactId>
                                             </dependency>
                                             <dependency>
                                                 <groupId>org.apache.camel.quarkus</groupId>
                                                 <artifactId>camel-quarkus-elasticsearch-rest</artifactId>
                                             </dependency>
-                                <!--<dependency>
+                                <!--<dependency>  org.openrewrite.maven.MavenDownloadingException: org.iota:java-md-doclet:2.2 failed. Unable to download POM. Tried repositories:
                                        <groupId>org.apache.camel.quarkus</groupId>
                                        <artifactId>camel-quarkus-iota</artifactId>
                                    </dependency>-->
@@ -144,13 +148,17 @@ public class RemovedComponentsTest implements RewriteTest {
                                         </dependency>
                                         <dependency>
                                             <groupId>org.apache.camel.quarkus</groupId>
+                                            <artifactId>camel-quarkus-bean</artifactId>
+                                        </dependency>
+                                        <dependency>
+                                            <groupId>org.apache.camel.quarkus</groupId>
                                             <artifactId_removed><!--Extension camel-quarkus-dozer was removed.-->camel-quarkus-dozer</artifactId_removed>
                                         </dependency>
                                         <dependency>
                                             <groupId>org.apache.camel.quarkus</groupId>
                                             <artifactId_removed><!--Extension camel-quarkus-elasticsearch-rest was removed.-->camel-quarkus-elasticsearch-rest</artifactId_removed>
                                         </dependency>
-                            <!--<dependency>
+                            <!--<dependency>  org.openrewrite.maven.MavenDownloadingException: org.iota:java-md-doclet:2.2 failed. Unable to download POM. Tried repositories:
                                    <groupId>org.apache.camel.quarkus</groupId>
                                    <artifactId>camel-quarkus-iota</artifactId>
                                </dependency>-->
@@ -164,11 +172,11 @@ public class RemovedComponentsTest implements RewriteTest {
                                         </dependency>
                                         <dependency>
                                             <groupId>org.apache.camel.quarkus</groupId>
-                                            <artifactId_removed><!--Extension camel-quarkus-johnzon was removed, consider camel-quarkus-jsonb instead-->camel-quarkus-johnzon</artifactId_removed>
+                                            <artifactId_removed><!--Extension camel-quarkus-johnzon was removed, consider camel-quarkus-jsonb instead.-->camel-quarkus-johnzon</artifactId_removed>
                                         </dependency>
                                         <dependency>
                                             <groupId>org.apache.camel.quarkus</groupId>
-                                            <artifactId_removed><!--Extension camel-quarkus-microprofile-metrics was removed, consider camel-quarkus-opentlemetryorcamel-quarkus-micrometer instead-->camel-quarkus-microprofile-metrics</artifactId_removed>
+                                            <artifactId_removed><!--Extension camel-quarkus-microprofile-metrics was removed, consider camel-quarkus-opentelemetry or camel-quarkus-micrometer instead.-->camel-quarkus-microprofile-metrics</artifactId_removed>
                                         </dependency>
                                         <dependency>
                                             <groupId>org.apache.camel.quarkus</groupId>
@@ -176,11 +184,11 @@ public class RemovedComponentsTest implements RewriteTest {
                                         </dependency>
                                         <dependency>
                                             <groupId>org.apache.camel.quarkus</groupId>
-                                            <artifactId_removed><!--Extension camel-quarkus-opentracing was removed, consider camel-quarkus-opentlemetryorcamel-quarkus-micrometer instead-->camel-quarkus-opentracing</artifactId_removed>
+                                            <artifactId_removed><!--Extension camel-quarkus-opentracing was removed, consider camel-quarkus-opentelemetry or camel-quarkus-micrometer instead.-->camel-quarkus-opentracing</artifactId_removed>
                                         </dependency>
                                         <dependency>
                                             <groupId>org.apache.camel.quarkus</groupId>
-                                            <artifactId_removed><!--Extension camel-quarkus-rabbitmq was removed, consider camel-quarkus-spring-rabbitmq??? instead-->camel-quarkus-rabbitmq</artifactId_removed>
+                                            <artifactId_removed><!--Extension camel-quarkus-rabbitmq was removed, consider camel-quarkus-spring-rabbitmq??? instead.-->camel-quarkus-rabbitmq</artifactId_removed>
                                         </dependency>
                                         <dependency>
                                             <groupId>org.apache.camel.quarkus</groupId>
@@ -192,7 +200,7 @@ public class RemovedComponentsTest implements RewriteTest {
                                         </dependency>
                                         <dependency>
                                             <groupId>org.apache.camel.quarkus</groupId>
-                                            <artifactId_removed><!--Extension camel-quarkus-xstream was removed, consider camel-quarkus-jacksonxml instead-->camel-quarkus-xstream</artifactId_removed>
+                                            <artifactId_removed><!--Extension camel-quarkus-xstream was removed, consider camel-quarkus-jacksonxml instead.-->camel-quarkus-xstream</artifactId_removed>
                                         </dependency>
                                     </dependencies>
                             
