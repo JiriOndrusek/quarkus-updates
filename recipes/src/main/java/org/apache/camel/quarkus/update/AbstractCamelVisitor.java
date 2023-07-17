@@ -25,7 +25,7 @@ public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionConte
 
     //There is no need to  initialize all patterns at the class start.
     //Map is a cache for created patterns
-    //TODO having the map static, mat increase performance
+    //TODO having the map static, may increase performance
     private Map<String, MethodMatcher> methodMatchers = new HashMap();
 
     @Override
