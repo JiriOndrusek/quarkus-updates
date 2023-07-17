@@ -23,7 +23,7 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testRemovedExchangePatternInOptionalOut() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                spec -> spec.recipe(new CamelAPIsRecipe()),
                 java(
                         """
                                 import org.apache.camel.ExchangePattern;
@@ -409,8 +409,9 @@ public class CamelAPIsTest implements RewriteTest {
 
     @Test
     void testOnCamelContextStop() {
+        CamelAPIsRecipe camelAPIsRecipe = new CamelAPIsRecipe();
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                spec -> spec.recipe(toRecipe(() -> camelAPIsRecipe.getVisitor())),
                 java(
                         """
                                 import org.apache.camel.spi.OnCamelContextStop;
@@ -436,8 +437,9 @@ public class CamelAPIsTest implements RewriteTest {
 
     @Test
     void testAdapt() {
+        CamelAPIsRecipe camelAPIsRecipe = new CamelAPIsRecipe();
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                spec -> spec.recipe(toRecipe(() -> camelAPIsRecipe.getVisitor())),
                 java(
                         """
                                 import org.apache.camel.CamelContext;
@@ -462,6 +464,43 @@ public class CamelAPIsTest implements RewriteTest {
                                 
                                     public void test() {
                                         ((ModelCamelContext)context).getRouteDefinition("forMocking");
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testAdaptStandalone() {
+        CamelAPIsRecipe camelAPIsRecipe = new CamelAPIsRecipe();
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> camelAPIsRecipe.getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.model.ModelCamelContext;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public void test() {
+                                    
+                                        context.adapt(ModelCamelContext.class);
+                                    }
+                                }
+                            """,
+                        """
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.model.ModelCamelContext;
+                                
+                                public class Test {
+                                
+                                    CamelContext context;
+                                
+                                    public void test() {
+                                        //((ModelCamelContext)context);
                                     }
                                 }
                                 """
@@ -926,6 +965,80 @@ public class CamelAPIsTest implements RewriteTest {
                                         }
                                     }
                                 """
+                )
+        );
+    }
+    @Test
+    void testAdapt3() {
+        rewriteRun(
+                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+"""
+    import jakarta.enterprise.context.ApplicationScoped;
+    import jakarta.inject.Inject;
+    import jakarta.ws.rs.Consumes;
+    import jakarta.ws.rs.GET;
+    import jakarta.ws.rs.POST;
+    import jakarta.ws.rs.Path;
+    import jakarta.ws.rs.PathParam;
+    import jakarta.ws.rs.core.MediaType;
+    
+    import org.apache.camel.CamelContext;
+    import org.apache.camel.ProducerTemplate;
+    import org.apache.camel.builder.AdviceWith;
+    import org.apache.camel.builder.AdviceWithRouteBuilder;
+    import org.apache.camel.component.mock.MockEndpoint;
+    import org.apache.camel.model.ModelCamelContext;
+    import org.jboss.logging.Logger;
+    import org.wildfly.common.Assert;
+    
+    public class Test {
+        public void test(CamelContext context) {
+            // advice the first route using the inlined AdviceWith route builder
+            // which has extended capabilities than the regular route builder
+            AdviceWith.adviceWith(context.adapt(ModelCamelContext.class).getRouteDefinition("forMocking"), context,
+                    new AdviceWithRouteBuilder() {
+                    @Override
+                    public void configure() throws Exception {
+                        mockEndpoints("direct:mock.*", "log:mock.*");
+                    }
+            });
+        }
+    }
+""",
+"""
+    import jakarta.enterprise.context.ApplicationScoped;
+    import jakarta.inject.Inject;
+    import jakarta.ws.rs.Consumes;
+    import jakarta.ws.rs.GET;
+    import jakarta.ws.rs.POST;
+    import jakarta.ws.rs.Path;
+    import jakarta.ws.rs.PathParam;
+    import jakarta.ws.rs.core.MediaType;
+    
+    import org.apache.camel.CamelContext;
+    import org.apache.camel.ProducerTemplate;
+    import org.apache.camel.builder.AdviceWith;
+    import org.apache.camel.builder.AdviceWithRouteBuilder;
+    import org.apache.camel.component.mock.MockEndpoint;
+    import org.apache.camel.model.ModelCamelContext;
+    import org.jboss.logging.Logger;
+    import org.wildfly.common.Assert;
+    
+    public class Test {
+        public void test(CamelContext context) {
+            // advice the first route using the inlined AdviceWith route builder
+            // which has extended capabilities than the regular route builder
+            AdviceWith.adviceWith(((ModelCamelContext)context).getRouteDefinition("forMocking"), context,
+                    new AdviceWithRouteBuilder() {
+                        @Override
+                        public void configure() throws Exception {
+                            mockEndpoints("direct:mock.*", "log:mock.*");
+                        }
+                    });
+        }
+   }
+"""
                 )
         );
     }

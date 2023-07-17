@@ -104,5 +104,4 @@ public class RecipesUtil {
         return new JRightPadded<>(tree, Space.EMPTY, Markers.EMPTY);
     }
 
-
 }

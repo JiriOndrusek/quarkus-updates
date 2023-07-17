@@ -27,10 +27,9 @@
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: custom
-displayName: customNme
+displayName: customName
 description: customDesc
 recipeList:
-  - org.apache.camel.quarkus.update.RemovedComponentsRecipe
   - org.apache.camel.quarkus.update.CamelAPIsRecipe
 ---
 type: specs.openrewrite.org/v1beta/recipe
