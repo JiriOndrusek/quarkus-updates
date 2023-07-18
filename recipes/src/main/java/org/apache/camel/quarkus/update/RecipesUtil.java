@@ -62,6 +62,9 @@ public class RecipesUtil {
     }
 
     static Optional<String> getValueOfArgs(List<Expression> expressions, String parameter) {
+        if(expressions == null || expressions.isEmpty()) {
+            return Optional.empty();
+        }
        return expressions.stream()
                .filter(e -> e.toString().replaceAll("\\s", "").startsWith(parameter + "="))
                .map(e -> e.toString().replaceAll("\\s", "").replaceFirst(parameter + "=", ""))
@@ -103,6 +106,5 @@ public class RecipesUtil {
     private static <T> JRightPadded<T> padRight(T tree) {
         return new JRightPadded<>(tree, Space.EMPTY, Markers.EMPTY);
     }
-
 
 }

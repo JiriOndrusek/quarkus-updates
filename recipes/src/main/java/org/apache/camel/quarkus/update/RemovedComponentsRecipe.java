@@ -3,8 +3,8 @@ package org.apache.camel.quarkus.update;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
+import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.xml.XPathMatcher;
-import org.openrewrite.xml.XmlIsoVisitor;
 import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
 
@@ -62,7 +62,7 @@ public class RemovedComponentsRecipe extends Recipe {
             "camel-quarkus-tika",
             "camel-quarkus-xmlsecurity"));
 
-    private final static XPathMatcher DEPENDENCY_ARTIFACT_ID_MATCHER = new XPathMatcher("//dependencies/dependency/artifactId");
+    private final static XPathMatcher DEPENDENC_MATCHER = new XPathMatcher("//dependencies/dependency");
 
     @Override
     public String getDisplayName() {
@@ -77,45 +77,65 @@ public class RemovedComponentsRecipe extends Recipe {
 
     @Override
     protected TreeVisitor<?, ExecutionContext> getVisitor() {
-        return new XmlIsoVisitor<>() {
+        return new MavenVisitor<>() {
 
             @Override
-            public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext context) {
-                Xml.Tag t =  super.visitTag(tag, context);
+            public Xml visitTag(Xml.Tag tag, ExecutionContext ctx) {
+                Xml.Tag t = (Xml.Tag) super.visitTag(tag, ctx);
 
-                if (DEPENDENCY_ARTIFACT_ID_MATCHER.matches(getCursor()) && !t.getContent().isEmpty()) {
-                    Xml.Tag parent = getCursor().getParent().getValue();
+                if(!DEPENDENC_MATCHER.matches(getCursor())) {
+                    return t;
+                }
 
-                    //TODO what with  <artifactId>camel-quarkus-dozer<!-- aa --></artifactId>
-                    for(Content cd : t.getContent()) {
-                        if(cd instanceof Xml.CharData) {
-                            String text = ((Xml.CharData) cd).getText();
-                            if(ARTIFACT_IDS.contains(text)) {
-                                //verify groupId
-                                Stream<Content> groupIdContent = parent.getContent().stream().filter(c -> "groupId".equals(((Xml.Tag)c).getName())).flatMap(c -> ((Xml.Tag) c).getContent().stream());
-                                Optional<Content> camelGroupId = groupIdContent.filter(c -> c instanceof Xml.CharData && GROUP_ID.equals(((Xml.CharData)c).getText())).findFirst();
-                                if(camelGroupId.isPresent()) {
-                                    //add a comment to the artifactId
-                                    LinkedList l = new LinkedList(t.getContent());
-                                    l.addFirst(RecipesUtil.createXmlComment(commentToRemovedArtifactId(text)));
+                if (GROUP_ID.equals(t.getChildValue("groupId").orElse(null))) {
+                    String artifactdD = t.getChildValue("artifactId").orElse(null);
+                    if(artifactdD != null && ARTIFACT_IDS.contains(artifactdD)) {
+                        //add a comment to the artifactId
+                        LinkedList l = new LinkedList(t.getContent());
+                        l.addFirst(RecipesUtil.createXmlComment(commentToRemovedArtifactId(artifactdD, t.toString())));
 
-                                    return t.withContent(l).withName("artifactId_removed");
-                                }
-                            }
-                        }
+                        return RecipesUtil.createXmlComment(commentToRemovedArtifactId(artifactdD, t.print(getCursor()))).withPrefix(t.getPrefix());
                     }
                 }
+//
+//                if (DEPENDENC_MATCHER.matches(getCursor()) && !t.getContent().isEmpty()) {
+//                    Xml.Tag parent = getCursor().getParent().getValue();
+//
+//                    //TODO what with  <artifactId>camel-quarkus-dozer<!-- aa --></artifactId>
+//                    for(Content cd : t.getContent()) {
+//                        if(cd instanceof Xml.CharData) {
+//                            String text = ((Xml.CharData) cd).getText();
+//                            if(ARTIFACT_IDS.contains(text)) {
+//                                //verify groupId
+//                                Stream<Content> groupIdContent = parent.getContent().stream().filter(c -> "groupId".equals(((Xml.Tag)c).getName())).flatMap(c -> ((Xml.Tag) c).getContent().stream());
+//                                Optional<Content> camelGroupId = groupIdContent.filter(c -> c instanceof Xml.CharData && GROUP_ID.equals(((Xml.CharData)c).getText())).findFirst();
+//                                if(camelGroupId.isPresent()) {
+//                                    //add a comment to the artifactId
+//                                    LinkedList l = new LinkedList(t.getContent());
+//                                    l.addFirst(RecipesUtil.createXmlComment(commentToRemovedArtifactId(text)));
+//
+//                                    return t.withPrefix("<!--");
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
 
                 return t;
             }
 
-            private static String commentToRemovedArtifactId(String artifactId) {
+            @Override
+            protected void doAfterVisit(Recipe recipe) {
+                super.doAfterVisit(recipe);
+            }
+
+            private static String commentToRemovedArtifactId(String artifactId, String theDefinition) {
                 if (ALTERNATIVE_COMPONENTS.containsKey(artifactId)) {
-                    return String.format("Extension %s was removed, consider %s instead.", artifactId, ALTERNATIVE_COMPONENTS.get(artifactId).stream().collect(Collectors.joining(" or ")));
+                    return String.format("Extension %s was removed, consider %s instead. %s", artifactId, ALTERNATIVE_COMPONENTS.get(artifactId).stream().collect(Collectors.joining(" or ")), theDefinition);
                 } else if (TO_BE_REINTRODUCED.contains(artifactId)) {
-                    return String.format("Extension %s was removed, but should be reintroduced.", artifactId);
+                    return String.format("Extension %s was removed, but should be reintroduced. %s", artifactId, theDefinition);
                 } else {
-                    return String.format("Extension %s was removed.", artifactId);
+                    return String.format("Extension %s was removed. %s", artifactId, theDefinition);
                 }
             }
 
