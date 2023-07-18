@@ -31,6 +31,7 @@ displayName: customName
 description: customDesc
 recipeList:
   - org.apache.camel.quarkus.update.CamelAPIsRecipe
+  - org.apache.camel.quarkus.update.CamelAPIsPropertiesRecipe
   - org.apache.camel.quarkus.update.RemovedComponentsRecipe
 ---
 type: specs.openrewrite.org/v1beta/recipe
