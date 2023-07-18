@@ -28,10 +28,6 @@ public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionConte
     //TODO having the map static, may increase performance
     private Map<String, MethodMatcher> methodMatchers = new HashMap();
 
-    public AbstractCamelVisitor() {
-        System.out.println("c");
-    }
-
     @Override
     public final J.Import visitImport(J.Import _import, ExecutionContext context) {
         //if there is at least one import of camel class, the camel recipe should be executed

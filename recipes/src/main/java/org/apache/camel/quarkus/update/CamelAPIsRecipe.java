@@ -324,10 +324,6 @@ public class CamelAPIsRecipe extends Recipe {
             return a;
         }
 
-        @Override
-        public J.TypeCast visitTypeCast(J.TypeCast typeCast, ExecutionContext context) {
-            return super.visitTypeCast(typeCast, context);
-        }
 
         @Override
         @Nullable J doPostVisit(J tree, ExecutionContext executionContext) {

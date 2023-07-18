@@ -743,6 +743,39 @@ public class CamelAPIsTest implements RewriteTest {
         );
     }
     @Test
+    void testDecoupleExtendedExchange2() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
+                java(
+                        """
+                                import org.apache.camel.Exchange;
+                                import org.apache.camel.ExtendedExchange;
+                                
+                                public class Test {
+                                
+                                    Exchange exchange;
+                                
+                                    public void test() {
+                                          final Something catalog = (Something) context.getExtension(RuntimeCamelCatalog.class);
+                                    }
+                                }
+                                """,
+                        """
+                                import org.apache.camel.Exchange;
+                                
+                                public class Test {
+                                
+                                    Exchange exchange;
+                                
+                                    public void test() {
+                                          final Something catalog = (Something) context.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class);
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+    @Test
     void testExchangeIsFailureHandled() {
         rewriteRun(
                 spec -> spec.recipe(toRecipe(() -> new CamelAPIsRecipe().getVisitor())),
