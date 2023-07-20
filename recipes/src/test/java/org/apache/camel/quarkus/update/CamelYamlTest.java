@@ -138,5 +138,28 @@ public class CamelYamlTest implements RewriteTest {
         );
     }
 
+    @Test
+    void testRealIdempotent() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelYamlRecipe().getVisitor())),
+                Assertions.yaml(
+                        """
+                                - route-configuration:
+                                    id: "yamlRouteConfiguration"
+                                    on-exception:
+                                      - on-exception:
+                                          handled:
+                                            constant: "true"
+                                          exception:
+                                            - "org.apache.camel.quarkus.core.it.routeconfigurations.RouteConfigurationsException"
+                                          steps:
+                                            - set-body:
+                                                constant:
+                                                  expression: "onException has been triggered in yamlRouteConfiguration"
+                              """
+                )
+        );
+    }
+
 
 }
