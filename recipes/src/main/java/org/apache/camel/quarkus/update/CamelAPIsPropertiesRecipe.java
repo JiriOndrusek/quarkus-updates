@@ -46,20 +46,6 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @Value
 public class CamelAPIsPropertiesRecipe extends Recipe {
-    private static final String MATCHER_CONTEXT_GET_ENDPOINT_MAP = "org.apache.camel.CamelContext getEndpointMap()";
-    private static final String MATCHER_CONTEXT_GET_EXT = "org.apache.camel.CamelContext getExtension(java.lang.Class)";
-    private static final String MATCHER_GET_NAME_RESOLVER = "org.apache.camel.ExtendedCamelContext getComponentNameResolver()";
-    private static final String M_PRODUCER_TEMPLATE_ASYNC_CALLBACK = "org.apache.camel.ProducerTemplate asyncCallback(..)";
-    private static final String M_CONTEXT_ADAPT = "org.apache.camel.CamelContext adapt(java.lang.Class)";
-    private static final String M_CONTEXT_SET_DUMP_ROUTES = "org.apache.camel.CamelContext setDumpRoutes(java.lang.Boolean)";
-    private static final String M_CONTEXT_IS_DUMP_ROUTES = "org.apache.camel.CamelContext isDumpRoutes()";
-    private static final String M_EXCHANGE_ADAPT = "org.apache.camel.Exchange adapt(java.lang.Class)";
-    private static final String M_EXCHANGE_GET_PROPERTY = "org.apache.camel.Exchange getProperty(org.apache.camel.ExchangePropertyKey)";
-    private static final String M_EXCHANGE_REMOVE_PROPERTY = "org.apache.camel.Exchange removeProperty(org.apache.camel.ExchangePropertyKey)";
-    //TODO should work (*,*) or (org.apache.camel.ExchangePropertyKey,*)
-    private static final String M_EXCHANGE_SET_PROPERTY = "org.apache.camel.Exchange setProperty(..)";
-    private static final String M_CATALOG_ARCHETYPE_AS_XML = "org.apache.camel.catalog.CamelCatalog archetypeCatalogAsXml()";
-
 
     @Override
     public String getDisplayName() {
@@ -73,7 +59,7 @@ public class CamelAPIsPropertiesRecipe extends Recipe {
 
 
     @Override
-    public TreeVisitor<?, ExecutionContext> getVisitor() {
+    public PropertiesIsoVisitor getVisitor() {
 
         return new PropertiesIsoVisitor<ExecutionContext>() {
 
