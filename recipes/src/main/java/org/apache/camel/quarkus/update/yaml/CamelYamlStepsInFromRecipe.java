@@ -21,18 +21,21 @@ import java.util.List;
  *
  * The old syntax:
  *
+ * <pre>
  * - route:
  *     from:
  *       uri: "direct:info"
  *     steps:
  *     - log: "message"
+ * </pre>
  * should be changed to:
- *
+ * <pre>
  * - route:
  *     from:
  *       uri: "direct:info"
  *       steps:
  *       - log: "message"
+ * </pre>
  */
 @EqualsAndHashCode(callSuper = true)
 @Value

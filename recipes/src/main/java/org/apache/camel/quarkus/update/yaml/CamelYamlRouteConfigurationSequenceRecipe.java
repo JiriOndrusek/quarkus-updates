@@ -2,12 +2,10 @@ package org.apache.camel.quarkus.update.yaml;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.openrewrite.Cursor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.yaml.JsonPathMatcher;
-import org.openrewrite.yaml.YamlIsoVisitor;
 import org.openrewrite.yaml.format.IndentsVisitor;
 import org.openrewrite.yaml.style.IndentsStyle;
 import org.openrewrite.yaml.tree.Yaml;
@@ -39,124 +37,68 @@ public class CamelYamlRouteConfigurationSequenceRecipe extends Recipe {
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
 
-        return new YamlIsoVisitor<>() {
+        return new CamelYamlVisitor() {
 
-            Yaml.Mapping routeConfigurationOnException = null;
-            Yaml.Mapping.Entry routeConfigurationEntry = null;
-            Yaml.Mapping.Entry routeConfigurationONExceptionEntry = null;
-            List<Yaml.Sequence.Entry> sEntries = null;
-            Yaml.Sequence sequenceWithOnException = null;
+            private Yaml.Sequence sequenceToReplace;
+            private boolean indentRegistered = false;
 
             @Override
-            public Yaml.Mapping.Entry visitMappingEntry(Yaml.Mapping.Entry entry, ExecutionContext context) {
-                Yaml.Mapping.Entry e = super.visitMappingEntry(entry, context);
-
-                if(routeConfigurationEntry == null && MATCHER_ROUTE_CONFIGURATION.matches(getCursor()) ) {
-
-                    routeConfigurationEntry = e;
-                    if(routeConfigurationOnException != null) {
-                        moveOnException();
-                    }
-                }
-                return e;
-
-            }
-
-            @Override
-            public Yaml.Mapping visitMapping(Yaml.Mapping mapping, ExecutionContext context) {
-                Yaml.Mapping m =  super.visitMapping(mapping, context);
-
-                String prop = YamlRecipesUtil.getProperty(getCursor());
-                if("route-configuration.on-exception".equals(prop) && routeConfigurationOnException == null) {
-                    routeConfigurationOnException = m;
-                    if(routeConfigurationEntry != null) {
-                        moveOnException();
-                    }
-                }
-
-
-                return m;
+            void clearLocalCache() {
+                sequenceToReplace = null;
             }
 
             @Override
             public Yaml.Sequence visitSequence(Yaml.Sequence sequence, ExecutionContext context) {
                 Yaml.Sequence s = super.visitSequence(sequence, context);
 
-                Cursor parent = getCursor().getParent();
-                if (new JsonPathMatcher("$.route-configuration").matches(parent)) {
-                    sequenceWithOnException = s;
-                    sEntries = new ArrayList<>(s.getEntries());
-                    moveOnException();
+                //if there is a sequence in a route-configuration, it has to be replaced with mapping
+                if (new JsonPathMatcher("$.route-configuration").matches(getCursor().getParent())) {
+                    this.sequenceToReplace = s;
                 }
-
-
                 return s;
             }
 
+            @Override
+            public Yaml.Mapping.Entry visitMappingEntry(Yaml.Mapping.Entry entry, ExecutionContext context) {
+                Yaml.Mapping.Entry e = super.visitMappingEntry(entry, context);
 
-            private void moveOnException() {
-                //remove content of route-configuration
-                doAfterVisit(new YamlIsoVisitor<ExecutionContext>() {
+                //if current mapping contains an entry with sequence belonging to route-configuration, remove the sequence
+                if (e.getValue() == sequenceToReplace) {
+                    List<Yaml.Mapping.Entry> entries = new ArrayList<>();
+                    for (Yaml.Sequence.Entry sEntry : sequenceToReplace.getEntries()) {
 
-                    @Override
-                    public Yaml.Sequence visitSequence(Yaml.Sequence sequence, ExecutionContext context) {
-                         Yaml.Sequence s = super.visitSequence(sequence, context);
+                        if (sEntry.getBlock() instanceof Yaml.Mapping) {
+                            ((Yaml.Mapping) sEntry.getBlock()).getEntries().forEach(y -> {
+                                //if entry is on-exception from the route-configuration sequence, it has to be handled differently
+                                if ("on-exception".equals(y.getKey().getValue())) {
+                                    Yaml.Sequence newSequence = sequenceToReplace.copyPaste();
+                                    //keep only on-exception item
+                                    List<Yaml.Sequence.Entry> filteredEntries = newSequence.getEntries().stream()
+                                            .filter(se -> ((Yaml.Mapping) se.getBlock()).getEntries().stream()
+                                                    .filter(me -> "on-exception".equals(me.getKey().getValue())).findFirst().isPresent())
+                                            .collect(Collectors.toList());
 
-                        Cursor parent = getCursor().getParent();
-                        if (new JsonPathMatcher("$.route-configuration").matches(parent)) {
-                            return null;
+                                    entries.add(y.withValue(newSequence.withEntries(filteredEntries)).withPrefix("\n"));
+                                } else {
+                                    entries.add(y.withPrefix("\n"));
+                                }
+                            });
                         }
-                         return s;
                     }
-                 }
-                );
+                    Yaml.Mapping.Entry resultr = e.withValue(new Yaml.Mapping(randomId(), sequenceToReplace.getMarkers(), sequenceToReplace.getOpeningBracketPrefix(), entries, null, null));
 
-                //create a new content of route-configuration (not sequence, but mapping)
-                doAfterVisit(new YamlIsoVisitor<ExecutionContext>() {
+                    if(!indentRegistered) {
+                        indentRegistered = true;
+                        //TODO might probably change indent in original file, may this happen?
+                        doAfterVisit(new IndentsVisitor(new IndentsStyle(2), null));
+                    }
 
-                     @Override
-                     public Yaml.Mapping.Entry visitMappingEntry(Yaml.Mapping.Entry entry, ExecutionContext context) {
-                         Yaml.Mapping.Entry e =  super.visitMappingEntry(entry, context);
-
-                         List<Yaml.Mapping.Entry> entries = new ArrayList<>();
-                         if(sEntries != null) {
-                             for (Yaml.Sequence.Entry sEntry : sEntries) {
-                                 if (sEntry.getBlock() instanceof Yaml.Mapping) {
-                                     ((Yaml.Mapping) sEntry.getBlock()).getEntries().forEach(y -> {
-                                         entries.add(y.withPrefix("\n"));
-                                     });
-                                 }
-                             }
-
-                             sEntries = null;
-                             return e.withValue(new Yaml.Mapping(randomId(), e.getMarkers(), null,  entries, null, null));
-                         }
-                         //if on-exception
-                         if(sequenceWithOnException != null && "on-exception".equals(e.getKey().getValue())) {
-                             //create a sequence
-                             Yaml.Sequence newSequence = sequenceWithOnException.copyPaste();
-                             //keep only on-exception item
-                             List<Yaml.Sequence.Entry> filteredEntries = newSequence.getEntries().stream()
-                                     .filter(se -> ((Yaml.Mapping)se.getBlock()).getEntries().stream()
-                                             .filter(me -> "on-exception".equals(me.getKey().getValue())).findFirst().isPresent())
-                                     .collect(Collectors.toList());
-
-                             e = e.withValue(newSequence.withEntries(filteredEntries));
-                             sequenceWithOnException = null;
-                         }
-                         return e;
-                     }
-
-
-
-                 }
-
-                );
-
-                //TODO might probably change indent in original file, may this happen?
-                doAfterVisit(new IndentsVisitor(new IndentsStyle(2), null));
+                    return resultr;
+                }
+                return e;
             }
         };
     }
+
 }
 

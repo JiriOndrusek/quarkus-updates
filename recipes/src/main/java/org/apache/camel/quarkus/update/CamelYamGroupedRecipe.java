@@ -5,9 +5,7 @@ import org.apache.camel.quarkus.update.yaml.CamelYamlStepsInFromRecipe;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
-import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.yaml.YamlIsoVisitor;
-import org.openrewrite.yaml.YamlVisitor;
 import org.openrewrite.yaml.tree.Yaml;
 
 import java.util.Arrays;
@@ -35,20 +33,11 @@ public class CamelYamGroupedRecipe extends Recipe {
     }
 
 
+
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new YamlIsoVisitor<>() {
             boolean executed = false;
-
-//            List<Recipe> visitorsToRun;
-//
-//            @Override
-//            public @Nullable Yaml preVisit(Yaml tree, ExecutionContext context) {
-//              visitorsToRun = groupedRecipes.stream()
-//                       .filter(r -> ((YamlVisitor)r.getVisitor()).preVisit(tree, context) != null)
-//                       .collect(Collectors.toList());
-//               return tree;
-//            }
 
             @Override
             public Yaml.Documents visitDocuments(Yaml.Documents documents, ExecutionContext context) {
