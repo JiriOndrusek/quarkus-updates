@@ -88,7 +88,7 @@ public class CamelYamlTest implements RewriteTest {
     }
 
     @Test
-    void testReal() {
+    void testRouteConfigurationWithOnException() {
         rewriteRun(
                 spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
                 Assertions.yaml(
@@ -124,7 +124,108 @@ public class CamelYamlTest implements RewriteTest {
     }
 
     @Test
-    void testRealIdempotent() {
+    void testRouteConfigurationWithoutOnException() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
+                Assertions.yaml(
+                        """
+                                - route-configuration:
+                                    - id: "__id"
+                                """,
+                        """
+                                - route-configuration:
+                                    id: "__id"
+                              """
+                )
+        );
+    }
+
+    @Test
+    void testDoubleDocument() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
+                Assertions.yaml(
+                        """
+                                - route-configuration:
+                                    - id: "yamlRouteConfiguration1"
+                                    - on-exception:
+                                        handled:
+                                          constant: "true"
+                                        exception:
+                                          - "org.apache.camel.quarkus.core.it.routeconfigurations.RouteConfigurationsException"
+                                        steps:
+                                          - set-body:
+                                              constant:
+                                                  expression: "onException has been triggered in yamlRouteConfiguration"
+                                ---
+                                - route-configuration:
+                                    - id: "yamlRouteConfiguration2"
+                                    - on-exception:
+                                        handled:
+                                          constant: "true"
+                                        exception:
+                                          - "org.apache.camel.quarkus.core.it.routeconfigurations.RouteConfigurationsException"
+                                        steps:
+                                          - set-body:
+                                              constant:
+                                                  expression: "onException has been triggered in yamlRouteConfiguration"
+                                """,
+                        """
+                                - route-configuration:
+                                    id: "yamlRouteConfiguration1"
+                                    on-exception:
+                                      - on-exception:
+                                          handled:
+                                            constant: "true"
+                                          exception:
+                                            - "org.apache.camel.quarkus.core.it.routeconfigurations.RouteConfigurationsException"
+                                          steps:
+                                            - set-body:
+                                                constant:
+                                                  expression: "onException has been triggered in yamlRouteConfiguration"
+                                ---
+                                - route-configuration:
+                                    id: "yamlRouteConfiguration2"
+                                    on-exception:
+                                      - on-exception:
+                                          handled:
+                                            constant: "true"
+                                          exception:
+                                            - "org.apache.camel.quarkus.core.it.routeconfigurations.RouteConfigurationsException"
+                                          steps:
+                                            - set-body:
+                                                constant:
+                                                  expression: "onException has been triggered in yamlRouteConfiguration"
+                              """
+                )
+        );
+    }
+
+    @Test
+    void testDoubleDocumentSimple() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
+                Assertions.yaml(
+                        """
+                                - route-configuration:
+                                    - id: "__id1"
+                                ---
+                                - route-configuration:
+                                    - id: "__id2"
+                                """,
+                        """
+                                - route-configuration:
+                                    id: "__id1"
+                                ---
+                                - route-configuration:
+                                    id: "__id2"
+                              """
+                )
+        );
+    }
+
+    @Test
+    void testRouteConfigurationIdempotent() {
         rewriteRun(
                 spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
                 Assertions.yaml(
