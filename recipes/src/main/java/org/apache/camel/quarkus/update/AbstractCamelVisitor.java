@@ -34,6 +34,12 @@ public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionConte
         if(_import.getTypeName().contains("org.apache.camel")) {
             camel = true;
         }
+
+        if(!camel) {
+            //skip recipe if file does not contain camel
+            return _import;
+        }
+
         return doVisitImport(_import, context);
     }
 
@@ -84,19 +90,10 @@ public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionConte
         return doVisitAnnotation(annotation, context);
     }
 
-    @Override
-    public final @Nullable J postVisit(J tree, ExecutionContext context) {
-        if(!camel) {
-            //skip recipe if file does not contain camel
-            return tree;
-        }
-
-        return doPostVisit(tree, context);
-    }
 
     //-------------------------------- internal methods used by children---------------------------------
 
-     J.Import doVisitImport(J.Import _import, ExecutionContext context) {
+    protected  J.Import doVisitImport(J.Import _import, ExecutionContext context) {
         return super.visitImport(_import, context);
      }
 
@@ -104,24 +101,20 @@ public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionConte
         return super.visitClassDeclaration(classDecl, context);
      }
 
-    J.FieldAccess doVisitFieldAccess(J.FieldAccess fieldAccess, ExecutionContext context) {
+    protected J.FieldAccess doVisitFieldAccess(J.FieldAccess fieldAccess, ExecutionContext context) {
         return super.visitFieldAccess(fieldAccess, context);
     }
 
-    J.MethodDeclaration doVisitMethodDeclaration(J.MethodDeclaration method, ExecutionContext context) {
+    protected J.MethodDeclaration doVisitMethodDeclaration(J.MethodDeclaration method, ExecutionContext context) {
         return super.visitMethodDeclaration(method, context);
     }
 
-    J.MethodInvocation doVisitMethodInvocation(J.MethodInvocation method, ExecutionContext context) {
+    protected J.MethodInvocation doVisitMethodInvocation(J.MethodInvocation method, ExecutionContext context) {
         return super.visitMethodInvocation(method, context);
     }
 
     J.Annotation doVisitAnnotation(J.Annotation annotation, ExecutionContext context) {
         return super.visitAnnotation(annotation, context);
-    }
-
-    @Nullable J doPostVisit(J tree, ExecutionContext context) {
-        return super.postVisit(tree, context);
     }
 
      // ------------------------------------------ helper methods -------------------------------------------

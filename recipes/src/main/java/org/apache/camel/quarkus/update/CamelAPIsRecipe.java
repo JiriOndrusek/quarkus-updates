@@ -81,7 +81,7 @@ public class CamelAPIsRecipe extends Recipe {
             private Map<Tree, Tree> customComments = new HashMap<>();
 
             @Override
-            J.Import doVisitImport(J.Import _import, ExecutionContext context) {
+            protected J.Import doVisitImport(J.Import _import, ExecutionContext context) {
                 J.Import im = super.doVisitImport(_import, context);
 
                 if(im.isStatic() && im.getTypeName().equals(ThreadPoolRejectedPolicy.class.getCanonicalName())
@@ -148,7 +148,7 @@ public class CamelAPIsRecipe extends Recipe {
             }
 
             @Override
-            J.FieldAccess doVisitFieldAccess(J.FieldAccess fieldAccess, ExecutionContext context) {
+            protected J.FieldAccess doVisitFieldAccess(J.FieldAccess fieldAccess, ExecutionContext context) {
                 J.FieldAccess fa =  super.doVisitFieldAccess(fieldAccess, context);
                 //The org.apache.camel.ExchangePattern has removed InOptionalOut.
                 if("InOptionalOut".equals(fieldAccess.getSimpleName()) && fa.getType() != null && fa.getType().isAssignableFrom(Pattern.compile("org.apache.camel.ExchangePattern"))) {
@@ -168,7 +168,7 @@ public class CamelAPIsRecipe extends Recipe {
             }
 
             @Override
-            J.MethodDeclaration doVisitMethodDeclaration(J.MethodDeclaration method, ExecutionContext context) {
+            protected J.MethodDeclaration doVisitMethodDeclaration(J.MethodDeclaration method, ExecutionContext context) {
                 J.MethodDeclaration md = super.doVisitMethodDeclaration(method, context);
 
                 //Method 'configure' was removed from `org.apache.camel.main.MainListener`, consider using 'beforeConfigure' or 'afterConfigure'.
@@ -238,7 +238,7 @@ public class CamelAPIsRecipe extends Recipe {
 
 
             @Override
-            J.MethodInvocation doVisitMethodInvocation(J.MethodInvocation method, ExecutionContext context) {
+            protected J.MethodInvocation doVisitMethodInvocation(J.MethodInvocation method, ExecutionContext context) {
                 J.MethodInvocation mi = super.doVisitMethodInvocation(method, context);
 
                 if(customComments.containsKey(mi.getSelect())) {
@@ -333,8 +333,8 @@ public class CamelAPIsRecipe extends Recipe {
             }
 
             @Override
-            @Nullable J doPostVisit(J tree, ExecutionContext context) {
-                J j =  super.doPostVisit(tree, context);
+            public @Nullable J postVisit(J tree, ExecutionContext context) {
+                J j =  super.postVisit(tree, context);
 
                 String toType = getCursor().getMessage("type_cast");
 
