@@ -1077,4 +1077,34 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
+    @Test
+    void testBacklogTracerEventMessage() {
+        rewriteRun(
+                spec -> spec.recipe(new CamelAPIsRecipe()),
+                java(
+                        """
+                                import org.apache.camel.api.management.mbean.BacklogTracerEventMessage;
+
+                                public class Test  {
+
+                                    public void test() {
+                                        org.apache.camel.api.management.mbean.BacklogTracerEventMessage msg;
+                                    }
+                                }
+                                """
+                        ,
+                        """
+                                import org.apache.camel.spi.BacklogTracerEventMessage;
+
+                                public class Test  {
+
+                                    public void test() {
+                                        org.apache.camel.spi.BacklogTracerEventMessage msg;
+                                    }
+                                }
+                                """
+                )
+        );
+    }
 }

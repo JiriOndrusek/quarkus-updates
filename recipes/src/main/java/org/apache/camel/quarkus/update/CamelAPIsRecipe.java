@@ -7,6 +7,7 @@ import org.apache.camel.Category;
 import org.apache.camel.ExchangePropertyKey;
 import org.apache.camel.ExtendedCamelContext;
 import org.apache.camel.ExtendedExchange;
+import org.apache.camel.api.management.mbean.BacklogTracerEventMessage;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.catalog.RuntimeCamelCatalog;
 import org.apache.camel.main.MainListener;
@@ -21,6 +22,7 @@ import org.openrewrite.Tree;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.AddImport;
+import org.openrewrite.java.ChangePackage;
 import org.openrewrite.java.ImplementInterface;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.RemoveImplements;
@@ -105,9 +107,16 @@ public class CamelAPIsRecipe extends Recipe {
                     } else {
                         maybeAddImport(newImportName, null, false);
                     }
-                    ;
-
                 }
+
+
+                //BacklogTracerEventMessage moved from `org.apache.camel.api.management.mbean.BacklogTracerEventMessage`
+                // to  `org.apache.camel.spi.BacklogTracerEventMessage`
+                doAfterVisit(
+                        new ChangePackage(BacklogTracerEventMessage.class.getCanonicalName(),
+                        "org.apache.camel.spi.BacklogTracerEventMessage", null));
+
+
 
                 return im;
             }
