@@ -74,7 +74,7 @@ public class RecipesUtil {
                .findFirst();
     }
 
-    static Comment createMultinlineComment(String text) {
+    public static Comment createMultinlineComment(String text) {
         return new TextComment(true, text, null, Markers.EMPTY);
     }
     static Comment createComment(String text) {
