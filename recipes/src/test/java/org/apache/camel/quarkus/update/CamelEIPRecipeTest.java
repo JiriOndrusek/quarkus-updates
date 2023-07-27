@@ -14,7 +14,7 @@ public class CamelEIPRecipeTest implements RewriteTest{
     
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new CamelEIPRecipe())
+        spec.recipe(new CamelJavaGroupedRecipe())
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
                         .classpath("camel-activemq"))
@@ -25,7 +25,7 @@ public class CamelEIPRecipeTest implements RewriteTest{
     void testRemovedEIPInOptionalOut() {
         assertDoesNotThrow(() -> {
             rewriteRun(
-                    spec -> spec.recipe(toRecipe(() -> new CamelEIPRecipe().getVisitor())),
+                    spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                     java(
                             """
                                 import org.apache.camel.builder.RouteBuilder;
@@ -64,7 +64,7 @@ public class CamelEIPRecipeTest implements RewriteTest{
     void testRemovedEIPOutOptionalIn() {
         assertDoesNotThrow(() -> {
             rewriteRun(
-                    spec -> spec.recipe(toRecipe(() -> new CamelEIPRecipe().getVisitor())),
+                    spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                     java(
                             """
                                 import org.apache.camel.builder.RouteBuilder;
@@ -103,7 +103,7 @@ public class CamelEIPRecipeTest implements RewriteTest{
     void testRemovedEIPOutIn() {
         assertDoesNotThrow(() -> {
             rewriteRun(
-                    spec -> spec.recipe(toRecipe(() -> new CamelEIPRecipe().getVisitor())),
+                    spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                     java(
                             """
                                 import org.apache.camel.ExchangePattern;

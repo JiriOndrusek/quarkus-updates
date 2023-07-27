@@ -1,8 +1,6 @@
-package org.apache.camel.quarkus.update;
+package org.apache.camel.quarkus.update.java;
 
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.Recipe;
-import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.MethodMatcher;
 import org.openrewrite.java.tree.J;

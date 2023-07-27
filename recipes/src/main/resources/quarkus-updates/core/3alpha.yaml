@@ -30,11 +30,10 @@ name: custom
 displayName: customName
 description: customDesc
 recipeList:
-  - org.apache.camel.quarkus.update.CamelAPIsRecipe
   - org.apache.camel.quarkus.update.CamelAPIsPropertiesRecipe
   - org.apache.camel.quarkus.update.RemovedComponentsRecipe
   - org.apache.camel.quarkus.update.CamelYamGroupedRecipe
-  - org.apache.camel.quarkus.update.CamelExtensionsGroupedRecipe
+  - org.apache.camel.quarkus.update.CamelJavaGroupedRecipe
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.quarkus.updates.core.quarkus30.UpgradeQuarkiverse

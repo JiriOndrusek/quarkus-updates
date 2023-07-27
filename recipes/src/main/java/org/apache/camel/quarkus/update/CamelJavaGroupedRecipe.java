@@ -1,6 +1,10 @@
 package org.apache.camel.quarkus.update;
 
-import org.apache.camel.quarkus.update.extensions.CamelHttpRecipe;
+import org.apache.camel.quarkus.update.java.AbstractCamelVisitor;
+import org.apache.camel.quarkus.update.java.CamelAPIsRecipe;
+import org.apache.camel.quarkus.update.java.CamelBeanRecipe;
+import org.apache.camel.quarkus.update.java.CamelEIPRecipe;
+import org.apache.camel.quarkus.update.java.CamelHttpRecipe;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
@@ -11,9 +15,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class CamelExtensionsGroupedRecipe extends Recipe {
+public class CamelJavaGroupedRecipe extends Recipe {
 
     List<Recipe> groupedRecipes = Arrays.asList(
+            new CamelAPIsRecipe(),
+            new CamelEIPRecipe(),
+            new CamelBeanRecipe(),
             new CamelHttpRecipe()
     );
 

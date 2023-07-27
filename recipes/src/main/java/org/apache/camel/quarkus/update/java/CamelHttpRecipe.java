@@ -1,8 +1,7 @@
-package org.apache.camel.quarkus.update.extensions;
+package org.apache.camel.quarkus.update.java;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.apache.camel.quarkus.update.AbstractCamelVisitor;
 import org.apache.http.auth.AuthScope;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;

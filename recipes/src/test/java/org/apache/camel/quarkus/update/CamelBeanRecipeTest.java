@@ -15,7 +15,7 @@ public class CamelBeanRecipeTest implements RewriteTest{
     
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new CamelBeanRecipe())
+        spec.recipe(new CamelJavaGroupedRecipe())
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
                         .classpath("camel-bean"))
@@ -26,7 +26,7 @@ public class CamelBeanRecipeTest implements RewriteTest{
     void testClassTypeAndInt() {
         assertDoesNotThrow(() -> {
             rewriteRun(
-                    spec -> spec.recipe(toRecipe(() -> new CamelBeanRecipe().getVisitor())),
+                    spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                     java(
                             """
                                 import org.apache.camel.builder.RouteBuilder;
@@ -62,7 +62,7 @@ public class CamelBeanRecipeTest implements RewriteTest{
     void testClassTypeAndBoolean() {
         assertDoesNotThrow(() -> {
             rewriteRun(
-                    spec -> spec.recipe(toRecipe(() -> new CamelBeanRecipe().getVisitor())),
+                    spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                     java(
                             """
                                 import org.apache.camel.builder.RouteBuilder;
@@ -99,7 +99,7 @@ public class CamelBeanRecipeTest implements RewriteTest{
     void testClassTypeAndFloat() {
         assertDoesNotThrow(() -> {
             rewriteRun(
-                    spec -> spec.recipe(toRecipe(() -> new CamelBeanRecipe().getVisitor())),
+                    spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                     java(
                             """
                                 import org.apache.camel.builder.RouteBuilder;
@@ -135,7 +135,7 @@ public class CamelBeanRecipeTest implements RewriteTest{
     void testDoubleAndChar() {
         assertDoesNotThrow(() -> {
             rewriteRun(
-                    spec -> spec.recipe(toRecipe(() -> new CamelBeanRecipe().getVisitor())),
+                    spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                     java(
                             """
                                 import org.apache.camel.builder.RouteBuilder;
@@ -171,7 +171,7 @@ public class CamelBeanRecipeTest implements RewriteTest{
     void testMultipleTo() {
         assertDoesNotThrow(() -> {
             rewriteRun(
-                    spec -> spec.recipe(toRecipe(() -> new CamelBeanRecipe().getVisitor())),
+                    spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                     java(
                             """
                                 import org.apache.camel.builder.RouteBuilder;
