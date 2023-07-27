@@ -153,6 +153,11 @@
 			<artifactId>camel-activemq</artifactId>
 			<version>3.18.7</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-bean</artifactId>
+			<version>3.18.7</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
