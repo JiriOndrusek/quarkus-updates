@@ -22,7 +22,6 @@ public class CamelExtensionTest implements RewriteTest {
     @Test
     void testHttp() {
         rewriteRun(
-                spec -> spec.recipe(new CamelJavaGroupedRecipe()),
                 java(
                         """
                                 import jakarta.inject.Named;

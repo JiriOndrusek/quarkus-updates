@@ -23,7 +23,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testRemovedExchangePatternInOptionalOut() {
         rewriteRun(
-                spec -> spec.recipe(new CamelJavaGroupedRecipe()),
                 java(
                         """
                                 import org.apache.camel.ExchangePattern;
@@ -69,7 +68,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testRemovedFullyExchangePatternInOptionalOut() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 import org.apache.camel.builder.RouteBuilder;
@@ -113,7 +111,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testComponentNameResolver() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 import org.apache.camel.CamelContext;
@@ -146,7 +143,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testFallbackConverterOnMethod() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 import org.apache.camel.FallbackConverter;
@@ -175,7 +171,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testFallbackConverterOnClassDef() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 import org.apache.camel.FallbackConverter;
@@ -198,7 +193,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testEndpointInject() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                     import org.apache.camel.component.mock.MockEndpoint;
@@ -227,7 +221,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testProduce() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                     import org.apache.camel.component.mock.MockEndpoint;
@@ -256,10 +249,10 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void testConsume() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                     import org.apache.camel.component.mock.MockEndpoint;
@@ -292,7 +285,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testUriEndpoint() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 import org.apache.camel.spi.UriEndpoint;
@@ -317,7 +309,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testUriEndpointWithUnknownValue() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 import org.apache.camel.spi.UriEndpoint;
@@ -339,10 +330,11 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
-  @Test
+
+    @Test
     void testAsyncCallback() {
         rewriteRun(
-                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
+                spec -> spec.expectedCyclesThatMakeChanges(2),
                 java(
                         """
                                 import org.apache.camel.ProducerTemplate;
@@ -383,7 +375,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testOnCamelContextStart() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 import org.apache.camel.spi.OnCamelContextStart;
@@ -409,9 +400,7 @@ public class CamelAPIsTest implements RewriteTest {
 
     @Test
     void testOnCamelContextStop() {
-        CamelJavaGroupedRecipe CamelExtensionsGroupedRecipe = new CamelJavaGroupedRecipe();
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> CamelExtensionsGroupedRecipe.getVisitor())),
                 java(
                         """
                                 import org.apache.camel.spi.OnCamelContextStop;
@@ -439,7 +428,6 @@ public class CamelAPIsTest implements RewriteTest {
     void testAdapt() {
         CamelJavaGroupedRecipe CamelExtensionsGroupedRecipe = new CamelJavaGroupedRecipe();
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> CamelExtensionsGroupedRecipe.getVisitor())),
                 java(
                         """
                                 import org.apache.camel.CamelContext;
@@ -475,7 +463,7 @@ public class CamelAPIsTest implements RewriteTest {
     void testAdaptStandalone() {
         CamelJavaGroupedRecipe CamelExtensionsGroupedRecipe = new CamelJavaGroupedRecipe();
         rewriteRun(
-                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> CamelExtensionsGroupedRecipe.getVisitor())),
+                spec -> spec.expectedCyclesThatMakeChanges(2),
                 java(
                         """
                                 import org.apache.camel.CamelContext;
@@ -512,7 +500,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testAdapt2() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 package org.apache.camel.quarkus.component.test.it;
@@ -548,10 +535,10 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void testComponenetNameResolverViaPluginHelper() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 package org.apache.camel.quarkus.component.test.it;
@@ -589,10 +576,10 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void testRuntimeCatalog() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 package org.apache.camel.quarkus.component.test.it;
@@ -631,7 +618,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testAdaptRouteDefinition() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 package org.apache.camel.quarkus.component.test.it;
@@ -671,7 +657,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testDecoupleExtendedCamelContext() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 import org.apache.camel.CamelContext;
@@ -704,10 +689,11 @@ public class CamelAPIsTest implements RewriteTest {
                                 """
                 )
         );
-    }    @Test
+    }
+
+    @Test
     void testDecoupleExtendedExchange() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 import org.apache.camel.Exchange;
@@ -743,10 +729,10 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void testDecoupleExtendedExchange2() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 import org.apache.camel.CamelContext;
@@ -777,10 +763,10 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void testExchangeIsFailureHandled() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                 import org.apache.camel.Exchange;
@@ -814,10 +800,11 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void testThreadPoolRejectedPolicy() {
         rewriteRun(
-                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
+                spec -> spec.expectedCyclesThatMakeChanges(2),
                 java(
                         """
                                 import org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy;
@@ -854,6 +841,7 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void testSimpleBuilder() {
         rewriteRun(
@@ -868,10 +856,10 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void test1IntrospectionSupport() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                     import org.apache.camel.support.IntrospectionSupport;
@@ -886,10 +874,10 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void testIntrospectionSupport() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                     import org.apache.camel.support.IntrospectionSupport;
@@ -911,10 +899,11 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void testarchetypeCatalogAsXml() {
         rewriteRun(
-                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
+                spec -> spec.expectedCyclesThatMakeChanges(2),
                 java(
                         """
                                     import org.apache.camel.catalog.CamelCatalog;
@@ -943,10 +932,11 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void testMainListenerConfigureImpl() {
         rewriteRun(
-                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
+                spec -> spec.expectedCyclesThatMakeChanges(2),
                 java(
                         """
                                     import org.apache.camel.CamelContext;
@@ -975,10 +965,11 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void testDumpRoutes() {
         rewriteRun(
-                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
+                spec -> spec.expectedCyclesThatMakeChanges(2),
                 java(
                         """
                                     import org.apache.camel.CamelContext;
@@ -1003,10 +994,10 @@ public class CamelAPIsTest implements RewriteTest {
                 )
         );
     }
+
     @Test
     void testAdapt3() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                                     import jakarta.enterprise.context.ApplicationScoped;
@@ -1081,7 +1072,6 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testBacklogTracerEventMessage() {
         rewriteRun(
-                spec -> spec.recipe(new CamelJavaGroupedRecipe()),
                 java(
                         """
                                 import org.apache.camel.api.management.mbean.BacklogTracerEventMessage;
