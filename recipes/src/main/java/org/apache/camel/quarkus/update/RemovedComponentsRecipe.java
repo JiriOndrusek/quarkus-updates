@@ -129,7 +129,7 @@ public class RemovedComponentsRecipe extends Recipe {
                 super.doAfterVisit(recipe);
             }
 
-            private static String commentToRemovedArtifactId(String artifactId, String theDefinition) {
+            private String commentToRemovedArtifactId(String artifactId, String theDefinition) {
                 if (ALTERNATIVE_COMPONENTS.containsKey(artifactId)) {
                     return String.format("Extension %s was removed, consider %s instead. %s", artifactId, ALTERNATIVE_COMPONENTS.get(artifactId).stream().collect(Collectors.joining(" or ")), theDefinition);
                 } else if (TO_BE_REINTRODUCED.contains(artifactId)) {

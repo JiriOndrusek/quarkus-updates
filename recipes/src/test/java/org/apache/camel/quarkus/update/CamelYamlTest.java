@@ -1,7 +1,10 @@
 package org.apache.camel.quarkus.update;
 
 import org.junit.jupiter.api.Test;
+import org.openrewrite.java.JavaParser;
+import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
+import org.openrewrite.test.TypeValidation;
 import org.openrewrite.yaml.Assertions;
 
 import static org.openrewrite.test.RewriteTest.toRecipe;

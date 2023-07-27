@@ -12,7 +12,7 @@ public class CamelExtensionTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new CamelExtensionsGroupedRecipe())
+        spec.recipe(new CamelJavaGroupedRecipe())
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
                         .classpath("camel-api","camel-support","camel-core-model", "camel-util", "camel-catalog", "camel-main", "httpclient"))
@@ -22,7 +22,6 @@ public class CamelExtensionTest implements RewriteTest {
     @Test
     void testHttp() {
         rewriteRun(
-                spec -> spec.recipe(new CamelExtensionsGroupedRecipe()),
                 java(
                         """
                                 import jakarta.inject.Named;

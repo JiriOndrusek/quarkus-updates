@@ -14,7 +14,7 @@ public class CamelEIPRecipeTest implements RewriteTest{
     
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new CamelEIPRecipe())
+        spec.recipe(new CamelJavaGroupedRecipe())
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
                         .classpath("camel-activemq"))
@@ -23,106 +23,99 @@ public class CamelEIPRecipeTest implements RewriteTest{
 
     @Test
     void testRemovedEIPInOptionalOut() {
-        assertDoesNotThrow(() -> {
-            rewriteRun(
-                    spec -> spec.recipe(toRecipe(() -> new CamelEIPRecipe().getVisitor())),
-                    java(
-                            """
-                                import org.apache.camel.builder.RouteBuilder;
+        rewriteRun(
+                java(
+                        """
+                            import org.apache.camel.builder.RouteBuilder;
 
-                                public class MySimpleToDRoute extends RouteBuilder {
-                                
-                                    @Override
-                                    public void configure() {
-                                        from("direct:a")
-                                        .inOut("activemq:queue:testqueue")
-                                        .to("log:result_a");
-                                    }
+                            public class MySimpleToDRoute extends RouteBuilder {
+                            
+                                @Override
+                                public void configure() {
+                                    from("direct:a")
+                                    .inOut("activemq:queue:testqueue")
+                                    .to("log:result_a");
                                 }
-                            """,
-                            """
-                                import org.apache.camel.ExchangePattern;
-                                import org.apache.camel.builder.RouteBuilder;
-                                
-                                public class MySimpleToDRoute extends RouteBuilder {
-                                
-                                    @Override
-                                    public void configure() {
-                                        from("direct:a")
-                                        .setExchangePattern(ExchangePattern.InOut).to("activemq:queue:testqueue")
-                                        .to("log:result_a");
-                                    }
+                            }
+                        """,
+                        """
+                            import org.apache.camel.ExchangePattern;
+                            import org.apache.camel.builder.RouteBuilder;
+                            
+                            public class MySimpleToDRoute extends RouteBuilder {
+                            
+                                @Override
+                                public void configure() {
+                                    from("direct:a")
+                                    .setExchangePattern(ExchangePattern.InOut).to("activemq:queue:testqueue")
+                                    .to("log:result_a");
                                 }
-                            """
+                            }
+                        """
 
-                    )
-            );
-        });
+                )
+        );
     }
 
     @Test
     void testRemovedEIPOutOptionalIn() {
-        assertDoesNotThrow(() -> {
-            rewriteRun(
-                    spec -> spec.recipe(toRecipe(() -> new CamelEIPRecipe().getVisitor())),
-                    java(
-                            """
-                                import org.apache.camel.builder.RouteBuilder;
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
+                java(
+                        """
+                            import org.apache.camel.builder.RouteBuilder;
 
-                                public class MySimpleToDRoute extends RouteBuilder {
-                                
-                                    @Override
-                                    public void configure() {
-                                        from("direct:a")
-                                        .inOut("activemq:queue:testqueue")
-                                        .to("log:result_a");
-                                    }
+                            public class MySimpleToDRoute extends RouteBuilder {
+                            
+                                @Override
+                                public void configure() {
+                                    from("direct:a")
+                                    .inOut("activemq:queue:testqueue")
+                                    .to("log:result_a");
                                 }
-                            """,
-                            """
-                                import org.apache.camel.ExchangePattern;
-                                import org.apache.camel.builder.RouteBuilder;
-                                
-                                public class MySimpleToDRoute extends RouteBuilder {
-                                
-                                    @Override
-                                    public void configure() {
-                                        from("direct:a")
-                                        .setExchangePattern(ExchangePattern.InOut).to("activemq:queue:testqueue")
-                                        .to("log:result_a");
-                                    }
+                            }
+                        """,
+                        """
+                            import org.apache.camel.ExchangePattern;
+                            import org.apache.camel.builder.RouteBuilder;
+                            
+                            public class MySimpleToDRoute extends RouteBuilder {
+                            
+                                @Override
+                                public void configure() {
+                                    from("direct:a")
+                                    .setExchangePattern(ExchangePattern.InOut).to("activemq:queue:testqueue")
+                                    .to("log:result_a");
                                 }
-                            """
+                            }
+                        """
 
-                    )
-            );
-        });
+                )
+        );
     }
 
     @Test
     void testRemovedEIPOutIn() {
-        assertDoesNotThrow(() -> {
-            rewriteRun(
-                    spec -> spec.recipe(toRecipe(() -> new CamelEIPRecipe().getVisitor())),
-                    java(
-                            """
-                                import org.apache.camel.ExchangePattern;
-                                import org.apache.camel.builder.RouteBuilder;
-                                
-                                public class MySimpleToDRoute extends RouteBuilder {
-                                
-                                    @Override
-                                    public void configure() {
-                                        from("direct:a")
-                                        .setExchangePattern(ExchangePattern.InOut).to("activemq:queue:testqueue")
-                                        .to("log:result_a");
-                                    }
-                                }
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
+                java(
                         """
+                            import org.apache.camel.ExchangePattern;
+                            import org.apache.camel.builder.RouteBuilder;
+                            
+                            public class MySimpleToDRoute extends RouteBuilder {
+                            
+                                @Override
+                                public void configure() {
+                                    from("direct:a")
+                                    .setExchangePattern(ExchangePattern.InOut).to("activemq:queue:testqueue")
+                                    .to("log:result_a");
+                                }
+                            }
+                    """
 
-                    )
-            );
-        });
+                )
+        );
     }
 
 }

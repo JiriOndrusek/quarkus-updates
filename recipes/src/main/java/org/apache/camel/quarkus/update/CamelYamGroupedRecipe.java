@@ -32,8 +32,6 @@ public class CamelYamGroupedRecipe extends Recipe {
                 + groupedRecipes.stream().map(r -> r.getDisplayName()).collect(Collectors.joining("\n"));
     }
 
-
-
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new YamlIsoVisitor<>() {
