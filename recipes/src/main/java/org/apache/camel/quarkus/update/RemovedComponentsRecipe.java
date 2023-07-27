@@ -18,6 +18,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Several camel/CQ extensions were removed.
+ * All of such dependencies are commented-out with a comment about removal. In case that different extension is suggested as a reoplacement,
+ * comment suggest that.
+ * TODO usu official links
+ * See https://camel.apache.org/manual/camel-4-migration-guide.html#_removed_components and https://github.com/apache/camel-quarkus/blob/main/docs/modules/ROOT/pages/migration-guide/3.0.0.adoc#removed-extensions
+ */
 public class RemovedComponentsRecipe extends Recipe {
 
     private static String GROUP_ID = "org.apache.camel.quarkus";
@@ -97,30 +104,6 @@ public class RemovedComponentsRecipe extends Recipe {
                         return RecipesUtil.createXmlComment(commentToRemovedArtifactId(artifactdD, t.print(getCursor()))).withPrefix(t.getPrefix());
                     }
                 }
-//
-//                if (DEPENDENC_MATCHER.matches(getCursor()) && !t.getContent().isEmpty()) {
-//                    Xml.Tag parent = getCursor().getParent().getValue();
-//
-//                    //TODO what with  <artifactId>camel-quarkus-dozer<!-- aa --></artifactId>
-//                    for(Content cd : t.getContent()) {
-//                        if(cd instanceof Xml.CharData) {
-//                            String text = ((Xml.CharData) cd).getText();
-//                            if(ARTIFACT_IDS.contains(text)) {
-//                                //verify groupId
-//                                Stream<Content> groupIdContent = parent.getContent().stream().filter(c -> "groupId".equals(((Xml.Tag)c).getName())).flatMap(c -> ((Xml.Tag) c).getContent().stream());
-//                                Optional<Content> camelGroupId = groupIdContent.filter(c -> c instanceof Xml.CharData && GROUP_ID.equals(((Xml.CharData)c).getText())).findFirst();
-//                                if(camelGroupId.isPresent()) {
-//                                    //add a comment to the artifactId
-//                                    LinkedList l = new LinkedList(t.getContent());
-//                                    l.addFirst(RecipesUtil.createXmlComment(commentToRemovedArtifactId(text)));
-//
-//                                    return t.withPrefix("<!--");
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-
                 return t;
             }
 

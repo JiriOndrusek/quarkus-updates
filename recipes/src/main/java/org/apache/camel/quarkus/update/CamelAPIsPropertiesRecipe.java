@@ -43,20 +43,25 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Part of the API changes is - removed Discard and DiscardOldest from org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy.
+ * <p>
+ *     Bith options could be used as a proprtty in application.properties.
+ * </p>
+ */
 @EqualsAndHashCode(callSuper = true)
 @Value
 public class CamelAPIsPropertiesRecipe extends Recipe {
 
     @Override
     public String getDisplayName() {
-        return "Camel API changes";
+        return "Camel API changes in application.properties";
     }
 
     @Override
     public String getDescription() {
-        return "Camel API changes.";
+        return "Apache Camel API migration from version 3.20 or higher to 4.0. Removal of deprecated APIs, which could be part of the application.properties.";
     }
-
 
     @Override
     public PropertiesIsoVisitor getVisitor() {
@@ -68,7 +73,8 @@ public class CamelAPIsPropertiesRecipe extends Recipe {
             public Properties.Entry visitEntry(Properties.Entry entry, ExecutionContext context) {
                 Properties.Entry e = super.visitEntry(entry, context);
 
-                if("camel.threadpool.rejectedPolicy".equals(e.getKey()) && "DiscardOldest".equals(e.getValue().getText())) {
+                if("camel.threadpool.rejectedPolicy".equals(e.getKey()) &&
+                        ("DiscardOldest".equals(e.getValue().getText()) || "Discard".equals(e.getValue().getText()))) {
                     return e.withPrefix(String.format("\n#'ThreadPoolRejectedPolicy.%s' has been removed, consider using 'Abort'. ", e.getKey()));
                 }
 

@@ -17,13 +17,12 @@ public class CamelAPIsPropertiesTest implements RewriteTest {
     public void defaults(RecipeSpec spec) {
         spec.recipe(new CamelJavaGroupedRecipe())
                 .parser(JavaParser.fromJavaVersion()
-                        .logCompilationWarningsAndErrors(true)
-                        .classpath("camel-api","camel-support","camel-core-model", "camel-util", "camel-catalog", "camel-main"))
+                        .logCompilationWarningsAndErrors(true))
                 .typeValidationOptions(TypeValidation.none());;
     }
 
     @Test
-    void testPropertyUpdate() {
+    void testRejectedPolicyDiscardOldeste() {
         rewriteRun(
                 spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelAPIsPropertiesRecipe().getVisitor())),
                 Assertions.properties(
@@ -34,6 +33,23 @@ public class CamelAPIsPropertiesTest implements RewriteTest {
                         """
                                     #test
                                     #'ThreadPoolRejectedPolicy.camel.threadpool.rejectedPolicy' has been removed, consider using 'Abort'. camel.threadpool.rejectedPolicy=DiscardOldest   
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testRejectedPolicyDiscard() {
+        rewriteRun(
+                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelAPIsPropertiesRecipe().getVisitor())),
+                Assertions.properties(
+                        """
+                                   #test
+                                   camel.threadpool.rejectedPolicy=Discard
+                                """,
+                        """
+                                    #test
+                                    #'ThreadPoolRejectedPolicy.camel.threadpool.rejectedPolicy' has been removed, consider using 'Abort'. camel.threadpool.rejectedPolicy=Discard  
                                 """
                 )
         );

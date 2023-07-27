@@ -4,6 +4,9 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.yaml.YamlIsoVisitor;
 import org.openrewrite.yaml.tree.Yaml;
 
+/**
+ * TODO add constraint to runthis recipe only of project contains Camel.
+ */
 public abstract class CamelYamlVisitor extends YamlIsoVisitor<ExecutionContext> {
 
     /**
