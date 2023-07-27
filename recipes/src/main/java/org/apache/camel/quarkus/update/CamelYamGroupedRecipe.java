@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
+/**
+ * Grouping recipe for all Yaml recipes.
+ * Recipes are registered in the list (order is preserved) and all of them are executed.
+ */
 public class CamelYamGroupedRecipe extends Recipe {
 
     List<Recipe> groupedRecipes = Arrays.asList(

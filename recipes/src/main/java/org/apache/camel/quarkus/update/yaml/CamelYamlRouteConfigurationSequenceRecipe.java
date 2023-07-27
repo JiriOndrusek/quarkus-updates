@@ -16,6 +16,10 @@ import java.util.stream.Collectors;
 
 import static org.openrewrite.Tree.randomId;
 
+/**
+ * Camel API changes requires several changes in YAML route definition.
+ * Route-configuration children sequence is replaced with  mappingEntry (with special migration of "on-exception")
+ */
 @EqualsAndHashCode(callSuper = true)
 @Value
 public class CamelYamlRouteConfigurationSequenceRecipe extends Recipe {
@@ -25,12 +29,12 @@ public class CamelYamlRouteConfigurationSequenceRecipe extends Recipe {
 
     @Override
     public String getDisplayName() {
-        return "Camel API changes";
+        return "Camel Yaml changes regardinhg route-configuration children";
     }
 
     @Override
     public String getDescription() {
-        return "Camel API changes.";
+        return "Camel Yam changes. Route-configuration children sequence is replaced with  mappingEntry (with special migration of \"on-exception\")";
     }
 
 

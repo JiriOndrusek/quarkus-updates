@@ -13,6 +13,12 @@ import java.util.stream.Collectors;
 
 /**
  * Parent of Camel visitors, skips visit methods in case that there is no camel package imported.
+ * <p>
+ * Every method <i>visit*</i> is marked as final and method <i>doVisit*</i> is used instead.
+ * </p>
+ * <p>
+ * Simple cache for methodMatchers is implemented here. Usage: call <i>MethodMatcher getMethodMatcher(String signature)</i>.
+ * </p>
  */
 public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionContext> {
 
@@ -23,8 +29,7 @@ public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionConte
 
     //There is no need to  initialize all patterns at the class start.
     //Map is a cache for created patterns
-    //TODO having the map static, may increase performance
-    private Map<String, MethodMatcher> methodMatchers = new HashMap();
+    private static Map<String, MethodMatcher> methodMatchers = new HashMap();
 
     @Override
     public final J.Import visitImport(J.Import _import, ExecutionContext context) {
@@ -95,7 +100,7 @@ public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionConte
         return super.visitImport(_import, context);
      }
 
-     J.ClassDeclaration doVisitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext context) {
+    protected J.ClassDeclaration doVisitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext context) {
         return super.visitClassDeclaration(classDecl, context);
      }
 
@@ -111,7 +116,7 @@ public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionConte
         return super.visitMethodInvocation(method, context);
     }
 
-    J.Annotation doVisitAnnotation(J.Annotation annotation, ExecutionContext context) {
+    protected J.Annotation doVisitAnnotation(J.Annotation annotation, ExecutionContext context) {
         return super.visitAnnotation(annotation, context);
     }
 
@@ -121,14 +126,16 @@ public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionConte
         return implementsList;
     }
 
-    public MethodMatcher getMethodMatcher(String signature) {
-        MethodMatcher matcher = methodMatchers.get(signature);
+    protected MethodMatcher getMethodMatcher(String signature) {
+        synchronized (methodMatchers) {
+            MethodMatcher matcher = methodMatchers.get(signature);
 
-        if(matcher == null) {
-            matcher = new MethodMatcher(signature);
-            methodMatchers.put(signature, matcher);
+            if (matcher == null) {
+                matcher = new MethodMatcher(signature);
+                methodMatchers.put(signature, matcher);
+            }
+
+            return matcher;
         }
-
-        return matcher;
     }
 }

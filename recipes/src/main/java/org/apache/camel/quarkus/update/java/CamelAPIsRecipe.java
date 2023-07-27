@@ -42,6 +42,10 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Recipe migrating changes between Camel 3.x to 4.x, for more details see the
+ * <a href="URL#https://camel.apache.org/manual/camel-4-migration-guide.html#_api_changes" >documentation</a>.
+ */
 @EqualsAndHashCode(callSuper = true)
 @Value
 public class CamelAPIsRecipe extends Recipe {
@@ -55,7 +59,6 @@ public class CamelAPIsRecipe extends Recipe {
     private static final String M_EXCHANGE_ADAPT = "org.apache.camel.Exchange adapt(java.lang.Class)";
     private static final String M_EXCHANGE_GET_PROPERTY = "org.apache.camel.Exchange getProperty(org.apache.camel.ExchangePropertyKey)";
     private static final String M_EXCHANGE_REMOVE_PROPERTY = "org.apache.camel.Exchange removeProperty(org.apache.camel.ExchangePropertyKey)";
-    //TODO should work (*,*) or (org.apache.camel.ExchangePropertyKey,*)
     private static final String M_EXCHANGE_SET_PROPERTY = "org.apache.camel.Exchange setProperty(..)";
     private static final String M_CATALOG_ARCHETYPE_AS_XML = "org.apache.camel.catalog.CamelCatalog archetypeCatalogAsXml()";
 
@@ -67,21 +70,22 @@ public class CamelAPIsRecipe extends Recipe {
 
     @Override
     public String getDescription() {
-        return "Camel API changes.";
+        return "Apache Camel API migration from version 3.20 or higher to 4.0. Removal of deprecated APIs.";
     }
-
 
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
 
         return new AbstractCamelVisitor() {
 
-            private Map<Tree, Tree> customComments = new HashMap<>();
+            //Cache for all methodInvocations CamelContext adapt(java.lang.Class).
+            private Map<UUID, Tree> adaptCache = new HashMap<>();
 
             @Override
             protected J.Import doVisitImport(J.Import _import, ExecutionContext context) {
                 J.Import im = super.doVisitImport(_import, context);
 
+                //Removed Discard and DiscardOldest from org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy.
                 if(im.isStatic() && im.getTypeName().equals(ThreadPoolRejectedPolicy.class.getCanonicalName())
                         && im.getQualid() != null
                         && ("Discard".equals(im.getQualid().getSimpleName()) || "DiscardOldest".equals(im.getQualid().getSimpleName()))) {
@@ -89,13 +93,16 @@ public class CamelAPIsRecipe extends Recipe {
                     im = im.withComments(Collections.singletonList(comment));
 
                 }
-                //removed `org.apache.camel.builder.SimpleBuilder; typically used internally`
+                //Removed org.apache.camel.builder.SimpleBuilder.
+                // Was mostly used internally in Camel with the Java DSL in some situations.
                 else if(SimpleBuilder.class.getCanonicalName().equals(im.getTypeName())) {
                     Comment comment = RecipesUtil.createMultinlineComment(String.format("'%s' has been removed, (class was used internally).", SimpleBeanInfo.class.getCanonicalName()));
                     im = im.withComments(Collections.singletonList(comment));
 
                 }
-                //IntrospectionSupport moved from `org.apache.camel.support` to  `org.apache.camel.impl.engine`
+                //Moved org.apache.camel.support.IntrospectionSupport to camel-core-engine for internal use only.
+                // End users should use org.apache.camel.spi.BeanInspection instead.
+                // Moved from `org.apache.camel.support` to  `org.apache.camel.impl.engine`
                 else if(IntrospectionSupport.class.getCanonicalName().equals(im.getTypeName())) {
                     maybeRemoveImport(im.getTypeName());
                     String newImportName = im.getQualid() == null ? im.getTypeName() : im.getTypeName() /*+ "." + im.getQualid().getSimpleName()*/;
@@ -107,25 +114,24 @@ public class CamelAPIsRecipe extends Recipe {
                     }
                 }
 
-
-                //BacklogTracerEventMessage moved from `org.apache.camel.api.management.mbean.BacklogTracerEventMessage`
+                //Move the following class from org.apache.camel.api.management.mbean.BacklogTracerEventMessage in camel-management-api JAR to org.apache.camel.spi.BacklogTracerEventMessage in camel-api JAR.
+                //
+                // BacklogTracerEventMessage moved from `org.apache.camel.api.management.mbean.BacklogTracerEventMessage`
                 // to  `org.apache.camel.spi.BacklogTracerEventMessage`
                 doAfterVisit(
                         new ChangePackage(BacklogTracerEventMessage.class.getCanonicalName(),
                         "org.apache.camel.spi.BacklogTracerEventMessage", null));
 
-
-
                 return im;
             }
 
             @Override
-            J.ClassDeclaration doVisitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext context) {
+            protected J.ClassDeclaration doVisitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext context) {
                 J.ClassDeclaration cd = super.doVisitClassDeclaration(classDecl, context);
-
-                if (classDecl.getImplements() != null && !classDecl.getImplements().isEmpty()) {
-                    getImplementsList().addAll(classDecl.getImplements().stream().map(i -> i.getType()).collect(Collectors.toList()));
-                }
+//
+//                if (classDecl.getImplements() != null && !classDecl.getImplements().isEmpty()) {
+//                    getImplementsList().addAll(classDecl.getImplements().stream().map(i -> i.getType()).collect(Collectors.toList()));
+//                }
 
                 //Removed org.apache.camel.spi.OnCamelContextStart. Use org.apache.camel.spi.OnCamelContextStarting instead.
                 if(cd.getImplements() != null && cd.getImplements().stream()
@@ -176,8 +182,7 @@ public class CamelAPIsRecipe extends Recipe {
                         && !md.getParameters().isEmpty()
                         && md.getParameters().size() == 1
                         && md.getParameters().get(0) instanceof J.VariableDeclarations
-                        && ((J.VariableDeclarations)md.getParameters().get(0)).getType().isAssignableFrom(Pattern.compile(CamelContext.class.getCanonicalName()))
-                ) {
+                        && ((J.VariableDeclarations)md.getParameters().get(0)).getType().isAssignableFrom(Pattern.compile(CamelContext.class.getCanonicalName()))) {
                     Comment comment = RecipesUtil.createMultinlineComment(String.format(" Method '%s' was removed from `%s`, consider using 'beforeConfigure' or 'afterConfigure'. ", md.getSimpleName(), MainListener.class.getCanonicalName()));
                     md = md.withComments(Collections.singletonList(comment));
                 }
@@ -186,34 +191,41 @@ public class CamelAPIsRecipe extends Recipe {
             }
 
             @Override
-            J.Annotation doVisitAnnotation(J.Annotation annotation, ExecutionContext context) {
+            protected J.Annotation doVisitAnnotation(J.Annotation annotation, ExecutionContext context) {
                 J.Annotation a = super.doVisitAnnotation(annotation, context);
 
+                //Removed @FallbackConverter as you should use @Converter(fallback = true) instead.
                 if (a.getType().toString().equals("org.apache.camel.FallbackConverter")) {
                     maybeAddImport("org.apache.camel.Converter", null, false);
                     maybeRemoveImport("org.apache.camel.FallbackConverter");
 
                     return RecipesUtil.createAnnotation(annotation, "Converter", null, "fallback = true");
                 }
+                //Removed uri attribute on @EndpointInject, @Produce, and @Consume as you should use value (default) instead.
+                //For example @Produce(uri = "kafka:cheese") should be changed to @Produce("kafka:cheese")
                 else if (a.getType().toString().equals("org.apache.camel.EndpointInject")) {
                     Optional<String> originalValue = RecipesUtil.getValueOfArgs(a.getArguments(), "uri");
                     if(originalValue.isPresent()) {
                         return RecipesUtil.createAnnotation(annotation, "EndpointInject", s -> s.startsWith("uri="), originalValue.get());
                     }
                 }
+                //Removed uri attribute on @EndpointInject, @Produce, and @Consume as you should use value (default) instead.
+                //For example @Produce(uri = "kafka:cheese") should be changed to @Produce("kafka:cheese")
                 else if (a.getType().toString().equals("org.apache.camel.Produce")) {
                     Optional<String> originalValue = RecipesUtil.getValueOfArgs(a.getArguments(), "uri");
                     if(originalValue.isPresent()) {
                         return RecipesUtil.createAnnotation(annotation, "Produce", s -> s.startsWith("uri="), originalValue.get());
                     }
                 }
-                else
-                if (a.getType().toString().equals("org.apache.camel.Consume")) {
+                //Removed uri attribute on @EndpointInject, @Produce, and @Consume as you should use value (default) instead.
+                //For example @Produce(uri = "kafka:cheese") should be changed to @Produce("kafka:cheese")
+                else if (a.getType().toString().equals("org.apache.camel.Consume")) {
                     Optional<String> originalValue = RecipesUtil.getValueOfArgs(a.getArguments(), "uri");
                     if(originalValue.isPresent()) {
                         return RecipesUtil.createAnnotation(annotation, "Consume", s -> s.startsWith("uri="), originalValue.get());
                     }
                 }
+                // Removed label on @UriEndpoint as you should use category instead.
                 else if (a.getType().toString().equals("org.apache.camel.spi.UriEndpoint")) {
 
                     Optional<String> originalValue = RecipesUtil.getValueOfArgs(a.getArguments(), "label");
@@ -234,13 +246,13 @@ public class CamelAPIsRecipe extends Recipe {
                 return a;
             }
 
-
             @Override
             protected J.MethodInvocation doVisitMethodInvocation(J.MethodInvocation method, ExecutionContext context) {
                 J.MethodInvocation mi = super.doVisitMethodInvocation(method, context);
 
-                if(customComments.containsKey(mi.getSelect())) {
-                    getCursor().putMessage("type_cast", ModelCamelContext.class.getSimpleName());
+                //if adapt method invocation is used as a select for another method invocation, it is replaced
+                if(mi.getSelect() != null && adaptCache.containsKey(mi.getSelect().getId())) {
+                    getCursor().putMessage("adapt_cast", mi.getSelect().getId());
                 } else
                 // context.getExtension(ExtendedCamelContext.class).getComponentNameResolver() -> PluginHelper.getComponentNameResolver(context)
                 if (getMethodMatcher(MATCHER_CONTEXT_GET_ENDPOINT_MAP).matches(mi)) {
@@ -255,14 +267,11 @@ public class CamelAPIsRecipe extends Recipe {
                 //context.adapt(ModelCamelContext.class) -> ((ModelCamelContext) context)
                 else if (getMethodMatcher(M_CONTEXT_ADAPT).matches(mi)) {
                     if (mi.getType().isAssignableFrom(Pattern.compile(ModelCamelContext.class.getCanonicalName()))) {
-//                        JavaType.FullyQualified targetType = TypeUtils.asFullyQualified(JavaType.buildType(ModelCamelContext.class.getSimpleName()));
-//                       return  mi.withType(targetType);
-//                        boolean hasFollowingElement = RecipesUtil.isThereFollower(mi);
-//                    getCursor().putMessage("type_cast", ModelCamelContext.class.getSimpleName());
                         J.Identifier type = RecipesUtil.createIdentifier(mi.getPrefix(), ModelCamelContext.class.getSimpleName(), "java.lang.Object");
                         J.ControlParentheses cp  =  RecipesUtil.createParentheses(RecipesUtil.createTypeCast(type, mi.getSelect()));
-                        customComments.put(mi, cp);
-                        return mi.withComments(Collections.singletonList(RecipesUtil.createMultinlineComment("Method 'adapt' was removed.")));
+                        //put the type cast into cache in case it is replaced lately
+                        mi = mi.withComments(Collections.singletonList(RecipesUtil.createMultinlineComment("Method 'adapt' was removed.")));
+                        adaptCache.put(method.getId(), cp);
                     } else if (mi.getType().isAssignableFrom(Pattern.compile(ExtendedCamelContext.class.getCanonicalName()))) {
                         mi = mi.withName(mi.getName().withSimpleName("getCamelContextExtension")).withArguments(Collections.emptyList());
                         maybeRemoveImport(ExtendedCamelContext.class.getCanonicalName());
@@ -316,7 +325,7 @@ public class CamelAPIsRecipe extends Recipe {
                         doAfterVisit(new AddImport<>("org.apache.camel.support.PluginHelper", null, false));
                     }
                 }
-//                // (CamelRuntimeCatalog) context.getExtension(RuntimeCamelCatalog.class) -> context.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class);
+                // (CamelRuntimeCatalog) context.getExtension(RuntimeCamelCatalog.class) -> context.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class);
                 else if (getMethodMatcher(MATCHER_CONTEXT_GET_EXT).matches(mi)) {
 
                     mi = mi.withName(mi.getName().withSimpleName("getCamelContextExtension().getContextPlugin"))
@@ -334,17 +343,11 @@ public class CamelAPIsRecipe extends Recipe {
             public @Nullable J postVisit(J tree, ExecutionContext context) {
                 J j =  super.postVisit(tree, context);
 
-                String toType = getCursor().getMessage("type_cast");
+                UUID adaptCast = getCursor().getMessage("adapt_cast");
 
-                if(toType != null) {
+                if(adaptCast != null) {
                     J.MethodInvocation mi = (J.MethodInvocation)j;
-                    Comment c = RecipesUtil.createComment("");
-
-//                getCursor().putMessage("aaa", "aaa");
-//                J.Identifier type = RecipesUtil.createIdentifier(mi.getPrefix(), toType, "java.lang.Object");
-//                J.ControlParentheses cp  =  RecipesUtil.createParentheses(RecipesUtil.createTypeCast(type, mi.getSelect()).withComments(Collections.singletonList(c)));
-                    //todo quick
-                    J.ControlParentheses cp = (J.ControlParentheses)customComments.values().iterator().next();
+                    J.ControlParentheses cp = (J.ControlParentheses) adaptCache.get(adaptCast);
 
                     J.MethodInvocation m = mi.withSelect(cp);
                     return m;
@@ -358,7 +361,6 @@ public class CamelAPIsRecipe extends Recipe {
 
                 return j;
             }
-
 
         };
     }

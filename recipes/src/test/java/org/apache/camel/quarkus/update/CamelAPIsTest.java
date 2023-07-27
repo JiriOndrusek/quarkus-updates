@@ -426,7 +426,6 @@ public class CamelAPIsTest implements RewriteTest {
 
     @Test
     void testAdapt() {
-        CamelJavaGroupedRecipe CamelExtensionsGroupedRecipe = new CamelJavaGroupedRecipe();
         rewriteRun(
                 java(
                         """
@@ -452,6 +451,48 @@ public class CamelAPIsTest implements RewriteTest {
                                 
                                     public void test() {
                                         ((ModelCamelContext)context).getRouteDefinition("forMocking");
+                                    }
+                                }
+                                """
+                )
+        );
+    }
+
+    @Test
+    void testMoreOccurrencesAdapt() {
+        CamelJavaGroupedRecipe CamelExtensionsGroupedRecipe = new CamelJavaGroupedRecipe();
+        rewriteRun(
+                spec -> spec.expectedCyclesThatMakeChanges(2),
+                java(
+                        """
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.model.ModelCamelContext;
+                                
+                                public class Test {
+                                
+                                    CamelContext context, c1, c2, c3;
+                                
+                                    public ModelCamelContext test() {
+                                        context.adapt(ModelCamelContext.class).getRouteDefinition("forMocking");
+                                        c1.adapt(ModelCamelContext.class).getRegistry();
+                                        c2.adapt(ModelCamelContext.class);
+                                        return c3.adapt(ModelCamelContext.class);
+                                    }
+                                }
+                            """,
+                        """
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.model.ModelCamelContext;
+                                
+                                public class Test {
+                                
+                                    CamelContext context, c1, c2, c3;
+                                
+                                    public ModelCamelContext test() {
+                                        ((ModelCamelContext)context).getRouteDefinition("forMocking");
+                                        ((ModelCamelContext)c1).getRegistry();
+                                        /*Method 'adapt' was removed.*/c2.adapt(ModelCamelContext.class);
+                                        return /*Method 'adapt' was removed.*/c3.adapt(ModelCamelContext.class);
                                     }
                                 }
                                 """

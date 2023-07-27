@@ -47,6 +47,8 @@ public class CamelHttpRecipe extends Recipe {
             protected J.FieldAccess doVisitFieldAccess(J.FieldAccess fieldAccess, ExecutionContext context) {
                 J.FieldAccess f = super.doVisitFieldAccess(fieldAccess, context);
 
+                //The component has been upgraded to use Apache HttpComponents v5
+                //AuthScope.ANY -> new AuthScope(null, -1)
                 if("ANY".equals(f.getSimpleName()) && AuthScope.class.getCanonicalName().equals(f.getType().toString())) {
                     JavaTemplate.Builder templateBuilder = JavaTemplate.builder(this::getCursor, "new AuthScope(null, -1)")
                             .imports("org.apache.hc.client5.http.auth.AuthScope");
@@ -55,7 +57,7 @@ public class CamelHttpRecipe extends Recipe {
                                         f.getCoordinates().replace())
                                      .withPrefix(f.getPrefix()
                     );
-                    getCursor().putMessage("newClass", nc);
+                    getCursor().putMessage("authScopeNewClass", nc);
                 }
                 return f;
             }
@@ -70,7 +72,8 @@ public class CamelHttpRecipe extends Recipe {
             public @Nullable J postVisit(J tree, ExecutionContext context) {
                 J j = super.postVisit(tree, context);
 
-                J.NewClass newClass = getCursor().getMessage("newClass");
+                //use a new class instead of original element
+                J.NewClass newClass = getCursor().getMessage("authScopeNewClass");
                 if(newClass != null) {
                     return newClass;
                 }
