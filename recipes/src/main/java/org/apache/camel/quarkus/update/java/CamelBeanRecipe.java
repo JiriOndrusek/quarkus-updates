@@ -1,4 +1,4 @@
-package org.apache.camel.quarkus.update;
+package org.apache.camel.quarkus.update.java;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,12 +31,11 @@ public class CamelBeanRecipe extends Recipe {
 
     @Override
     protected TreeVisitor<?, ExecutionContext> getVisitor() {
-        return new JavaIsoVisitor<>() {
+        return new AbstractCamelVisitor() {
 
             @Override
-            public org.openrewrite.java.tree.J.MethodInvocation visitMethodInvocation(
-                    org.openrewrite.java.tree.J.MethodInvocation method, ExecutionContext ctx) {
-                J.MethodInvocation mi = super.visitMethodInvocation(method, ctx);
+            protected J.MethodInvocation doVisitMethodInvocation(J.MethodInvocation method, ExecutionContext context) {
+                J.MethodInvocation mi = super.doVisitMethodInvocation(method, context);
                 Pattern findMethodPattern = Pattern.compile("method=.*");
 
                 if (mi.getSimpleName().equals("to")) {

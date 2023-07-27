@@ -1,4 +1,4 @@
-package org.apache.camel.quarkus.update;
+package org.apache.camel.quarkus.update.java;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
@@ -9,9 +9,9 @@ import org.apache.camel.ExtendedCamelContext;
 import org.apache.camel.ExtendedExchange;
 import org.apache.camel.api.management.mbean.BacklogTracerEventMessage;
 import org.apache.camel.builder.SimpleBuilder;
-import org.apache.camel.catalog.RuntimeCamelCatalog;
 import org.apache.camel.main.MainListener;
 import org.apache.camel.model.ModelCamelContext;
+import org.apache.camel.quarkus.update.RecipesUtil;
 import org.apache.camel.spi.OnCamelContextStart;
 import org.apache.camel.spi.OnCamelContextStop;
 import org.apache.camel.support.IntrospectionSupport;
@@ -36,10 +36,8 @@ import org.openrewrite.marker.Markers;
 import java.beans.SimpleBeanInfo;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;

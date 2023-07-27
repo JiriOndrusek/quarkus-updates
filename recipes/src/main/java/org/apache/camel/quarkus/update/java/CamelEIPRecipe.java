@@ -1,4 +1,4 @@
-package org.apache.camel.quarkus.update;
+package org.apache.camel.quarkus.update.java;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -21,12 +21,11 @@ public class CamelEIPRecipe extends Recipe {
 
     @Override
     protected TreeVisitor<?, ExecutionContext> getVisitor() {
-        return new JavaIsoVisitor<>() {
+        return new AbstractCamelVisitor() {
 
             @Override
-            public org.openrewrite.java.tree.J.MethodInvocation visitMethodInvocation(
-                    org.openrewrite.java.tree.J.MethodInvocation method, ExecutionContext ctx) {
-                J.MethodInvocation mi = super.visitMethodInvocation(method, ctx);
+            protected J.MethodInvocation doVisitMethodInvocation(J.MethodInvocation method, ExecutionContext context) {
+                J.MethodInvocation mi =  super.doVisitMethodInvocation(method, context);
 
                 if (mi.getSimpleName().equals("inOut") || mi.getSimpleName().equals("inOnly")) {
                     String name = mi.getSimpleName().substring(0, 1).toUpperCase() + mi.getSimpleName().substring(1);

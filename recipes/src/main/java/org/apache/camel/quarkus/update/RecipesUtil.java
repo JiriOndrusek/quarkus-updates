@@ -30,7 +30,7 @@ import static org.openrewrite.Tree.randomId;
 
 public class RecipesUtil {
 
-    static J.Annotation createAnnotation(J.Annotation annotation, String name, Function<String, Boolean> argMatcher, String args) {
+    public static J.Annotation createAnnotation(J.Annotation annotation, String name, Function<String, Boolean> argMatcher, String args) {
 
         LinkedList<Expression> originalArguments = annotation.getArguments() == null ? new LinkedList<>() : new LinkedList(annotation.getArguments());
 
@@ -64,7 +64,7 @@ public class RecipesUtil {
                 newAnnotationIdentifier, arguments);
     }
 
-    static Optional<String> getValueOfArgs(List<Expression> expressions, String parameter) {
+    public static Optional<String> getValueOfArgs(List<Expression> expressions, String parameter) {
         if(expressions == null || expressions.isEmpty()) {
             return Optional.empty();
         }
@@ -77,14 +77,14 @@ public class RecipesUtil {
     public static Comment createMultinlineComment(String text) {
         return new TextComment(true, text, null, Markers.EMPTY);
     }
-    static Comment createComment(String text) {
+    public static Comment createComment(String text) {
         return new TextComment(false, text, null, Markers.EMPTY);
     }
-    static Xml.Comment createXmlComment(String text) {
+    public static Xml.Comment createXmlComment(String text) {
         return new Xml.Comment(UUID.randomUUID(), null, Markers.EMPTY, text);
     }
 
-    static J createTypeCast(Object type, Expression arg) {
+    public static J createTypeCast(Object type, Expression arg) {
        return new J.TypeCast(
                 Tree.randomId(),
                 Space.EMPTY,
@@ -93,7 +93,7 @@ public class RecipesUtil {
                 arg);
     }
 
-    static <T> J.ControlParentheses createParentheses(T t) {
+    public static <T> J.ControlParentheses createParentheses(T t) {
         return new J.ControlParentheses(
                 Tree.randomId(),
                 Space.EMPTY,
@@ -101,7 +101,7 @@ public class RecipesUtil {
                 padRight(t));
     }
 
-    static J.Identifier createIdentifier(Space prefix, String name, String type) {
+    public static J.Identifier createIdentifier(Space prefix, String name, String type) {
        return new J.Identifier(randomId(), prefix, Markers.EMPTY, name,
                 JavaType.ShallowClass.build(type), null);
     }
@@ -110,7 +110,7 @@ public class RecipesUtil {
         return new JRightPadded<>(tree, Space.EMPTY, Markers.EMPTY);
     }
 
-    static String getProperty(Cursor cursor) {
+    public static String getProperty(Cursor cursor) {
         StringBuilder asProperty = new StringBuilder();
         Iterator<Object> path = cursor.getPath();
         int i = 0;
