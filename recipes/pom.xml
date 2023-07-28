@@ -23,6 +23,12 @@
         <!--   for now, we don't know where to find compatibility information for the Gradle plugin -->
         <rewrite-gradle-plugin.version>5.40.6</rewrite-gradle-plugin.version>
 
+        <!-- tests-->
+        <junit.version>5.4.0</junit.version>
+        <surefire.plugin.version>3.1.0</surefire.plugin.version>
+        <!-- Http version used by the tests -->
+        <http.version>4.5.14</http.version>
+
         <lombok.version>1.18.28</lombok.version>
     </properties>
 
@@ -103,6 +109,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- rewrite-maven dependency is required for pom.xml recipe testing -->
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-maven</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- lombok is optional, but recommended for authoring recipes -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -115,6 +128,18 @@
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -187,6 +212,40 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-api</artifactId>
+                        <version>${surefire.plugin.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <systemPropertyVariables>
+                        <maven.repo.local>${settings.localRepository}</maven.repo.local>
+                        <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>
