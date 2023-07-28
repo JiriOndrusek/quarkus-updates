@@ -26,6 +26,13 @@
 #####
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.camel30.CamelQuarkusMigrationRecipe
+displayName: Migrate `camel3` application to `camel4.`
+description: Migrate `camel3` quarkus application to `camel4` quarkus.
+recipeList:
+  - io.quarkus.updates.camel30.CamelQuarkusMigrationRecipe
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.quarkus.updates.core.quarkus30.UpgradeQuarkiverse
 recipeList:
   - org.openrewrite.maven.UpgradeDependencyVersion:
