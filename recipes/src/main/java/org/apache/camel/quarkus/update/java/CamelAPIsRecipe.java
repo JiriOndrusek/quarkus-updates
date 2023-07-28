@@ -11,6 +11,7 @@ import org.apache.camel.api.management.mbean.BacklogTracerEventMessage;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.main.MainListener;
 import org.apache.camel.model.ModelCamelContext;
+import org.apache.camel.quarkus.update.AbstractCamelQuarkusRecipe;
 import org.apache.camel.quarkus.update.RecipesUtil;
 import org.apache.camel.spi.OnCamelContextStart;
 import org.apache.camel.spi.OnCamelContextStop;
@@ -39,6 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -48,7 +50,8 @@ import java.util.stream.Collectors;
  */
 @EqualsAndHashCode(callSuper = true)
 @Value
-public class CamelAPIsRecipe extends Recipe {
+public class CamelAPIsRecipe extends AbstractCamelQuarkusRecipe {
+
     private static final String MATCHER_CONTEXT_GET_ENDPOINT_MAP = "org.apache.camel.CamelContext getEndpointMap()";
     private static final String MATCHER_CONTEXT_GET_EXT = "org.apache.camel.CamelContext getExtension(java.lang.Class)";
     private static final String MATCHER_GET_NAME_RESOLVER = "org.apache.camel.ExtendedCamelContext getComponentNameResolver()";
@@ -61,7 +64,6 @@ public class CamelAPIsRecipe extends Recipe {
     private static final String M_EXCHANGE_REMOVE_PROPERTY = "org.apache.camel.Exchange removeProperty(org.apache.camel.ExchangePropertyKey)";
     private static final String M_EXCHANGE_SET_PROPERTY = "org.apache.camel.Exchange setProperty(..)";
     private static final String M_CATALOG_ARCHETYPE_AS_XML = "org.apache.camel.catalog.CamelCatalog archetypeCatalogAsXml()";
-
 
     @Override
     public String getDisplayName() {

@@ -2,6 +2,7 @@ package org.apache.camel.quarkus.update.yaml;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.apache.camel.quarkus.update.AbstractCamelQuarkusRecipe;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
@@ -13,6 +14,7 @@ import org.openrewrite.yaml.tree.Yaml;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Fixes following yaml change.
@@ -39,7 +41,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Value
-public class CamelYamlStepsInFromRecipe extends Recipe {
+public class CamelQuarkusYamlStepsInFromRecipe extends AbstractCamelQuarkusRecipe {
 
     private  static String[] PATHS_TO_PRE_CHECK = new String[] {"route.from"};
     private static JsonPathMatcher MATCHER_WITHOUT_ROUTE = new JsonPathMatcher("$.steps");

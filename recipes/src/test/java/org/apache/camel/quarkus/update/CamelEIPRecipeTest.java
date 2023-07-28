@@ -6,15 +6,13 @@ import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
 import org.openrewrite.test.TypeValidation;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.openrewrite.java.Assertions.java;
-import static org.openrewrite.test.RewriteTest.toRecipe;
 
 public class CamelEIPRecipeTest implements RewriteTest{
     
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new CamelJavaGroupedRecipe())
+        spec.recipe(new CamelQuarkusMigrationRecipe(true))
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
                         .classpath("camel-activemq"))
@@ -60,7 +58,6 @@ public class CamelEIPRecipeTest implements RewriteTest{
     @Test
     void testRemovedEIPOutOptionalIn() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                             import org.apache.camel.builder.RouteBuilder;
@@ -97,7 +94,6 @@ public class CamelEIPRecipeTest implements RewriteTest{
     @Test
     void testRemovedEIPOutIn() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                             import org.apache.camel.ExchangePattern;

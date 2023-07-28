@@ -1,20 +1,17 @@
 package org.apache.camel.quarkus.update;
 
 import org.junit.jupiter.api.Test;
-import org.openrewrite.java.JavaParser;
-import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
-import org.openrewrite.test.TypeValidation;
 import org.openrewrite.yaml.Assertions;
 
 import static org.openrewrite.test.RewriteTest.toRecipe;
 
-public class CamelYamlTest implements RewriteTest {
+public class CamelYamlTest extends BaseCamelQuarkusTest {
 
     @Test
     void testStepsToFrom1() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
+                spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)),
                 Assertions.yaml(
                         """
                                   route:
@@ -37,7 +34,7 @@ public class CamelYamlTest implements RewriteTest {
     @Test
     void testStepsToFrom2() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
+                spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)),
                 Assertions.yaml(
                         """
                                     from:
@@ -58,7 +55,7 @@ public class CamelYamlTest implements RewriteTest {
     @Test
     void testStepsToFrom3() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
+                spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)),
                 Assertions.yaml(
                         """
                                 - from:
@@ -93,7 +90,7 @@ public class CamelYamlTest implements RewriteTest {
     @Test
     void testRouteConfigurationWithOnException() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
+                spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)),
                 Assertions.yaml(
                         """
                                 - route-configuration:
@@ -129,7 +126,7 @@ public class CamelYamlTest implements RewriteTest {
     @Test
     void testRouteConfigurationWithoutOnException() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
+                spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)),
                 Assertions.yaml(
                         """
                                 - route-configuration:
@@ -146,7 +143,7 @@ public class CamelYamlTest implements RewriteTest {
     @Test
     void testDoubleDocument() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
+                spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)),
                 Assertions.yaml(
                         """
                                 - route-configuration:
@@ -207,7 +204,7 @@ public class CamelYamlTest implements RewriteTest {
     @Test
     void testDoubleDocumentSimple() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
+                spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)),
                 Assertions.yaml(
                         """
                                 - route-configuration:
@@ -230,7 +227,7 @@ public class CamelYamlTest implements RewriteTest {
     @Test
     void testRouteConfigurationIdempotent() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelYamGroupedRecipe().getVisitor())),
+                spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)),
                 Assertions.yaml(
                         """
                                 - route-configuration:
@@ -249,6 +246,4 @@ public class CamelYamlTest implements RewriteTest {
                 )
         );
     }
-
-
 }

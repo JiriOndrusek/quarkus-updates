@@ -1,5 +1,6 @@
 package org.apache.camel.quarkus.update;
 
+import org.apache.camel.quarkus.update.properties.CamelQuarkusAPIsPropertiesRecipe;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.properties.Assertions;
@@ -11,11 +12,11 @@ import static org.openrewrite.java.Assertions.java;
 import static org.openrewrite.maven.Assertions.pomXml;
 import static org.openrewrite.test.RewriteTest.toRecipe;
 
-public class CamelAPIsPropertiesTest implements RewriteTest {
+public class CamelAPIsPropertiesTest extends BaseCamelQuarkusTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new CamelJavaGroupedRecipe())
+        spec.recipe(new CamelQuarkusMigrationRecipe())
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true))
                 .typeValidationOptions(TypeValidation.none());;
@@ -24,8 +25,8 @@ public class CamelAPIsPropertiesTest implements RewriteTest {
     @Test
     void testRejectedPolicyDiscardOldeste() {
         rewriteRun(
-                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelAPIsPropertiesRecipe().getVisitor())),
-                Assertions.properties(
+                spec -> spec.expectedCyclesThatMakeChanges(2),
+                withCamel(Assertions.properties(
                         """
                                    #test
                                    camel.threadpool.rejectedPolicy=DiscardOldest
@@ -34,6 +35,18 @@ public class CamelAPIsPropertiesTest implements RewriteTest {
                                     #test
                                     #'ThreadPoolRejectedPolicy.camel.threadpool.rejectedPolicy' has been removed, consider using 'Abort'. camel.threadpool.rejectedPolicy=DiscardOldest   
                                 """
+                ))
+        );
+    }
+
+    @Test
+    void testNonCamelProject() {
+        rewriteRun(
+                Assertions.properties(
+                        """
+                                   #test
+                                   camel.threadpool.rejectedPolicy=DiscardOldest
+                                """
                 )
         );
     }
@@ -41,8 +54,8 @@ public class CamelAPIsPropertiesTest implements RewriteTest {
     @Test
     void testRejectedPolicyDiscard() {
         rewriteRun(
-                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelAPIsPropertiesRecipe().getVisitor())),
-                Assertions.properties(
+                spec -> spec.expectedCyclesThatMakeChanges(2),
+                withCamel(Assertions.properties(
                         """
                                    #test
                                    camel.threadpool.rejectedPolicy=Discard
@@ -51,7 +64,7 @@ public class CamelAPIsPropertiesTest implements RewriteTest {
                                     #test
                                     #'ThreadPoolRejectedPolicy.camel.threadpool.rejectedPolicy' has been removed, consider using 'Abort'. camel.threadpool.rejectedPolicy=Discard  
                                 """
-                )
+                ))
         );
     }
 

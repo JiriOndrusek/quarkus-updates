@@ -13,7 +13,7 @@ public class CamelAPIsTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new CamelJavaGroupedRecipe())
+        spec.recipe(new CamelQuarkusMigrationRecipe(true))
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
                         .classpath("camel-api","camel-support","camel-core-model", "camel-util", "camel-catalog", "camel-main"))
@@ -460,7 +460,6 @@ public class CamelAPIsTest implements RewriteTest {
 
     @Test
     void testMoreOccurrencesAdapt() {
-        CamelJavaGroupedRecipe CamelExtensionsGroupedRecipe = new CamelJavaGroupedRecipe();
         rewriteRun(
                 spec -> spec.expectedCyclesThatMakeChanges(2),
                 java(
@@ -502,7 +501,6 @@ public class CamelAPIsTest implements RewriteTest {
 
     @Test
     void testAdaptStandalone() {
-        CamelJavaGroupedRecipe CamelExtensionsGroupedRecipe = new CamelJavaGroupedRecipe();
         rewriteRun(
                 spec -> spec.expectedCyclesThatMakeChanges(2),
                 java(
@@ -886,7 +884,7 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testSimpleBuilder() {
         rewriteRun(
-                spec -> spec.expectedCyclesThatMakeChanges(2).recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
+                spec -> spec.expectedCyclesThatMakeChanges(2),
                 java(
                         """
                                 import org.apache.camel.builder.SimpleBuilder;

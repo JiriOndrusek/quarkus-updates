@@ -1,5 +1,6 @@
 package org.apache.camel.quarkus.update.java;
 
+import org.apache.camel.quarkus.update.AbstractCamelQuarkusRecipe;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
@@ -7,7 +8,9 @@ import org.openrewrite.java.AddImport;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.J;
 
-public class CamelEIPRecipe extends Recipe {
+import java.util.function.Supplier;
+
+public class CamelEIPRecipe extends AbstractCamelQuarkusRecipe {
 
     @Override
     public String getDisplayName() {
@@ -20,7 +23,7 @@ public class CamelEIPRecipe extends Recipe {
     }
 
     @Override
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new AbstractCamelVisitor() {
 
             @Override

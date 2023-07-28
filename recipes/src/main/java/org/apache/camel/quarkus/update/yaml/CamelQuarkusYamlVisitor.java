@@ -7,7 +7,7 @@ import org.openrewrite.yaml.tree.Yaml;
 /**
  * TODO add constraint to runthis recipe only of project contains Camel.
  */
-public abstract class CamelYamlVisitor extends YamlIsoVisitor<ExecutionContext> {
+public abstract class CamelQuarkusYamlVisitor extends YamlIsoVisitor<ExecutionContext> {
 
     /**
      * Method is called before start of visiting a new document.
@@ -24,9 +24,9 @@ public abstract class CamelYamlVisitor extends YamlIsoVisitor<ExecutionContext> 
 
     @Override
     public Yaml.Documents visitDocuments(Yaml.Documents documents, ExecutionContext context) {
-        boolean visited = context.getMessage(CamelYamlVisitor.class.getSimpleName() + "_visited", false);
+        boolean visited = context.getMessage(CamelQuarkusYamlVisitor.class.getSimpleName() + "_visited", false);
         if(!visited) {
-            context.putMessage(CamelYamlVisitor.class.getSimpleName() + "_visited", true);
+            context.putMessage(CamelQuarkusYamlVisitor.class.getSimpleName() + "_visited", true);
             documents = super.visitDocuments(documents, context);
         }
         return documents;

@@ -14,7 +14,7 @@ public class CamelBeanRecipeTest implements RewriteTest{
     
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new CamelJavaGroupedRecipe())
+        spec.recipe(new CamelQuarkusMigrationRecipe(true))
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
                         .classpath("camel-bean"))
@@ -157,7 +157,6 @@ public class CamelBeanRecipeTest implements RewriteTest{
     @Test
     void testMultipleTo() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new CamelJavaGroupedRecipe().getVisitor())),
                 java(
                         """
                             import org.apache.camel.builder.RouteBuilder;

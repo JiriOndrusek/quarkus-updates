@@ -2,16 +2,19 @@ package org.apache.camel.quarkus.update.yaml;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.apache.camel.quarkus.update.AbstractCamelQuarkusRecipe;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.yaml.JsonPathMatcher;
+import org.openrewrite.yaml.YamlIsoVisitor;
 import org.openrewrite.yaml.format.IndentsVisitor;
 import org.openrewrite.yaml.style.IndentsStyle;
 import org.openrewrite.yaml.tree.Yaml;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.openrewrite.Tree.randomId;
@@ -22,7 +25,7 @@ import static org.openrewrite.Tree.randomId;
  */
 @EqualsAndHashCode(callSuper = true)
 @Value
-public class CamelYamlRouteConfigurationSequenceRecipe extends Recipe {
+public class CamelQuarkusYamlRouteConfigurationSequenceRecipe extends AbstractCamelQuarkusRecipe {
 
     private static JsonPathMatcher MATCHER_ROUTE_CONFIGURATION = new JsonPathMatcher("$.route-configuration");
     private static JsonPathMatcher MATCHER_ROUTE_CONFIGURATION_ON_EXCEPTION = new JsonPathMatcher("$.route-configuration.on-exception");
@@ -41,7 +44,7 @@ public class CamelYamlRouteConfigurationSequenceRecipe extends Recipe {
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
 
-        return new CamelYamlVisitor() {
+        return new CamelQuarkusYamlVisitor() {
 
             private Yaml.Sequence sequenceToReplace;
             private boolean indentRegistered = false;

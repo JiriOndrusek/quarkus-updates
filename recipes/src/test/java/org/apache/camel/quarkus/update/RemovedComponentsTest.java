@@ -1,5 +1,6 @@
 package org.apache.camel.quarkus.update;
 
+import org.apache.camel.quarkus.update.pom.RemovedComponentsRecipe;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RecipeSpec;
@@ -13,7 +14,7 @@ public class RemovedComponentsTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new RemovedComponentsRecipe())
+        spec.recipe(new CamelQuarkusMigrationRecipe(true))
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true))
                 .typeValidationOptions(TypeValidation.none());
@@ -23,7 +24,6 @@ public class RemovedComponentsTest implements RewriteTest {
     @Test
     void testRemovedExtensions() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new RemovedComponentsRecipe().getVisitor())),
                 pomXml(
                         """
 <project>
@@ -304,7 +304,6 @@ public class RemovedComponentsTest implements RewriteTest {
     @Test
     void testRemovedComponentsReal() {
         rewriteRun(
-                spec -> spec.recipe(toRecipe(() -> new RemovedComponentsRecipe().getVisitor())),
                 pomXml(
                         """
 <?xml version="1.0" encoding="UTF-8"?>

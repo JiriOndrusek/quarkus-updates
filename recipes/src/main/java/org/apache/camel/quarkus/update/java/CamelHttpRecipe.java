@@ -2,6 +2,7 @@ package org.apache.camel.quarkus.update.java;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.apache.camel.quarkus.update.AbstractCamelQuarkusRecipe;
 import org.apache.http.auth.AuthScope;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -11,9 +12,11 @@ import org.openrewrite.java.ChangePackage;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.tree.J;
 
+import java.util.function.Supplier;
+
 @EqualsAndHashCode(callSuper = true)
 @Value
-public class CamelHttpRecipe extends Recipe {
+public class CamelHttpRecipe extends AbstractCamelQuarkusRecipe {
 
     private static final String SET_CREDENTIALS = "org.apache.http.impl.client.BasicCredentialsProvider setCredentials(..)";
     private static final String SCOPE_ANY = "AuthScope.ANY";

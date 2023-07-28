@@ -1,11 +1,12 @@
-package org.apache.camel.quarkus.update;
+package org.apache.camel.quarkus.update.pom;
 
+import org.apache.camel.quarkus.update.AbstractCamelQuarkusRecipe;
+import org.apache.camel.quarkus.update.RecipesUtil;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.xml.XPathMatcher;
-import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
 
 import java.util.Arrays;
@@ -13,8 +14,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,7 +26,7 @@ import java.util.stream.Stream;
  * TODO usu official links
  * See https://camel.apache.org/manual/camel-4-migration-guide.html#_removed_components and https://github.com/apache/camel-quarkus/blob/main/docs/modules/ROOT/pages/migration-guide/3.0.0.adoc#removed-extensions
  */
-public class RemovedComponentsRecipe extends Recipe {
+public class RemovedComponentsRecipe extends AbstractCamelQuarkusRecipe {
 
     private static String GROUP_ID = "org.apache.camel.quarkus";
     private static Set<String> ARTIFACT_IDS = new HashSet<>(Arrays.asList(
@@ -69,7 +70,7 @@ public class RemovedComponentsRecipe extends Recipe {
             "camel-quarkus-tika",
             "camel-quarkus-xmlsecurity"));
 
-    private final static XPathMatcher DEPENDENC_MATCHER = new XPathMatcher("//dependencies/dependency");
+    private final static XPathMatcher DEPENDENCY_MATCHER = new XPathMatcher("//dependencies/dependency");
 
     @Override
     public String getDisplayName() {
@@ -83,14 +84,14 @@ public class RemovedComponentsRecipe extends Recipe {
 
 
     @Override
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new MavenVisitor<>() {
 
             @Override
             public Xml visitTag(Xml.Tag tag, ExecutionContext ctx) {
                 Xml.Tag t = (Xml.Tag) super.visitTag(tag, ctx);
 
-                if(!DEPENDENC_MATCHER.matches(getCursor())) {
+                if(!DEPENDENCY_MATCHER.matches(getCursor())) {
                     return t;
                 }
 

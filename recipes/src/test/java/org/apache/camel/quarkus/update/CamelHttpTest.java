@@ -8,11 +8,11 @@ import org.openrewrite.test.TypeValidation;
 
 import static org.openrewrite.java.Assertions.java;
 
-public class CamelExtensionTest implements RewriteTest {
+public class CamelHttpTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new CamelJavaGroupedRecipe())
+        spec.recipe(new CamelQuarkusMigrationRecipe(true))
                 .parser(JavaParser.fromJavaVersion()
                         .logCompilationWarningsAndErrors(true)
                         .classpath("camel-api","camel-support","camel-core-model", "camel-util", "camel-catalog", "camel-main", "httpclient"))
