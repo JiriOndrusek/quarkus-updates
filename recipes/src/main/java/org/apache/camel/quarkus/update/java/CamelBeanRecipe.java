@@ -53,6 +53,11 @@ public class CamelBeanRecipe extends Recipe {
                             String uriWithoutMethod = uriWithMethod.split("=")[0];
 
                             String methodNameAndArgs = uriWithMethod.split("=")[1];
+                            
+                            //method without any args, we can simply return the mi in that case.
+                            if(!methodNameAndArgs.contains("(") && !methodNameAndArgs.contains(")")) {
+                                return mi;
+                            }
 
                             String methodName = extractMethodName(methodNameAndArgs);
 
