@@ -11,7 +11,6 @@ import org.apache.camel.api.management.mbean.BacklogTracerEventMessage;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.main.MainListener;
 import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.quarkus.update.AbstractCamelQuarkusRecipe;
 import org.apache.camel.quarkus.update.RecipesUtil;
 import org.apache.camel.spi.OnCamelContextStart;
 import org.apache.camel.spi.OnCamelContextStop;
@@ -40,9 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Recipe migrating changes between Camel 3.x to 4.x, for more details see the
@@ -50,7 +47,7 @@ import java.util.stream.Collectors;
  */
 @EqualsAndHashCode(callSuper = true)
 @Value
-public class CamelAPIsRecipe extends AbstractCamelQuarkusRecipe {
+public class CamelAPIsRecipe extends Recipe {
 
     private static final String MATCHER_CONTEXT_GET_ENDPOINT_MAP = "org.apache.camel.CamelContext getEndpointMap()";
     private static final String MATCHER_CONTEXT_GET_EXT = "org.apache.camel.CamelContext getExtension(java.lang.Class)";
