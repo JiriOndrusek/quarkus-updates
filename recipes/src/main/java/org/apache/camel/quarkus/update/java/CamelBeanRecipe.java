@@ -2,21 +2,18 @@ package org.apache.camel.quarkus.update.java;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.camel.quarkus.update.AbstractCamelQuarkusRecipe;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.ChangeLiteral;
-import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
 
-public class CamelBeanRecipe extends AbstractCamelQuarkusRecipe {
+public class CamelBeanRecipe extends Recipe {
 
     private final String primitive[] = new String[] { "byte", "short", "int", "float", "double", "long", "char",
             "String" };

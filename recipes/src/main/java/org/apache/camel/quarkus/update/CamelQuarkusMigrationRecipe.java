@@ -37,17 +37,17 @@ public class CamelQuarkusMigrationRecipe extends Recipe {
 
 
         //pom recipes
-        doNext(new InternalRecipe(new RemovedComponentsRecipe()));
+        doNext(new RemovedComponentsRecipe());
         //properties recipes
-        doNext(new InternalRecipe(new CamelQuarkusAPIsPropertiesRecipe()));
+        doNext(new CamelQuarkusAPIsPropertiesRecipe());
         //yaml recipes
-        doNext(new InternalRecipe(new CamelQuarkusYamlRouteConfigurationSequenceRecipe()));
-        doNext(new InternalRecipe(new CamelQuarkusYamlStepsInFromRecipe()));
+        doNext(new CamelQuarkusYamlRouteConfigurationSequenceRecipe());
+        doNext(new CamelQuarkusYamlStepsInFromRecipe());
         //java recipes
-        doNext(new InternalRecipe(new CamelAPIsRecipe()));
-        doNext(new InternalRecipe(new CamelEIPRecipe()));
-        doNext(new InternalRecipe(new CamelBeanRecipe()));
-        doNext(new InternalRecipe(new CamelHttpRecipe()));
+        doNext(new CamelAPIsRecipe());
+        doNext(new CamelEIPRecipe());
+        doNext(new CamelBeanRecipe());
+        doNext(new CamelHttpRecipe());
     }
 
     @Override
@@ -79,34 +79,5 @@ public class CamelQuarkusMigrationRecipe extends Recipe {
             }
         };
     }
-
-    private class InternalRecipe extends Recipe {
-
-        private final AbstractCamelQuarkusRecipe r;
-
-        public InternalRecipe(AbstractCamelQuarkusRecipe r) {
-            this.r = r;
-        }
-
-        @Override
-        public String getDescription() {
-            return "Internal recipe for: " + r.getDescription();
-        }
-
-        @Override
-        public String getDisplayName() {
-            return "Internal recipe for: " + r.getDisplayName();
-        }
-
-        @Override
-        protected TreeVisitor<?, ExecutionContext> getVisitor() {
-            //if project does not contain camel dependencies emptu yaml recepie is used instead of the real CQ recipe
-            //yam file is not often, therefore it should bring only very small performace slip
-            //unfortunately it is not possible to return null
-            return camelPresent ? r.getVisitor() : new YamlIsoVisitor<>() {
-            };
-        }
-    }
-
 }
 

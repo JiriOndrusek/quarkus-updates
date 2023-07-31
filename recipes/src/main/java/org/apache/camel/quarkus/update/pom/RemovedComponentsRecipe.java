@@ -1,6 +1,5 @@
 package org.apache.camel.quarkus.update.pom;
 
-import org.apache.camel.quarkus.update.AbstractCamelQuarkusRecipe;
 import org.apache.camel.quarkus.update.RecipesUtil;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -15,7 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,7 +24,7 @@ import java.util.stream.Stream;
  * TODO usu official links
  * See https://camel.apache.org/manual/camel-4-migration-guide.html#_removed_components and https://github.com/apache/camel-quarkus/blob/main/docs/modules/ROOT/pages/migration-guide/3.0.0.adoc#removed-extensions
  */
-public class RemovedComponentsRecipe extends AbstractCamelQuarkusRecipe {
+public class RemovedComponentsRecipe extends Recipe {
 
     private static String GROUP_ID = "org.apache.camel.quarkus";
     private static Set<String> ARTIFACT_IDS = new HashSet<>(Arrays.asList(

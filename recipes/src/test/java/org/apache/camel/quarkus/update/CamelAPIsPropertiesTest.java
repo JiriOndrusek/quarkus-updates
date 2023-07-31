@@ -40,18 +40,6 @@ public class CamelAPIsPropertiesTest extends BaseCamelQuarkusTest {
     }
 
     @Test
-    void testNonCamelProject() {
-        rewriteRun(
-                Assertions.properties(
-                        """
-                                   #test
-                                   camel.threadpool.rejectedPolicy=DiscardOldest
-                                """
-                )
-        );
-    }
-
-    @Test
     void testRejectedPolicyDiscard() {
         rewriteRun(
                 spec -> spec.expectedCyclesThatMakeChanges(2),

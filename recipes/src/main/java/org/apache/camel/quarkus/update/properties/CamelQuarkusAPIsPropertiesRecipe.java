@@ -2,13 +2,10 @@ package org.apache.camel.quarkus.update.properties;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.apache.camel.quarkus.update.AbstractCamelQuarkusRecipe;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.properties.PropertiesIsoVisitor;
 import org.openrewrite.properties.tree.Properties;
-
-import java.util.function.Supplier;
 
 /**
  * Part of the API changes is - removed Discard and DiscardOldest from org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy.
@@ -18,7 +15,7 @@ import java.util.function.Supplier;
  */
 @EqualsAndHashCode(callSuper = true)
 @Value
-public class CamelQuarkusAPIsPropertiesRecipe extends AbstractCamelQuarkusRecipe {
+public class CamelQuarkusAPIsPropertiesRecipe extends Recipe {
 
     @Override
     public String getDisplayName() {

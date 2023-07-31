@@ -1,16 +1,12 @@
 package org.apache.camel.quarkus.update.java;
 
-import org.apache.camel.quarkus.update.AbstractCamelQuarkusRecipe;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.AddImport;
-import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.J;
 
-import java.util.function.Supplier;
-
-public class CamelEIPRecipe extends AbstractCamelQuarkusRecipe {
+public class CamelEIPRecipe extends Recipe {
 
     @Override
     public String getDisplayName() {
