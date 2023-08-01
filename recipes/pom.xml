@@ -13,7 +13,7 @@
     <name>Quarkus Updates - Recipes</name>
 
     <properties>
-        <maven.compiler.release>11</maven.compiler.release>
+        <maven.compiler.release>17</maven.compiler.release>
 
         <!-- Make sure all these versions are aligned and use a compatible OpenRewrite version -->
         <!--   https://central.sonatype.com/artifact/org.openrewrite.recipe/rewrite-recipe-bom/2.0.3/versions -->
@@ -22,6 +22,14 @@
         <rewrite-maven-plugin.version>4.46.0</rewrite-maven-plugin.version>
         <!--   for now, we don't know where to find compatibility information for the Gradle plugin -->
         <rewrite-gradle-plugin.version>5.40.6</rewrite-gradle-plugin.version>
+
+        <!-- tests-->
+        <junit.version>5.4.0</junit.version>
+        <surefire.plugin.version>3.1.0</surefire.plugin.version>
+        <!-- Camel dependencies used by the tests -->
+        <camel.version>3.18.7</camel.version>
+        <!-- Http version used by the tests -->
+        <http.version>4.5.14</http.version>
 
         <lombok.version>1.18.28</lombok.version>
     </properties>
@@ -103,6 +111,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- rewrite-maven dependency is required for pom.xml recipe testing -->
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-maven</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- lombok is optional, but recommended for authoring recipes -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -117,6 +132,61 @@
             <artifactId>rewrite-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-api</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+
+        <!--test dependencies -->
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-core-model</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-support</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-catalog</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-main</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-activemq</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-bean</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${http.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -187,6 +257,40 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>15</source>
+                    <target>15</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>15</source>
+                    <target>15</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-api</artifactId>
+                        <version>${surefire.plugin.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <systemPropertyVariables>
+                        <maven.repo.local>${settings.localRepository}</maven.repo.local>
+                        <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>
