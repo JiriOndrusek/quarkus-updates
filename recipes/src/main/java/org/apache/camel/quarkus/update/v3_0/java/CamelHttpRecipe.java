@@ -1,7 +1,8 @@
-package org.apache.camel.quarkus.update.java;
+package org.apache.camel.quarkus.update.v3_0.java;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.apache.camel.quarkus.update.AbstractCamelQuarkusJavaVisitor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
@@ -30,7 +31,7 @@ public class CamelHttpRecipe extends Recipe {
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
 
-        return new AbstractCamelVisitor() {
+        return new AbstractCamelQuarkusJavaVisitor() {
             @Override
             protected J.Import doVisitImport(J.Import _import, ExecutionContext context) {
                 doAfterVisit( new ChangePackage("org.apache.http.HttpHost", "org.apache.hc.core5.http.HttpHost", null));

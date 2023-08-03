@@ -1,7 +1,8 @@
-package org.apache.camel.quarkus.update.java;
+package org.apache.camel.quarkus.update.v3_0.java;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.apache.camel.quarkus.update.AbstractCamelQuarkusJavaVisitor;
 import org.apache.camel.quarkus.update.RecipesUtil;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -62,7 +63,7 @@ public class CamelAPIsRecipe extends Recipe {
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
 
-        return new AbstractCamelVisitor() {
+        return new AbstractCamelQuarkusJavaVisitor() {
 
             //Cache for all methodInvocations CamelContext adapt(java.lang.Class).
             private Map<UUID, Tree> adaptCache = new HashMap<>();
@@ -114,10 +115,6 @@ public class CamelAPIsRecipe extends Recipe {
             @Override
             protected J.ClassDeclaration doVisitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext context) {
                 J.ClassDeclaration cd = super.doVisitClassDeclaration(classDecl, context);
-//
-//                if (classDecl.getImplements() != null && !classDecl.getImplements().isEmpty()) {
-//                    getImplementsList().addAll(classDecl.getImplements().stream().map(i -> i.getType()).collect(Collectors.toList()));
-//                }
 
                 //Removed org.apache.camel.spi.OnCamelContextStart. Use org.apache.camel.spi.OnCamelContextStarting instead.
                 if(cd.getImplements() != null && cd.getImplements().stream()

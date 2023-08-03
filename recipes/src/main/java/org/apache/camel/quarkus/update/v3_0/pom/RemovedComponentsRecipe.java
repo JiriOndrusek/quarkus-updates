@@ -1,4 +1,4 @@
-package org.apache.camel.quarkus.update.pom;
+package org.apache.camel.quarkus.update.v3_0.pom;
 
 import org.apache.camel.quarkus.update.RecipesUtil;
 import org.openrewrite.ExecutionContext;

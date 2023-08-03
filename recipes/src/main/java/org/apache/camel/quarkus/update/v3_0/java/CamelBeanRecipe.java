@@ -1,4 +1,4 @@
-package org.apache.camel.quarkus.update.java;
+package org.apache.camel.quarkus.update.v3_0.java;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.camel.quarkus.update.AbstractCamelQuarkusJavaVisitor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
@@ -30,7 +31,7 @@ public class CamelBeanRecipe extends Recipe {
 
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
-        return new AbstractCamelVisitor() {
+        return new AbstractCamelQuarkusJavaVisitor() {
 
             @Override
             protected J.MethodInvocation doVisitMethodInvocation(J.MethodInvocation method, ExecutionContext context) {

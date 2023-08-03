@@ -1,15 +1,19 @@
-package org.apache.camel.quarkus.update;
+package org.apache.camel.quarkus.update.v3_0;
 
-import org.apache.camel.quarkus.update.java.CamelAPIsRecipe;
-import org.apache.camel.quarkus.update.java.CamelBeanRecipe;
-import org.apache.camel.quarkus.update.java.CamelEIPRecipe;
-import org.apache.camel.quarkus.update.java.CamelHttpRecipe;
-import org.apache.camel.quarkus.update.pom.RemovedComponentsRecipe;
-import org.apache.camel.quarkus.update.properties.CamelQuarkusAPIsPropertiesRecipe;
-import org.apache.camel.quarkus.update.yaml.CamelQuarkusYamlRouteConfigurationSequenceRecipe;
-import org.apache.camel.quarkus.update.yaml.CamelQuarkusYamlStepsInFromRecipe;
+import org.apache.camel.quarkus.update.RecipesUtil;
+import org.apache.camel.quarkus.update.v3_0.java.CamelAPIsRecipe;
+import org.apache.camel.quarkus.update.v3_0.java.CamelBeanRecipe;
+import org.apache.camel.quarkus.update.v3_0.java.CamelEIPRecipe;
+import org.apache.camel.quarkus.update.v3_0.java.CamelHttpRecipe;
+import org.apache.camel.quarkus.update.v3_0.pom.RemovedComponentsRecipe;
+import org.apache.camel.quarkus.update.v3_0.properties.CamelQuarkusAPIsPropertiesRecipe;
+import org.apache.camel.quarkus.update.v3_0.yaml.CamelQuarkusYamlRouteConfigurationSequenceRecipe;
+import org.apache.camel.quarkus.update.v3_0.yaml.CamelQuarkusYamlStepsInFromRecipe;
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
+import org.openrewrite.SourceFile;
+import org.openrewrite.Tree;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.xml.XPathMatcher;
@@ -44,12 +48,13 @@ public class CamelQuarkusMigrationRecipe extends Recipe {
         this(false);
     }
 
-    //Test do not require the detection of camel-quarkus dependencies (in the majority of cases)
+    //Test do not require the detection of camel-quarkus dependencies (in the majority of the cases)
     //This package protected constructor is designed for the tests only.
     CamelQuarkusMigrationRecipe(boolean skipPomDetection) {
         //test can override the detection in pom to make performance better
         if(skipPomDetection) {
-            RecipesUtil.overrideInternallyCamelPresent(true);
+            //set flag, that camel dependency is present
+            doNext(skipCamelQuarkusDetectionRecipe());
         }
 
         //pom recipes
@@ -66,6 +71,34 @@ public class CamelQuarkusMigrationRecipe extends Recipe {
         doNext(new CamelHttpRecipe());
     }
 
+    @NotNull
+    private Recipe skipCamelQuarkusDetectionRecipe() {
+        return new Recipe() {
+            @Override
+            public String getDisplayName() {
+                return "Skip detection of Camel Quarkus dependency for tests";
+            }
+
+            @Override
+            public String getDescription() {
+                return "Internal recipe, which ignores requirement of Camel Quarkus dependency for the test execution.";
+            }
+
+            @Override
+            public TreeVisitor<?, ExecutionContext> getVisitor() {
+                return new TreeVisitor<>() {
+                    @Override
+                    public Tree visitSourceFile(SourceFile sourceFile, ExecutionContext executionContext) {
+                        Tree tree = super.visitSourceFile(sourceFile, executionContext);
+                        RecipesUtil.setCamelPresent(true, executionContext);
+                        return tree;
+                    }
+                };
+
+            }
+        };
+    }
+
     @Override
     public String getDisplayName() {
         return "Recipe for the Camel-quarkus migration";
@@ -78,6 +111,7 @@ public class CamelQuarkusMigrationRecipe extends Recipe {
 
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
+
         //Visitor detecting existence of camel-quarkus dependency.
         return new MavenVisitor<>() {
 

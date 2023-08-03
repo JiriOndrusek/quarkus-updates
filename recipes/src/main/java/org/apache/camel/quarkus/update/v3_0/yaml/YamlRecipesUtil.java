@@ -1,4 +1,4 @@
-package org.apache.camel.quarkus.update.yaml;
+package org.apache.camel.quarkus.update.v3_0.yaml;
 
 import org.openrewrite.Cursor;
 import org.openrewrite.Tree;

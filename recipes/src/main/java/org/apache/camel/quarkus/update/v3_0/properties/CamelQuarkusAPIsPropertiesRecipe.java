@@ -1,4 +1,4 @@
-package org.apache.camel.quarkus.update.properties;
+package org.apache.camel.quarkus.update.v3_0.properties;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;

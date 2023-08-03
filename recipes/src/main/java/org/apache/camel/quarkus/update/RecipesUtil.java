@@ -3,7 +3,6 @@ package org.apache.camel.quarkus.update;
 import org.openrewrite.Cursor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Tree;
-import org.openrewrite.java.template.Primitive;
 import org.openrewrite.java.tree.Comment;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
@@ -16,8 +15,6 @@ import org.openrewrite.marker.Markers;
 import org.openrewrite.xml.tree.Xml;
 import org.openrewrite.yaml.tree.Yaml;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +22,6 @@ import java.util.ListIterator;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.openrewrite.Tree.randomId;
 
@@ -33,22 +29,15 @@ public class RecipesUtil {
 
     private static String CAMEL_PRESENT_KEY = RecipesUtil.class.getSimpleName();
 
-    //Private flag used internally for the tests. For bypassing the CQ dependency existence for the recipes.
-    private static boolean overrideCamelPresent = false;
-
 
     //---------------------------- method to access camelPresent flag (provate static for the tests or camel property for real runs)
 
     public static boolean isCamelPresent(ExecutionContext context) {
-        return overrideCamelPresent || context.getMessage(CAMEL_PRESENT_KEY, false);
+        return context.getMessage(CAMEL_PRESENT_KEY, false);
     }
 
     public static void setCamelPresent(boolean isCamelPresent, ExecutionContext context) {
         context.putMessage(CAMEL_PRESENT_KEY, isCamelPresent);
-    }
-
-    static void overrideInternallyCamelPresent(boolean overrideCamelPresent) {
-        RecipesUtil.overrideCamelPresent = overrideCamelPresent;
     }
 
     //---------------- annotations helpers

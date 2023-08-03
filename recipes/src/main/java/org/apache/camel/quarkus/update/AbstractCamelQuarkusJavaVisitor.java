@@ -1,6 +1,5 @@
-package org.apache.camel.quarkus.update.java;
+package org.apache.camel.quarkus.update;
 
-import org.apache.camel.quarkus.update.RecipesUtil;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.MethodMatcher;
@@ -24,8 +23,8 @@ import java.util.stream.Collectors;
  * Simple cache for methodMatchers is implemented here. Usage: call <i>MethodMatcher getMethodMatcher(String signature)</i>.
  * </p>
  */
-public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionContext> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCamelVisitor.class);
+public abstract class AbstractCamelQuarkusJavaVisitor extends JavaIsoVisitor<ExecutionContext> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCamelQuarkusJavaVisitor.class);
     //flag that camel package is imported to the file
     private boolean camel = false;
 
@@ -127,12 +126,12 @@ public abstract class AbstractCamelVisitor extends JavaIsoVisitor<ExecutionConte
 
      // ------------------------------------------ helper methods -------------------------------------------
 
-    LinkedList<JavaType> getImplementsList() {
+    protected LinkedList<JavaType> getImplementsList() {
         return implementsList;
     }
 
     // If the migration fails - do not fail whole migration process, only this one recipe
-    <T extends J> T executeVisitWithCatch(Supplier<T> visitMethod, T origValue, ExecutionContext context) {
+    protected <T extends J> T executeVisitWithCatch(Supplier<T> visitMethod, T origValue, ExecutionContext context) {
         if(!RecipesUtil.isCamelPresent(context)) {
             //skipping as the project does not contain camel dependencies
             return  origValue;

@@ -30,7 +30,7 @@ name: custom
 displayName: customName
 description: customDesc
 recipeList:
-  - org.apache.camel.quarkus.update.CamelQuarkusMigrationRecipe
+  - org.apache.camel.quarkus.update.v3_0.CamelQuarkusMigrationRecipe
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.quarkus.updates.core.quarkus30.UpgradeQuarkiverse
