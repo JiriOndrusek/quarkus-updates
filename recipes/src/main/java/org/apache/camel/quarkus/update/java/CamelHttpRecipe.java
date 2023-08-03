@@ -2,7 +2,6 @@ package org.apache.camel.quarkus.update.java;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.apache.http.auth.AuthScope;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
@@ -49,7 +48,7 @@ public class CamelHttpRecipe extends Recipe {
 
                 //The component has been upgraded to use Apache HttpComponents v5
                 //AuthScope.ANY -> new AuthScope(null, -1)
-                if("ANY".equals(f.getSimpleName()) && AuthScope.class.getCanonicalName().equals(f.getType().toString())) {
+                if("ANY".equals(f.getSimpleName()) && "org.apache.http.auth.AuthScope".equals(f.getType().toString())) {
                     JavaTemplate.Builder templateBuilder = JavaTemplate.builder(this::getCursor, "new AuthScope(null, -1)")
                             .imports("org.apache.hc.client5.http.auth.AuthScope");
                     J.NewClass nc = f.withTemplate(
