@@ -2,20 +2,7 @@ package org.apache.camel.quarkus.update.java;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.apache.camel.CamelContext;
-import org.apache.camel.Category;
-import org.apache.camel.ExchangePropertyKey;
-import org.apache.camel.ExtendedCamelContext;
-import org.apache.camel.ExtendedExchange;
-import org.apache.camel.api.management.mbean.BacklogTracerEventMessage;
-import org.apache.camel.builder.SimpleBuilder;
-import org.apache.camel.main.MainListener;
-import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.quarkus.update.RecipesUtil;
-import org.apache.camel.spi.OnCamelContextStart;
-import org.apache.camel.spi.OnCamelContextStop;
-import org.apache.camel.support.IntrospectionSupport;
-import org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Tree;
@@ -85,7 +72,7 @@ public class CamelAPIsRecipe extends Recipe {
                 J.Import im = super.doVisitImport(_import, context);
 
                 //Removed Discard and DiscardOldest from org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy.
-                if(im.isStatic() && im.getTypeName().equals(ThreadPoolRejectedPolicy.class.getCanonicalName())
+                if(im.isStatic() && im.getTypeName().equals("org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy")
                         && im.getQualid() != null
                         && ("Discard".equals(im.getQualid().getSimpleName()) || "DiscardOldest".equals(im.getQualid().getSimpleName()))) {
                     Comment comment = RecipesUtil.createMultinlineComment(String.format("'ThreadPoolRejectedPolicy.%s' has been removed, consider using 'ThreadPoolRejectedPolicy.Abort'.", im.getQualid().getSimpleName()));
@@ -94,7 +81,7 @@ public class CamelAPIsRecipe extends Recipe {
                 }
                 //Removed org.apache.camel.builder.SimpleBuilder.
                 // Was mostly used internally in Camel with the Java DSL in some situations.
-                else if(SimpleBuilder.class.getCanonicalName().equals(im.getTypeName())) {
+                else if("org.apache.camel.builder.SimpleBuilder".equals(im.getTypeName())) {
                     Comment comment = RecipesUtil.createMultinlineComment(String.format("'%s' has been removed, (class was used internally).", SimpleBeanInfo.class.getCanonicalName()));
                     im = im.withComments(Collections.singletonList(comment));
 
@@ -102,7 +89,7 @@ public class CamelAPIsRecipe extends Recipe {
                 //Moved org.apache.camel.support.IntrospectionSupport to camel-core-engine for internal use only.
                 // End users should use org.apache.camel.spi.BeanInspection instead.
                 // Moved from `org.apache.camel.support` to  `org.apache.camel.impl.engine`
-                else if(IntrospectionSupport.class.getCanonicalName().equals(im.getTypeName())) {
+                else if("org.apache.camel.support.IntrospectionSupport".equals(im.getTypeName())) {
                     maybeRemoveImport(im.getTypeName());
                     String newImportName = im.getQualid() == null ? im.getTypeName() : im.getTypeName() /*+ "." + im.getQualid().getSimpleName()*/;
                     newImportName = newImportName.replaceAll(".support.", ".impl.engine.");
@@ -118,7 +105,7 @@ public class CamelAPIsRecipe extends Recipe {
                 // BacklogTracerEventMessage moved from `org.apache.camel.api.management.mbean.BacklogTracerEventMessage`
                 // to  `org.apache.camel.spi.BacklogTracerEventMessage`
                 doAfterVisit(
-                        new ChangePackage(BacklogTracerEventMessage.class.getCanonicalName(),
+                        new ChangePackage("org.apache.camel.api.management.mbean.BacklogTracerEventMessage",
                         "org.apache.camel.spi.BacklogTracerEventMessage", null));
 
                 return im;
@@ -134,17 +121,17 @@ public class CamelAPIsRecipe extends Recipe {
 
                 //Removed org.apache.camel.spi.OnCamelContextStart. Use org.apache.camel.spi.OnCamelContextStarting instead.
                 if(cd.getImplements() != null && cd.getImplements().stream()
-                        .anyMatch(f -> TypeUtils.isOfClassType(f.getType(), OnCamelContextStart.class.getCanonicalName()))) {
+                        .anyMatch(f -> TypeUtils.isOfClassType(f.getType(), "org.apache.camel.spi.OnCamelContextStart"))) {
 
                     doAfterVisit(new ImplementInterface<ExecutionContext>(cd, "org.apache.camel.spi.OnCamelContextStarting"));
-                    doAfterVisit(new RemoveImplements(OnCamelContextStart.class.getCanonicalName(), null));
+                    doAfterVisit(new RemoveImplements("org.apache.camel.spi.OnCamelContextStart", null));
 
                 } //Removed org.apache.camel.spi.OnCamelContextStop. Use org.apache.camel.spi.OnCamelContextStopping instead.
                 else if(cd.getImplements() != null && cd.getImplements().stream()
-                        .anyMatch(f -> TypeUtils.isOfClassType(f.getType(), OnCamelContextStop.class.getCanonicalName()))) {
+                        .anyMatch(f -> TypeUtils.isOfClassType(f.getType(), "org.apache.camel.spi.OnCamelContextStop"))) {
 
                     doAfterVisit(new ImplementInterface<ExecutionContext>(cd, "org.apache.camel.spi.OnCamelContextStopping"));
-                    doAfterVisit(new RemoveImplements(OnCamelContextStop.class.getCanonicalName(), null));
+                    doAfterVisit(new RemoveImplements("org.apache.camel.spi.OnCamelContextStop", null));
 
                 }
                 return cd;
@@ -159,7 +146,7 @@ public class CamelAPIsRecipe extends Recipe {
                 }
 
                 else if(("Discard".equals(fa.getSimpleName()) || "DiscardOldest".equals(fa.getSimpleName()))
-                        && fa.getType() != null && fa.getType().isAssignableFrom(Pattern.compile(ThreadPoolRejectedPolicy.class.getCanonicalName()))
+                        && fa.getType() != null && fa.getType().isAssignableFrom(Pattern.compile("org.apache.camel.util.concurrent.ThreadPoolRejectedPolicy"))
                 ) {
                     Comment comment = RecipesUtil.createMultinlineComment(String.format("'ThreadPoolRejectedPolicy.%s' has been removed, consider using 'ThreadPoolRejectedPolicy.Abort'.", fa.getSimpleName()));
                     fa = fa.withComments(Collections.singletonList(comment));
@@ -177,12 +164,12 @@ public class CamelAPIsRecipe extends Recipe {
                 //Method 'configure' was removed from `org.apache.camel.main.MainListener`, consider using 'beforeConfigure' or 'afterConfigure'.
                 if("configure".equals(md.getSimpleName())
                         && md.getReturnTypeExpression().getType().equals(JavaType.Primitive.Void)
-                        && getImplementsList().stream().anyMatch(jt -> MainListener.class.getCanonicalName().equals(jt.toString()))
+                        && getImplementsList().stream().anyMatch(jt -> "org.apache.camel.main.MainListener".equals(jt.toString()))
                         && !md.getParameters().isEmpty()
                         && md.getParameters().size() == 1
                         && md.getParameters().get(0) instanceof J.VariableDeclarations
-                        && ((J.VariableDeclarations)md.getParameters().get(0)).getType().isAssignableFrom(Pattern.compile(CamelContext.class.getCanonicalName()))) {
-                    Comment comment = RecipesUtil.createMultinlineComment(String.format(" Method '%s' was removed from `%s`, consider using 'beforeConfigure' or 'afterConfigure'. ", md.getSimpleName(), MainListener.class.getCanonicalName()));
+                        && ((J.VariableDeclarations)md.getParameters().get(0)).getType().isAssignableFrom(Pattern.compile("org.apache.camel.CamelContext"))) {
+                    Comment comment = RecipesUtil.createMultinlineComment(String.format(" Method '%s' was removed from `%s`, consider using 'beforeConfigure' or 'afterConfigure'. ", md.getSimpleName(), "org.apache.camel.main.MainListener"));
                     md = md.withComments(Collections.singletonList(comment));
                 }
 
@@ -233,7 +220,7 @@ public class CamelAPIsRecipe extends Recipe {
 
                         String newValue;
                         try {
-                            newValue = Category.valueOf(originalValue.get().toUpperCase().replaceAll("\"", "")).getValue();
+                            newValue = RecipesUtil.Category.valueOf(originalValue.get().toUpperCase().replaceAll("\"", "")).getValue();
                         } catch(IllegalArgumentException e) {
                             newValue = originalValue.get() + "/*unknown_value*/";
                         }
@@ -265,34 +252,34 @@ public class CamelAPIsRecipe extends Recipe {
                 }
                 //context.adapt(ModelCamelContext.class) -> ((ModelCamelContext) context)
                 else if (getMethodMatcher(M_CONTEXT_ADAPT).matches(mi)) {
-                    if (mi.getType().isAssignableFrom(Pattern.compile(ModelCamelContext.class.getCanonicalName()))) {
-                        J.Identifier type = RecipesUtil.createIdentifier(mi.getPrefix(), ModelCamelContext.class.getSimpleName(), "java.lang.Object");
+                    if (mi.getType().isAssignableFrom(Pattern.compile("org.apache.camel.model.ModelCamelContext"))) {
+                        J.Identifier type = RecipesUtil.createIdentifier(mi.getPrefix(), "ModelCamelContext", "java.lang.Object");
                         J.ControlParentheses cp  =  RecipesUtil.createParentheses(RecipesUtil.createTypeCast(type, mi.getSelect()));
                         //put the type cast into cache in case it is replaced lately
                         mi = mi.withComments(Collections.singletonList(RecipesUtil.createMultinlineComment("Method 'adapt' was removed.")));
                         adaptCache.put(method.getId(), cp);
-                    } else if (mi.getType().isAssignableFrom(Pattern.compile(ExtendedCamelContext.class.getCanonicalName()))) {
+                    } else if (mi.getType().isAssignableFrom(Pattern.compile("org.apache.camel.ExtendedCamelContext"))) {
                         mi = mi.withName(mi.getName().withSimpleName("getCamelContextExtension")).withArguments(Collections.emptyList());
-                        maybeRemoveImport(ExtendedCamelContext.class.getCanonicalName());
+                        maybeRemoveImport("org.apache.camel.ExtendedCamelContext");
                     }
                 }
                 //exchange.adapt(ExtendedExchange.class) -> exchange.getExchangeExtension()
                 else if (getMethodMatcher(M_EXCHANGE_ADAPT).matches(mi)
-                        && mi.getType().isAssignableFrom(Pattern.compile(ExtendedExchange.class.getCanonicalName()))) {
+                        && mi.getType().isAssignableFrom(Pattern.compile("org.apache.camel.ExtendedExchange"))) {
                     mi = mi.withName(mi.getName().withSimpleName("getExchangeExtension")).withArguments(Collections.emptyList());
-                    maybeRemoveImport(ExtendedExchange.class.getCanonicalName());
+                    maybeRemoveImport("org.apache.camel.ExtendedExchange");
                 }
                 //newExchange.getProperty(ExchangePropertyKey.FAILURE_HANDLED) -> newExchange.getExchangeExtension().isFailureHandled()
                 else if(getMethodMatcher(M_EXCHANGE_GET_PROPERTY).matches(mi)
                         && mi.getArguments().get(0).toString().endsWith("FAILURE_HANDLED")) {
                     mi = mi.withName(mi.getName().withSimpleName("getExchangeExtension().isFailureHandled")).withArguments(Collections.emptyList());
-                    maybeRemoveImport(ExchangePropertyKey.class.getCanonicalName());
+                    maybeRemoveImport("org.apache.camel.ExchangePropertyKey");
                 }
                 //exchange.removeProperty(ExchangePropertyKey.FAILURE_HANDLED); -> exchange.getExchangeExtension().setFailureHandled(false);
                 else if(getMethodMatcher(M_EXCHANGE_REMOVE_PROPERTY).matches(mi)
                         && mi.getArguments().get(0).toString().endsWith("FAILURE_HANDLED")) {
                     mi = mi.withName(mi.getName().withSimpleName("getExchangeExtension().setFailureHandled")).withArguments(Collections.singletonList(RecipesUtil.createIdentifier(Space.EMPTY, "false", "java.lang.Boolean")));
-                    maybeRemoveImport(ExchangePropertyKey.class.getCanonicalName());
+                    maybeRemoveImport("org.apache.camel.ExchangePropertyKey");
                 }
                 //exchange.setProperty(ExchangePropertyKey.FAILURE_HANDLED, failureHandled); -> exchange.getExchangeExtension().setFailureHandled(failureHandled);
                 else if(getMethodMatcher(M_EXCHANGE_SET_PROPERTY).matches(mi)
@@ -300,7 +287,7 @@ public class CamelAPIsRecipe extends Recipe {
                     mi = mi.withName(mi.getName()
                                     .withSimpleName("getExchangeExtension().setFailureHandled"))
                             .withArguments(Collections.singletonList(mi.getArguments().get(1).withPrefix(Space.EMPTY)));
-                    maybeRemoveImport(ExchangePropertyKey.class.getCanonicalName());
+                    maybeRemoveImport("org.apache.camel.ExchangePropertyKey");
                 }
                 //'org.apache.camel.catalogCamelCatalog.archetypeCatalogAsXml()` has been removed
                 else if(getMethodMatcher(M_CATALOG_ARCHETYPE_AS_XML).matches(mi)) {
