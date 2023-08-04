@@ -5,8 +5,9 @@ import org.apache.camel.quarkus.update.v3_0.java.CamelAPIsRecipe;
 import org.apache.camel.quarkus.update.v3_0.java.CamelBeanRecipe;
 import org.apache.camel.quarkus.update.v3_0.java.CamelEIPRecipe;
 import org.apache.camel.quarkus.update.v3_0.java.CamelHttpRecipe;
-import org.apache.camel.quarkus.update.v3_0.pom.RemovedComponentsRecipe;
+import org.apache.camel.quarkus.update.v3_0.maven.RemovedComponentsRecipe;
 import org.apache.camel.quarkus.update.v3_0.properties.CamelQuarkusAPIsPropertiesRecipe;
+import org.apache.camel.quarkus.update.v3_0.xml.XmlDslRecipe;
 import org.apache.camel.quarkus.update.v3_0.yaml.CamelQuarkusYamlRouteConfigurationSequenceRecipe;
 import org.apache.camel.quarkus.update.v3_0.yaml.CamelQuarkusYamlStepsInFromRecipe;
 import org.jetbrains.annotations.NotNull;
@@ -59,6 +60,8 @@ public class CamelQuarkusMigrationRecipe extends Recipe {
 
         //pom recipes
         doNext(new RemovedComponentsRecipe());
+        //xml recipe
+        doNext(new XmlDslRecipe());
         //properties recipes
         doNext(new CamelQuarkusAPIsPropertiesRecipe());
         //yaml recipes

@@ -141,6 +141,13 @@ public class RecipesUtil {
                 }
                 asProperty.insert(0, entry.getKey().getValue());
             }
+            if (next instanceof Xml.Tag) {
+                Xml.Tag t = (Xml.Tag) next;
+                if (i++ > 0) {
+                    asProperty.insert(0, '/');
+                }
+                asProperty.insert(0, t.getName());
+            }
         }
         return asProperty.toString();
     }
