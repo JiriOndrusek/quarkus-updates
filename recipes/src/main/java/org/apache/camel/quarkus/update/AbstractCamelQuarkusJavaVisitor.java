@@ -132,10 +132,6 @@ public abstract class AbstractCamelQuarkusJavaVisitor extends JavaIsoVisitor<Exe
 
     // If the migration fails - do not fail whole migration process, only this one recipe
     protected <T extends J> T executeVisitWithCatch(Supplier<T> visitMethod, T origValue, ExecutionContext context) {
-        if(!RecipesUtil.isCamelPresent(context)) {
-            //skipping as the project does not contain camel dependencies
-            return  origValue;
-        };
         try {
             return visitMethod.get();
         } catch (Exception e) {

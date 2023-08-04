@@ -44,6 +44,91 @@ public class RecipesWithoutCamelQuarkusTest extends BaseCamelQuarkusTest {
         );
     }
 
+    @Test
+    void testJava11WithoutCamelQuarkus() {
+        rewriteRun(
+                spec -> spec.recipe(new CamelQuarkusMigrationRecipe()),
+                org.openrewrite.maven.Assertions.pomXml(
+                "                        <project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                        "                            <modelVersion>4.0.0</modelVersion>\n" +
+                        "                            <groupId>org.apache.camel.quarkus</groupId>\n" +
+                        "                            <version>2.13.4-SNAPSHOT</version>\n" +
+                        "                            <artifactId>camel-quarkus-migration-test-microprofile</artifactId>\n" +
+                        "\n" +
+                        "                            <properties>\n" +
+                        "                                <maven.compiler.source>11</maven.compiler.source>\n" +
+                        "                                <maven.compiler.target>11</maven.compiler.target>\n" +
+                        "                            </properties>" +
+                        "                        </project>")
+        );
+    }
+
+    @Test
+    void testJava17Update() {
+        rewriteRun(
+                spec -> spec.recipe(new CamelQuarkusMigrationRecipe()),
+                org.openrewrite.maven.Assertions.pomXml(
+                "                        <project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                        "                            <modelVersion>4.0.0</modelVersion>\n" +
+                        "                            <groupId>org.apache.camel.quarkus</groupId>\n" +
+                        "                            <version>2.13.4-SNAPSHOT</version>\n" +
+                        "                            <artifactId>camel-quarkus-migration-test-microprofile</artifactId>\n" +
+                        "                            <properties>\n" +
+                        "                                <maven.compiler.source>11</maven.compiler.source>\n" +
+                        "                                <maven.compiler.target>11</maven.compiler.target>\n" +
+                        "                            </properties>" +
+                        "                           <dependencyManagement>\n" +
+                        "                               <dependencies>\n" +
+                        "                                   <dependency>\n" +
+                        "                                       <groupId>io.quarkus.platform</groupId>\n" +
+                        "                                       <artifactId>quarkus-camel-bom</artifactId>\n" +
+                        "                                       <version>2.13.7.Final</version>\n" +
+                        "                                       <type>pom</type>\n" +
+                        "                                       <scope>import</scope>\n" +
+                        "                                   </dependency>\n" +
+                        "                               </dependencies>\n" +
+                        "                           </dependencyManagement>" +
+                        "                            <dependencies>\n" +
+                        "                                <dependency>\n" +
+                        "                                    <groupId>org.apache.camel.quarkus</groupId>\n" +
+                        "                                    <artifactId>camel-quarkus-bean</artifactId>\n" +
+                        "                                </dependency>\n" +
+                        "                            </dependencies>" +
+                        "                        </project>"
+                        ,
+                        "                        <project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                        "                            <modelVersion>4.0.0</modelVersion>\n" +
+                        "                            <groupId>org.apache.camel.quarkus</groupId>\n" +
+                        "                            <version>2.13.4-SNAPSHOT</version>\n" +
+                        "                            <artifactId>camel-quarkus-migration-test-microprofile</artifactId>\n" +
+                        "                            <properties>\n" +
+                        "                                <maven.compiler.source>17</maven.compiler.source>\n" +
+                        "                                <maven.compiler.target>17</maven.compiler.target>\n" +
+                        "                            </properties>" +
+                        "                           <dependencyManagement>\n" +
+                        "                               <dependencies>\n" +
+                        "                                   <dependency>\n" +
+                        "                                       <groupId>io.quarkus.platform</groupId>\n" +
+                        "                                       <artifactId>quarkus-camel-bom</artifactId>\n" +
+                        "                                       <version>2.13.7.Final</version>\n" +
+                        "                                       <type>pom</type>\n" +
+                        "                                       <scope>import</scope>\n" +
+                        "                                   </dependency>\n" +
+                        "                               </dependencies>\n" +
+                        "                           </dependencyManagement>" +
+                        "                            <dependencies>\n" +
+                        "                                <dependency>\n" +
+                        "                                    <groupId>org.apache.camel.quarkus</groupId>\n" +
+                        "                                    <artifactId>camel-quarkus-bean</artifactId>\n" +
+                        "                                </dependency>\n" +
+                        "                            </dependencies>" +
+                        "                        </project>")
+        );
+    }
+
+
+    //-------------------------------------- internal test method ------------------------------
+
     private void testCamelVsWithoutCamel(int expectedCyclesThatMakeChanges, Function<String, SourceSpecs> first, BiFunction<String, String, SourceSpecs> second, String... sources) {
         //if camel is not present, content should stay the same
         rewriteRun(

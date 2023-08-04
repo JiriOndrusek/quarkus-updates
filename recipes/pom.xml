@@ -80,6 +80,12 @@
             <artifactId>rewrite-java-17</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-migrate-java</artifactId>
+            <!--TODO shouldn't be provided, which version correspond with the version of rewrite-java? -->
+            <version>1.16.0</version>
+        </dependency>
 
         <!-- rewrite-maven dependency only necessary for Maven Recipe development -->
         <dependency>

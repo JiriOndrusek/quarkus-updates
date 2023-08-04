@@ -29,17 +29,6 @@ public class RecipesUtil {
 
     private static String CAMEL_PRESENT_KEY = RecipesUtil.class.getSimpleName();
 
-
-    //---------------------------- method to access camelPresent flag (provate static for the tests or camel property for real runs)
-
-    public static boolean isCamelPresent(ExecutionContext context) {
-        return context.getMessage(CAMEL_PRESENT_KEY, false);
-    }
-
-    public static void setCamelPresent(boolean isCamelPresent, ExecutionContext context) {
-        context.putMessage(CAMEL_PRESENT_KEY, isCamelPresent);
-    }
-
     //---------------- annotations helpers
 
     public static J.Annotation createAnnotation(J.Annotation annotation, String name, Function<String, Boolean> argMatcher, String args) {

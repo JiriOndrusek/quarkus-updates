@@ -38,11 +38,6 @@ public class CamelQuarkusAPIsPropertiesRecipe extends Recipe {
             public Properties.Entry visitEntry(Properties.Entry entry, ExecutionContext context) {
                 Properties.Entry e = super.visitEntry(entry, context);
 
-                if(!RecipesUtil.isCamelPresent(context)) {
-                    //skipping as the project does not contain camel dependencies
-                    return  e;
-                };
-
                 if("camel.threadpool.rejectedPolicy".equals(e.getKey()) &&
                         ("DiscardOldest".equals(e.getValue().getText()) || "Discard".equals(e.getValue().getText()))) {
                     return e.withPrefix(String.format("\n#'ThreadPoolRejectedPolicy.%s' has been removed, consider using 'Abort'. ", e.getKey()));

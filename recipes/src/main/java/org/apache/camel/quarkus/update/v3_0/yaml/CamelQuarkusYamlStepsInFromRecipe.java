@@ -71,11 +71,6 @@ public class CamelQuarkusYamlStepsInFromRecipe extends Recipe {
                 public Yaml.Mapping.Entry visitMappingEntry(Yaml.Mapping.Entry entry, ExecutionContext context) {
                     Yaml.Mapping.Entry e = super.visitMappingEntry(entry, context);
 
-                    if(!RecipesUtil.isCamelPresent(context)) {
-                        //skipping as the project does not contain camel dependencies
-                        return  e;
-                    };
-
                     if(steps == null && (MATCHER_WITH_ROUTE.matches(getCursor()) || MATCHER_WITHOUT_ROUTE.matches(getCursor()))) {
                         steps = e;
                         if(from != null) {
@@ -90,11 +85,6 @@ public class CamelQuarkusYamlStepsInFromRecipe extends Recipe {
                 @Override
                 public Yaml.Mapping visitMapping(Yaml.Mapping mapping, ExecutionContext context) {
                     Yaml.Mapping m =  super.visitMapping(mapping, context);
-
-                    if(!RecipesUtil.isCamelPresent(context)) {
-                        //skipping as the project does not contain camel dependencies
-                        return  m;
-                    };
 
                     String prop = YamlRecipesUtil.getProperty(getCursor());
                     if(("route.from".equals(prop) || "from".equals(prop)) && from == null) {

@@ -89,11 +89,6 @@ public class RemovedComponentsRecipe extends Recipe {
             public Xml visitTag(Xml.Tag tag, ExecutionContext ctx) {
                 Xml.Tag t = (Xml.Tag) super.visitTag(tag, ctx);
 
-                if(!RecipesUtil.isCamelPresent(ctx)) {
-                    //skipping as the project does not contain camel dependencies
-                    return  tag;
-                };
-
                 if(!DEPENDENCY_MATCHER.matches(getCursor())) {
                     return t;
                 }

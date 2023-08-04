@@ -56,11 +56,6 @@ public class CamelQuarkusYamlRouteConfigurationSequenceRecipe extends Recipe {
             public Yaml.Sequence visitSequence(Yaml.Sequence sequence, ExecutionContext context) {
                 Yaml.Sequence s = super.visitSequence(sequence, context);
 
-                if(!RecipesUtil.isCamelPresent(context)) {
-                    //skipping as the project does not contain camel dependencies
-                    return  s;
-                };
-
                 //if there is a sequence in a route-configuration, it has to be replaced with mapping
                 if (new JsonPathMatcher("$.route-configuration").matches(getCursor().getParent())) {
                     this.sequenceToReplace = s;
@@ -71,11 +66,6 @@ public class CamelQuarkusYamlRouteConfigurationSequenceRecipe extends Recipe {
             @Override
             public Yaml.Mapping.Entry visitMappingEntry(Yaml.Mapping.Entry entry, ExecutionContext context) {
                 Yaml.Mapping.Entry e = super.visitMappingEntry(entry, context);
-
-                if(!RecipesUtil.isCamelPresent(context)) {
-                    //skipping as the project does not contain camel dependencies
-                    return  e;
-                };
 
                 //if current mapping contains an entry with sequence belonging to route-configuration, remove the sequence
                 if (e.getValue() == sequenceToReplace) {
