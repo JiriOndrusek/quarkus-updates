@@ -52,7 +52,7 @@ public class RecipesWithoutCamelQuarkusTest extends BaseCamelQuarkusTest {
                 "                        <project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "                            <modelVersion>4.0.0</modelVersion>\n" +
                         "                            <groupId>org.apache.camel.quarkus</groupId>\n" +
-                        "                            <version>2.13.4-SNAPSHOT</version>\n" +
+                        "                            <version>2.13.3</version>\n" +
                         "                            <artifactId>camel-quarkus-migration-test-microprofile</artifactId>\n" +
                         "\n" +
                         "                            <properties>\n" +
@@ -71,7 +71,7 @@ public class RecipesWithoutCamelQuarkusTest extends BaseCamelQuarkusTest {
                 "                        <project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "                            <modelVersion>4.0.0</modelVersion>\n" +
                         "                            <groupId>org.apache.camel.quarkus</groupId>\n" +
-                        "                            <version>2.13.4-SNAPSHOT</version>\n" +
+                        "                            <version>2.13.3</version>\n" +
                         "                            <artifactId>camel-quarkus-migration-test-microprofile</artifactId>\n" +
                         "                            <properties>\n" +
                         "                                <maven.compiler.source>11</maven.compiler.source>\n" +
@@ -99,7 +99,7 @@ public class RecipesWithoutCamelQuarkusTest extends BaseCamelQuarkusTest {
                         "                        <project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "                            <modelVersion>4.0.0</modelVersion>\n" +
                         "                            <groupId>org.apache.camel.quarkus</groupId>\n" +
-                        "                            <version>2.13.4-SNAPSHOT</version>\n" +
+                        "                            <version>2.13.3</version>\n" +
                         "                            <artifactId>camel-quarkus-migration-test-microprofile</artifactId>\n" +
                         "                            <properties>\n" +
                         "                                <maven.compiler.source>17</maven.compiler.source>\n" +
