@@ -26,11 +26,11 @@
 #####
 ---
 type: specs.openrewrite.org/v1beta/recipe
-name: custom
-displayName: customName
-description: customDesc
+name: io.quarkus.updates.camel.v30.CamelQuarkusMigrationRecipe
+displayName: CamelQuarkusMigrationRecipe
+description: Recipe for the Camel-quarkus migration
 recipeList:
-  - org.apache.camel.quarkus.update.v3_0.CamelQuarkusMigrationRecipe
+  - io.quarkus.updates.camel.v30.CamelQuarkusMigrationRecipe
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.quarkus.updates.core.quarkus30.UpgradeQuarkiverse
