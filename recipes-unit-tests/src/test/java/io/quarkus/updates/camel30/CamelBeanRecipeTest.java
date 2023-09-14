@@ -14,7 +14,7 @@ public class CamelBeanRecipeTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new CamelQuarkusMigrationRecipe(true))
+        spec.recipe(new CamelQuarkusMigrationRecipe())
                 .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-bean"))
                 .typeValidationOptions(TypeValidation.none());
         ;

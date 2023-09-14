@@ -14,7 +14,7 @@ public class CamelHttpTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new CamelQuarkusMigrationRecipe(true))
+        spec.recipe(new CamelQuarkusMigrationRecipe())
                 .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-api",
                         "camel-support", "camel-core-model", "camel-util", "camel-catalog", "camel-main", "httpclient"))
                 .typeValidationOptions(TypeValidation.none());

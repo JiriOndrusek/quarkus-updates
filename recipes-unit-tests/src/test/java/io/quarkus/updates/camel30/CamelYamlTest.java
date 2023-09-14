@@ -17,13 +17,14 @@
 package io.quarkus.updates.camel30;
 
 import org.junit.jupiter.api.Test;
+import org.openrewrite.test.RewriteTest;
 import org.openrewrite.yaml.Assertions;
 
-public class CamelYamlTest extends BaseCamelQuarkusTest {
+public class CamelYamlTest implements RewriteTest {
 
     @Test
     void testStepsToFrom1() {
-        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)), Assertions.yaml("""
+        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe()), Assertions.yaml("""
                   route:
                     from:
                       uri: "direct:info"
@@ -40,7 +41,7 @@ public class CamelYamlTest extends BaseCamelQuarkusTest {
 
     @Test
     void testStepsToFrom2() {
-        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)), Assertions.yaml("""
+        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe()), Assertions.yaml("""
                     from:
                       uri: "direct:info"
                     steps:
@@ -55,7 +56,7 @@ public class CamelYamlTest extends BaseCamelQuarkusTest {
 
     @Test
     void testStepsToFrom3() {
-        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)), Assertions.yaml("""
+        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe()), Assertions.yaml("""
                 - from:
                     uri: "direct:start"
                   steps:
@@ -84,7 +85,7 @@ public class CamelYamlTest extends BaseCamelQuarkusTest {
 
     @Test
     void testRouteConfigurationWithOnException() {
-        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)), Assertions.yaml("""
+        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe()), Assertions.yaml("""
                 - route-configuration:
                     - id: "yamlRouteConfiguration"
                     - on-exception:
@@ -114,7 +115,7 @@ public class CamelYamlTest extends BaseCamelQuarkusTest {
 
     @Test
     void testRouteConfigurationWithoutOnException() {
-        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)), Assertions.yaml("""
+        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe()), Assertions.yaml("""
                 - route-configuration:
                     - id: "__id"
                 """, """
@@ -125,7 +126,7 @@ public class CamelYamlTest extends BaseCamelQuarkusTest {
 
     @Test
     void testDoubleDocument() {
-        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)), Assertions.yaml("""
+        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe()), Assertions.yaml("""
                 - route-configuration:
                     - id: "yamlRouteConfiguration1"
                     - on-exception:
@@ -180,7 +181,7 @@ public class CamelYamlTest extends BaseCamelQuarkusTest {
 
     @Test
     void testDoubleDocumentSimple() {
-        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)), Assertions.yaml("""
+        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe()), Assertions.yaml("""
                 - route-configuration:
                     - id: "__id1"
                 ---
@@ -197,7 +198,7 @@ public class CamelYamlTest extends BaseCamelQuarkusTest {
 
     @Test
     void testRouteConfigurationIdempotent() {
-        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe(true)), Assertions.yaml("""
+        rewriteRun(spec -> spec.recipe(new CamelQuarkusMigrationRecipe()), Assertions.yaml("""
                   - route-configuration:
                       id: "yamlRouteConfiguration"
                       on-exception:

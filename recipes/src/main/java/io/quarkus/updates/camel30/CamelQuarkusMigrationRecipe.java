@@ -46,18 +46,10 @@ public class CamelQuarkusMigrationRecipe extends Recipe {
 
     private final static XPathMatcher DEPENDENCY_MATCHER = new XPathMatcher("//dependencies/dependency");
 
-    private final boolean skipCamelDetection;
-
     private final Collection<Recipe> recipes;
 
-    public CamelQuarkusMigrationRecipe() {
-        this(false);
-    }
-
     //Test do not require the detection of camel-quarkus dependencies (in the majority of the cases)
-    //This package protected constructor is designed for the tests only.
-    CamelQuarkusMigrationRecipe(boolean skipCamelDetection) {
-        this.skipCamelDetection = skipCamelDetection;
+    CamelQuarkusMigrationRecipe() {
         this.recipes =  Arrays.asList(
                 //pom recipes
                 new RemovedComponentsRecipe(),
@@ -87,45 +79,10 @@ public class CamelQuarkusMigrationRecipe extends Recipe {
     }
 
     protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
-        //if skipCamelDetection == true, there is no need to detect existence of Camel
-        //and all recipes could be registered
-        if(skipCamelDetection) {
-            recipes.forEach(r -> doNext(r));
-            //return an empty visitor
-            return before;
-        }
 
-        //detection of camel-dependency existence
-        MavenCamelQuarkusDetectorVisitor visitor = new MavenCamelQuarkusDetectorVisitor();
-        before = ListUtils.map(before, (s) -> (SourceFile)visitor.visit(s, ctx));
-
-        //if camel-quarkus was detected, register recipes
-        if(visitor.camelPresent) {
-            recipes.forEach(r -> doNext(r));
-        }
-
+        recipes.forEach(r -> doNext(r));
+        //return an empty visitor
         return before;
-    }
-
-    private class MavenCamelQuarkusDetectorVisitor extends MavenVisitor<ExecutionContext> {
-
-        private boolean camelPresent = false;
-        private MavenCamelQuarkusDetectorVisitor() {
-        }
-
-        @Override
-        public Xml visitTag(Xml.Tag tag, ExecutionContext ctx) {
-            Xml.Tag t = (Xml.Tag) super.visitTag(tag, ctx);
-
-            if(camelPresent || !DEPENDENCY_MATCHER.matches(getCursor())) {
-                return t;
-            }
-
-            if (GROUP_ID.equals(t.getChildValue("groupId").orElse(""))){
-                camelPresent = true;
-            }
-            return t;
-        }
 
     }
 }
