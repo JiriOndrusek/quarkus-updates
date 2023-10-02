@@ -33,7 +33,7 @@
         <http.version>4.5.14</http.version>
 
         <lombok.version>1.18.28</lombok.version>
-
+        <rewrite-migrate-java.version>1.16.0</rewrite-migrate-java.version>
         <!-- Maven plugins versions -->
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <license-maven-plugin.version>4.2</license-maven-plugin.version>
@@ -87,11 +87,6 @@
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-java-11</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-java-17</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -208,7 +203,11 @@
             <version>${http.version}</version>
             <scope>test</scope>
         </dependency>
-
+<!--        <dependency>-->
+<!--            <groupId>org.openrewrite.recipe</groupId>-->
+<!--            <artifactId>rewrite-migrate-java</artifactId>-->
+<!--            <version>${rewrite-migrate-java.version}</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>

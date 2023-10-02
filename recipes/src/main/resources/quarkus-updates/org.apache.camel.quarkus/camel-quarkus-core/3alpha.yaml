@@ -39,6 +39,14 @@ recipeList:
   - io.quarkus.updates.camel30.java.CamelHttpRecipe
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: org.openrewrite.java.migrate.UpgradeJavaVersion
+displayName: Migrate java from to 17
+description: Migration of java  (from 11 to 17) for Camel applications, if necessary.
+recipeList:
+  - org.openrewrite.java.migrate.UpgradeJavaVersion:
+      version: 17
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: org.openrewrite.java.camel.migrate.ChangeTypes
 displayName: Migrate moved types between Came 2.x and Camel 3.x
 description: Change type of classes related to change of API.
