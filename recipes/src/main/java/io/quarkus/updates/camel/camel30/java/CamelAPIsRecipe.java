@@ -1,23 +1,18 @@
-package io.quarkus.updates.camel30.java;
+package io.quarkus.updates.camel.camel30.java;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
-import org.openrewrite.Cursor;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.Preconditions;
 import org.openrewrite.Recipe;
 import org.openrewrite.Tree;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.AddImport;
-import org.openrewrite.java.ChangeFieldType;
-import org.openrewrite.java.ChangePackage;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.ImplementInterface;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.RemoveImplements;
-import org.openrewrite.java.search.UsesMethod;
 import org.openrewrite.java.tree.Comment;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
@@ -25,8 +20,8 @@ import org.openrewrite.java.tree.Space;
 import org.openrewrite.java.tree.TypeUtils;
 import org.openrewrite.marker.Markers;
 
-import io.quarkus.updates.camel30.AbstractCamelQuarkusJavaVisitor;
-import io.quarkus.updates.camel30.RecipesUtil;
+import io.quarkus.updates.camel.AbstractCamelQuarkusJavaVisitor;
+import io.quarkus.updates.camel.RecipesUtil;
 
 import java.beans.SimpleBeanInfo;
 import java.util.Collections;

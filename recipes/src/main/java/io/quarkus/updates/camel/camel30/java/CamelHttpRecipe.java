@@ -1,4 +1,4 @@
-package io.quarkus.updates.camel30.java;
+package io.quarkus.updates.camel.camel30.java;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
@@ -7,14 +7,11 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.internal.lang.Nullable;
-import org.openrewrite.java.ChangeFieldType;
-import org.openrewrite.java.ChangePackage;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.tree.J;
 
-import io.quarkus.updates.camel30.AbstractCamelQuarkusJavaVisitor;
-import org.openrewrite.java.tree.JavaType;
+import io.quarkus.updates.camel.AbstractCamelQuarkusJavaVisitor;
 
 @EqualsAndHashCode(callSuper = true)
 @Value

@@ -1,28 +1,9 @@
-package io.quarkus.updates.camel30.yaml;
+package io.quarkus.updates.camel.camel30.yaml;
 
 import org.openrewrite.Cursor;
-import org.openrewrite.Tree;
-import org.openrewrite.java.tree.Comment;
-import org.openrewrite.java.tree.Expression;
-import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.JContainer;
-import org.openrewrite.java.tree.JRightPadded;
-import org.openrewrite.java.tree.JavaType;
-import org.openrewrite.java.tree.Space;
-import org.openrewrite.java.tree.TextComment;
-import org.openrewrite.marker.Markers;
-import org.openrewrite.xml.tree.Xml;
 import org.openrewrite.yaml.tree.Yaml;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Function;
-
-import static org.openrewrite.Tree.randomId;
 
 public class YamlRecipesUtil {
 
