@@ -1,4 +1,4 @@
-package io.quarkus.updates.camel30.xml;
+package io.quarkus.updates.camel.camel30.xml;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -10,9 +10,7 @@ import org.openrewrite.xml.XPathMatcher;
 import org.openrewrite.xml.XmlIsoVisitor;
 import org.openrewrite.xml.tree.Xml;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

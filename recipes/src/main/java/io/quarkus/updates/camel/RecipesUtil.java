@@ -1,4 +1,4 @@
-package io.quarkus.updates.camel30;
+package io.quarkus.updates.camel;
 
 import org.openrewrite.Cursor;
 import org.openrewrite.Tree;

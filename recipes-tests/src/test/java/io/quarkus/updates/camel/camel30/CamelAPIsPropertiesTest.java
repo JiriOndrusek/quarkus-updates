@@ -1,5 +1,6 @@
-package io.quarkus.updates.camel30;
+package io.quarkus.updates.camel.camel30;
 
+import io.quarkus.updates.camel.CamelQuarkusTestUtil;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.properties.Assertions;

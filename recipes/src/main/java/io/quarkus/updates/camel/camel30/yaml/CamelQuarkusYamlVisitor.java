@@ -1,4 +1,4 @@
-package io.quarkus.updates.camel30.yaml;
+package io.quarkus.updates.camel.camel30.yaml;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.yaml.YamlIsoVisitor;

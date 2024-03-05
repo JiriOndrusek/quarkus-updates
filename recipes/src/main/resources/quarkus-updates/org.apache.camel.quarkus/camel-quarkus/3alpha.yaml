@@ -26,18 +26,18 @@
 #####
 ---
 type: specs.openrewrite.org/v1beta/recipe
-name: io.quarkus.updates.camel30.CamelQuarkusMigrationRecipe
+name: io.quarkus.updates.camel.camel30.CamelQuarkusMigrationRecipe
 displayName: Migrate `camel3` application to `camel4.`
 description: Migrate `camel3` quarkus application to `camel4` quarkus.
 recipeList:
-  - io.quarkus.updates.camel30.xml.XmlDslRecipe
-  - io.quarkus.updates.camel30.xml.CircuitBreakerXmlDslRecipe
-  - io.quarkus.updates.camel30.yaml.CamelQuarkusYamlRouteConfigurationSequenceRecipe
-  - io.quarkus.updates.camel30.yaml.CamelQuarkusYamlStepsInFromRecipe
-  - io.quarkus.updates.camel30.java.CamelAPIsRecipe
-  - io.quarkus.updates.camel30.java.CamelEIPRecipe
-  - io.quarkus.updates.camel30.java.CamelBeanRecipe
-  - io.quarkus.updates.camel30.java.CamelHttpRecipe
+  - io.quarkus.updates.camel.camel30.xml.XmlDslRecipe
+  - io.quarkus.updates.camel.camel30.xml.CircuitBreakerXmlDslRecipe
+  - io.quarkus.updates.camel.camel30.yaml.CamelQuarkusYamlRouteConfigurationSequenceRecipe
+  - io.quarkus.updates.camel.camel30.yaml.CamelQuarkusYamlStepsInFromRecipe
+  - io.quarkus.updates.camel.camel30.java.CamelAPIsRecipe
+  - io.quarkus.updates.camel.camel30.java.CamelEIPRecipe
+  - io.quarkus.updates.camel.camel30.java.CamelBeanRecipe
+  - io.quarkus.updates.camel.camel30.java.CamelHttpRecipe
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: org.openrewrite.java.camel.migrate.ChangeTypes

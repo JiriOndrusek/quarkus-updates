@@ -1,4 +1,4 @@
-package io.quarkus.updates.camel30;
+package io.quarkus.updates.camel;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaIsoVisitor;
