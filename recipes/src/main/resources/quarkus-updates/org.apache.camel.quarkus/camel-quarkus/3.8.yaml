@@ -31,6 +31,13 @@ recipeList:
       oldFullyQualifiedTypeName: org.apache.camel.component.jsonvalidator.DefaultJsonSchemaLoader
       newFullyQualifiedTypeName: org.apache.camel.component.jsonvalidator.DefaultJsonUriSchemaLoader
 ---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.camel.camel43.CamelQuarkusMigrationRecipe
+displayName: Migrate `camel4.3` application to `camel4.4`
+description: Migrate `camel4.3` quarkus application to `camel4.4` quarkus.
+recipeList:
+  - io.quarkus.updates.camel.camel43.java.CamelCoreRecipe
+---
 #https://camel.apache.org/manual/camel-4x-upgrade-guide-4_4.html#_camel_main
 # has to be last, because the text replace breaks the compilation
 type: specs.openrewrite.org/v1beta/recipe
