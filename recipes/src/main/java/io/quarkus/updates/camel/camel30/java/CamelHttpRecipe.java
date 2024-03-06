@@ -93,11 +93,6 @@ public class CamelHttpRecipe extends Recipe {
                 return f;
             }
 
-            @Override
-            public J.NewClass visitNewClass(J.NewClass newClass, ExecutionContext context) {
-                return super.visitNewClass(newClass, context);
-            }
-
 
             @Override
             public @Nullable J postVisit(J tree, ExecutionContext context) {

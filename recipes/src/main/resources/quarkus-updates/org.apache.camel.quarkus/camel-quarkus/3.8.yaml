@@ -41,7 +41,7 @@ recipeList:
 #https://camel.apache.org/manual/camel-4x-upgrade-guide-4_4.html#_camel_main
 # has to be last, because the text replace breaks the compilation
 type: specs.openrewrite.org/v1beta/recipe
-name: org.openrewrite.java.camel.migrate.RrouteControllerProperties
+name: org.openrewrite.java.camel.migrate.RouteControllerProperties
 displayName: Replace 'camel.main.routeController' with `camel.routecontroller'
 recipeList:
   - io.quarkus.updates.camel.camel43.java.CamelReplacePropertyRecipe

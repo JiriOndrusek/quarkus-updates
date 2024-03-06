@@ -97,6 +97,16 @@ public abstract class AbstractCamelQuarkusJavaVisitor extends JavaIsoVisitor<Exe
         return executeVisitWithCatch(() -> doVisitAnnotation(annotation, context), annotation, context);
     }
 
+    @Override
+    public final J.NewClass visitNewClass(J.NewClass newClass, ExecutionContext context) {
+        if(!camel) {
+            //skip recipe if file does not contain camel
+            return newClass;
+        }
+
+        return executeVisitWithCatch(() -> doVisitNewClass(newClass, context), newClass, context);
+    }
+
 
     //-------------------------------- internal methods used by children---------------------------------
 
@@ -122,6 +132,9 @@ public abstract class AbstractCamelQuarkusJavaVisitor extends JavaIsoVisitor<Exe
 
     protected J.Annotation doVisitAnnotation(J.Annotation annotation, ExecutionContext context) {
         return super.visitAnnotation(annotation, context);
+    }
+    protected J.NewClass doVisitNewClass(J.NewClass newClass, ExecutionContext context) {
+        return super.visitNewClass(newClass, context);
     }
 
      // ------------------------------------------ helper methods -------------------------------------------

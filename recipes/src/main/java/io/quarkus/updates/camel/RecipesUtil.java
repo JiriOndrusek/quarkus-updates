@@ -112,6 +112,12 @@ public class RecipesUtil {
                 JavaType.ShallowClass.build(type), null);
     }
 
+    public static Expression createNullExpression() {
+       return new J.Literal(UUID.randomUUID(), Space.SINGLE_SPACE, Markers.EMPTY, null, "null", null, JavaType.Primitive.Null);
+    }
+
+
+
     private static <T> JRightPadded<T> padRight(T tree) {
         return new JRightPadded<>(tree, Space.EMPTY, Markers.EMPTY);
     }
