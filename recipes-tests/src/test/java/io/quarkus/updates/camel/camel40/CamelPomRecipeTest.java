@@ -1,7 +1,8 @@
-package io.quarkus.updates.camel30;
+package io.quarkus.updates.camel.camel40;
 
 import static org.openrewrite.maven.Assertions.pomXml;
 
+import io.quarkus.updates.camel.CamelQuarkusTestUtil;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RecipeSpec;
@@ -12,7 +13,7 @@ public class CamelPomRecipeTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        CamelQuarkusTestUtil.recipe(spec, "org.openrewrite.java.camel.migrate.removedExtensions")
+        CamelQuarkusTestUtil.recipe3alpha(spec, "org.openrewrite.java.camel.migrate.removedExtensions")
                 .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true))
                 .typeValidationOptions(TypeValidation.none());
     }

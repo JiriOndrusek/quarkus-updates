@@ -1,7 +1,8 @@
-package io.quarkus.updates.camel30;
+package io.quarkus.updates.camel.camel40;
 
 import static org.openrewrite.java.Assertions.java;
 
+import io.quarkus.updates.camel.CamelQuarkusTestUtil;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RecipeSpec;
@@ -12,7 +13,7 @@ public class CamelAPIsTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        CamelQuarkusTestUtil.recipe(spec)
+        CamelQuarkusTestUtil.recipe3alpha(spec)
                 .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-api",
                         "camel-support", "camel-core-model", "camel-util", "camel-catalog", "camel-main", "camel-management-api"))
                 .typeValidationOptions(TypeValidation.none());
@@ -799,7 +800,7 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testOneIntrospectionSupport() {
         //language=java
-        rewriteRun(spec -> CamelQuarkusTestUtil.recipe(spec, "org.openrewrite.java.camel.migrate.ChangeTypes"),
+        rewriteRun(spec -> CamelQuarkusTestUtil.recipe(spec, "3alpha", "org.openrewrite.java.camel.migrate.ChangeTypes"),
                 java("""
                     import org.apache.camel.support.IntrospectionSupport;
                     
@@ -827,7 +828,7 @@ public class CamelAPIsTest implements RewriteTest {
     @Test
     void testMultiIntrospectionSupport() {
         //language=java
-        rewriteRun(spec -> CamelQuarkusTestUtil.recipe(spec, "org.openrewrite.java.camel.migrate.ChangeTypes"),
+        rewriteRun(spec -> CamelQuarkusTestUtil.recipe(spec, "3alpha", "org.openrewrite.java.camel.migrate.ChangeTypes"),
                 java("""
                     import org.apache.camel.support.IntrospectionSupport;
 

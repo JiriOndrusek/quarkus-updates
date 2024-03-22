@@ -1,4 +1,4 @@
-package io.quarkus.updates.camel30.xml;
+package io.quarkus.updates.camel.camel40.xml;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;

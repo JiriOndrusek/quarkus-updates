@@ -1,4 +1,4 @@
-package io.quarkus.updates.camel30.java;
+package io.quarkus.updates.camel.camel40.java;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
@@ -11,7 +11,7 @@ import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.tree.J;
 
-import io.quarkus.updates.camel30.AbstractCamelQuarkusJavaVisitor;
+import io.quarkus.updates.camel.AbstractCamelQuarkusJavaVisitor;
 
 @EqualsAndHashCode(callSuper = true)
 @Value
@@ -91,11 +91,6 @@ public class CamelHttpRecipe extends Recipe {
                     getCursor().putMessage("authScopeNewClass", nc);
                 }
                 return f;
-            }
-
-            @Override
-            public J.NewClass visitNewClass(J.NewClass newClass, ExecutionContext context) {
-                return super.visitNewClass(newClass, context);
             }
 
 

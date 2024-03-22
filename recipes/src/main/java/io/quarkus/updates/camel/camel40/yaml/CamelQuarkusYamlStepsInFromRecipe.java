@@ -1,6 +1,6 @@
-package io.quarkus.updates.camel30.yaml;
+package io.quarkus.updates.camel.camel40.yaml;
 
-import io.quarkus.updates.camel30.RecipesUtil;
+import io.quarkus.updates.camel.RecipesUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.openrewrite.ExecutionContext;

@@ -1,5 +1,6 @@
-package io.quarkus.updates.camel30;
+package io.quarkus.updates.camel.camel40;
 
+import io.quarkus.updates.camel.CamelQuarkusTestUtil;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RecipeSpec;
@@ -12,7 +13,7 @@ public class CamelJmxTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        CamelQuarkusTestUtil.recipe(spec, "org.openrewrite.java.camel.migrate.ChangeManagedChoiceMBeanMethodName",
+        CamelQuarkusTestUtil.recipe3alpha(spec, "org.openrewrite.java.camel.migrate.ChangeManagedChoiceMBeanMethodName",
                         "org.openrewrite.java.camel.migrate.ChangeManagedFailoverLoadBalancerMBeanMethodName")
                 .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-management-api"))
                 .typeValidationOptions(TypeValidation.none());
