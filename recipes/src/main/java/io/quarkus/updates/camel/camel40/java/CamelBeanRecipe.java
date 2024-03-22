@@ -1,4 +1,4 @@
-package io.quarkus.updates.camel30.java;
+package io.quarkus.updates.camel.camel40.java;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +13,7 @@ import org.openrewrite.java.ChangeLiteral;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
 
-import io.quarkus.updates.camel30.AbstractCamelQuarkusJavaVisitor;
+import io.quarkus.updates.camel.AbstractCamelQuarkusJavaVisitor;
 
 public class CamelBeanRecipe extends Recipe {
 

@@ -1,5 +1,6 @@
-package io.quarkus.updates.camel30;
+package io.quarkus.updates.camel.camel40;
 
+import io.quarkus.updates.camel.CamelQuarkusTestUtil;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RecipeSpec;
@@ -12,7 +13,7 @@ public class CamelHttpTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        CamelQuarkusTestUtil.recipe(spec)
+        CamelQuarkusTestUtil.recipe3alpha(spec)
                 .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-api",
                         "camel-support", "camel-core-model", "camel-util", "camel-catalog", "camel-main", "httpclient"
                 ,"httpcore", "httpclient"))

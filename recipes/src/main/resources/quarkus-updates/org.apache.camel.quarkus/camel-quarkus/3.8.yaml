@@ -1,0 +1,47 @@
+#
+# Copyright 2021 the original author or authors.
+# <p>
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# <p>
+# https://www.apache.org/licenses/LICENSE-2.0
+# <p>
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+#####
+# Rules coming from https://camel.apache.org/manual/camel-4x-upgrade-guide.html
+#####
+
+#####
+# Update the Camel - Quarkus extensions
+#####
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: org.openrewrite.java.camel.migrate.DefaultJsonValidatorLoader
+displayName: Replace depricated DefaultJsonSchemaLoader with DefaultJsonUriSchemaLoader
+description: Replaces depricated class withits successor.
+recipeList:
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: org.apache.camel.component.jsonvalidator.DefaultJsonSchemaLoader
+      newFullyQualifiedTypeName: org.apache.camel.component.jsonvalidator.DefaultJsonUriSchemaLoader
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.camel.camel44.CamelQuarkusMigrationRecipe
+displayName: Migrate `camel4.3` application to `camel4.4`
+description: Migrate `camel4.3` quarkus application to `camel4.4` quarkus.
+recipeList:
+  - io.quarkus.updates.camel.camel44.java.CamelCoreRecipe
+---
+#https://camel.apache.org/manual/camel-4x-upgrade-guide-4_4.html#_camel_main
+# has to be last, because the text replace breaks the compilation
+type: specs.openrewrite.org/v1beta/recipe
+name: org.openrewrite.java.camel.migrate.RouteControllerProperties
+displayName: Replace 'camel.main.routeController' with `camel.routecontroller'
+recipeList:
+  - io.quarkus.updates.camel.camel44.java.CamelReplacePropertyRecipe

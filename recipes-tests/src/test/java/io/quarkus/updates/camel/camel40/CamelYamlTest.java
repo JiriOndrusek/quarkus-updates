@@ -1,5 +1,6 @@
-package io.quarkus.updates.camel30;
+package io.quarkus.updates.camel.camel40;
 
+import io.quarkus.updates.camel.CamelQuarkusTestUtil;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
@@ -10,7 +11,7 @@ public class CamelYamlTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        CamelQuarkusTestUtil.recipe(spec)
+        CamelQuarkusTestUtil.recipe3alpha(spec)
                 .typeValidationOptions(TypeValidation.none());
     }
 

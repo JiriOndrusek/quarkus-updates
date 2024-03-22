@@ -1,4 +1,4 @@
-package io.quarkus.updates.camel30;
+package io.quarkus.updates.camel;
 
 import org.openrewrite.Cursor;
 import org.openrewrite.Tree;
@@ -111,6 +111,12 @@ public class RecipesUtil {
        return new J.Identifier(randomId(), prefix, Markers.EMPTY, name,
                 JavaType.ShallowClass.build(type), null);
     }
+
+    public static Expression createNullExpression() {
+       return new J.Literal(UUID.randomUUID(), Space.SINGLE_SPACE, Markers.EMPTY, null, "null", null, JavaType.Primitive.Null);
+    }
+
+
 
     private static <T> JRightPadded<T> padRight(T tree) {
         return new JRightPadded<>(tree, Space.EMPTY, Markers.EMPTY);

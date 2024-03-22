@@ -1,4 +1,4 @@
-package io.quarkus.updates.camel30.java;
+package io.quarkus.updates.camel.camel40.java;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -6,7 +6,7 @@ import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.AddImport;
 import org.openrewrite.java.tree.J;
 
-import io.quarkus.updates.camel30.AbstractCamelQuarkusJavaVisitor;
+import io.quarkus.updates.camel.AbstractCamelQuarkusJavaVisitor;
 
 public class CamelEIPRecipe extends Recipe {
 
