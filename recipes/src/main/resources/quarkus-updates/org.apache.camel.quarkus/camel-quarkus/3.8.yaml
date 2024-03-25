@@ -32,9 +32,17 @@ recipeList:
       newFullyQualifiedTypeName: org.apache.camel.component.jsonvalidator.DefaultJsonUriSchemaLoader
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.camel.camel41.CamelQuarkusMigrationRecipe
+displayName: Migrates `camel 4.0` application to `camel 4.1`
+description: Migrates `camel 4.0` quarkus application to `camel 4.1`.
+recipeList:
+  - io.quarkus.updates.camel.camel41.xml.XmlDslRecipe
+  - io.quarkus.updates.camel.camel41.yaml.YamlDslRecipe
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.quarkus.updates.camel.camel44.CamelQuarkusMigrationRecipe
-displayName: Migrate `camel4.3` application to `camel4.4`
-description: Migrate `camel4.3` quarkus application to `camel4.4` quarkus.
+displayName: Migrates `camel 4.3` application to `camel 4.4`
+description: Migrates `camel 4.3` quarkus application to `camel 4.4`.
 recipeList:
   - io.quarkus.updates.camel.camel44.CamelCoreRecipe
 ---

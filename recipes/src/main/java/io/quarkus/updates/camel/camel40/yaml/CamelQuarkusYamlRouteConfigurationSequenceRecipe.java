@@ -1,5 +1,6 @@
 package io.quarkus.updates.camel.camel40.yaml;
 
+import io.quarkus.updates.camel.customRecipes.AbstractCamelQuarkusYamlVisitor;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.openrewrite.ExecutionContext;
@@ -40,13 +41,13 @@ public class CamelQuarkusYamlRouteConfigurationSequenceRecipe extends Recipe {
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
 
-        return new CamelQuarkusYamlVisitor() {
+        return new AbstractCamelQuarkusYamlVisitor() {
 
             private Yaml.Sequence sequenceToReplace;
             private boolean indentRegistered = false;
 
             @Override
-            void clearLocalCache() {
+            protected void clearLocalCache() {
                 sequenceToReplace = null;
             }
 
