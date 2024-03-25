@@ -22,8 +22,37 @@
 # Update the Camel - Quarkus extensions
 #####
 ---
+
 type: specs.openrewrite.org/v1beta/recipe
-name: org.openrewrite.java.camel.migrate.DefaultJsonValidatorLoader
+name: io.quarkus.updates.camel.camel41.CamelQuarkusMigrationRecipe
+displayName: Migrates `camel 4.0` application to `camel 4.1`
+description: Migrates `camel 4.0` quarkus application to `camel 4.1`.
+recipeList:
+  - io.quarkus.updates.camel.camel41.CamelCoreRecipe
+  - io.quarkus.updates.camel.camel41.XmlDslRecipe
+  - io.quarkus.updates.camel.camel41.YamlDslRecipe
+  - org.openrewrite.java.camel.camel41.TracingTag
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.camel.camel44.CamelQuarkusMigrationRecipe
+displayName: Migrates `camel 4.3` application to `camel 4.4`
+description: Migrates `camel 4.3` quarkus application to `camel 4.4`.
+recipeList:
+  - io.quarkus.updates.camel.camel44.CamelCoreRecipe
+  - org.openrewrite.java.camel.camel44.RouteControllerProperties
+  - org.openrewrite.java.camel.camel44.DefaultJsonSchemaLoader
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: org.openrewrite.java.camel.camel41.TracingTag
+displayName: Tag Enum has been deprecated
+description: The Tag Enum containing constants for tagging spans has been deprecated. Instead, use constants from the TagConstants.
+recipeList:
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: org.apache.camel.tracing.Tag
+      newFullyQualifiedTypeName: org.apache.camel.tracing.TagConstants
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: org.openrewrite.java.camel.camel44.DefaultJsonSchemaLoader
 displayName: Replace depricated DefaultJsonSchemaLoader with DefaultJsonUriSchemaLoader
 description: Replaces depricated class withits successor.
 recipeList:
@@ -31,16 +60,9 @@ recipeList:
       oldFullyQualifiedTypeName: org.apache.camel.component.jsonvalidator.DefaultJsonSchemaLoader
       newFullyQualifiedTypeName: org.apache.camel.component.jsonvalidator.DefaultJsonUriSchemaLoader
 ---
-type: specs.openrewrite.org/v1beta/recipe
-name: io.quarkus.updates.camel.camel44.CamelQuarkusMigrationRecipe
-displayName: Migrate `camel4.3` application to `camel4.4`
-description: Migrate `camel4.3` quarkus application to `camel4.4` quarkus.
-recipeList:
-  - io.quarkus.updates.camel.camel44.CamelCoreRecipe
----
 #https://camel.apache.org/manual/camel-4x-upgrade-guide-4_4.html#_camel_main
 type: specs.openrewrite.org/v1beta/recipe
-name: org.openrewrite.java.camel.migrate.RouteControllerProperties
+name: org.openrewrite.java.camel.camel44.RouteControllerProperties
 displayName: Replace 'camel.main.routeController' with `camel.routecontroller'
 recipeList:
   - org.openrewrite.properties.ChangePropertyKey:

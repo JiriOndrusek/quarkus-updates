@@ -13,7 +13,7 @@ public class CamelJsonValidatorTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        CamelQuarkusTestUtil.recipe3_8(spec,"org.openrewrite.java.camel.migrate.DefaultJsonValidatorLoader")
+        CamelQuarkusTestUtil.recipe3_8(spec)
                 .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-json-validator"))
                 .typeValidationOptions(TypeValidation.none());
     }

@@ -115,6 +115,10 @@ public class RecipesUtil {
        return new J.Literal(UUID.randomUUID(), Space.SINGLE_SPACE, Markers.EMPTY, null, "null", null, JavaType.Primitive.Null);
     }
 
+    public static J.Literal createStringLiteral(String value) {
+       return new J.Literal(UUID.randomUUID(), Space.EMPTY, Markers.EMPTY, value, "\""+value+"\"", null, JavaType.Primitive.String);
+    }
+
 
 
     private static <T> JRightPadded<T> padRight(T tree) {

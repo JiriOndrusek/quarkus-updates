@@ -15,8 +15,7 @@ public class CamelCoreTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        CamelQuarkusTestUtil.recipe3_8(spec,"io.quarkus.updates.camel.camel44.CamelQuarkusMigrationRecipe",
-                        "org.openrewrite.java.camel.migrate.RouteControllerProperties")
+        CamelQuarkusTestUtil.recipe3_8(spec)
                 .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-api", "camel-util", "camel-base", "camel-core-model"))
                 .typeValidationOptions(TypeValidation.none());
     }
