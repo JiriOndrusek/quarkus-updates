@@ -35,7 +35,7 @@ public class CamelCoreRecipe extends Recipe {
     private static final String M_EXPRESSION_CAUSE_TOKENIZE3 = "org.apache.camel.builder.ExpressionClause tokenize(java.lang.String, java.lang.String, boolean)";
     private static final String M_EXPRESSION_CAUSE_XQUERY1 = "org.apache.camel.builder.ExpressionClause xquery(java.lang.String, java.lang.String)";
     private static final String M_EXPRESSION_CAUSE_XQUERY2 = "org.apache.camel.builder.ExpressionClause xquery(java.lang.String, java.lang.Class, java.lang.String)";
-    private static final String M_EXPRESSION_CAUSE_XQUERY3 = "org.apache.camel.builder.ExpressionClause xquery(java.lang.String, java.lang.Class, boolean, java.lang.String)";
+    private static final String M_EXPRESSION_CAUSE_XQUERY3 = "org.apache.camel.builder.ExpressionClause xquery(java.lang.String, java.lang.Class, org.apache.camel.support.builder.Namespaces, java.lang.String)";
     private static final String CONST_STOP_WATCH_LONG01 = "org.apache.camel.util.StopWatch <constructor>(long)";
     private static final String CONST_STOP_WATCH_LONG02 = "org.apache.camel.util.StopWatch <constructor>(java.lang.Long)";
 
