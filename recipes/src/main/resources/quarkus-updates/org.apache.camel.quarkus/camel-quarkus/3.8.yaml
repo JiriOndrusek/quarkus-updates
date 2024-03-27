@@ -22,22 +22,20 @@
 # Update the Camel - Quarkus extensions
 #####
 ---
-
 type: specs.openrewrite.org/v1beta/recipe
-name: io.quarkus.updates.camel.camel41.CamelQuarkusMigrationRecipe
-displayName: Migrates `camel 4.0` application to `camel 4.1`
-description: Migrates `camel 4.0` quarkus application to `camel 4.1`.
+name: io.quarkus.updates.camel.camel44.CamelQuarkusMigrationRecipe
+displayName: Migrates `camel 4.0` application to `camel 4.4`
+description: Migrates `camel 4.0` quarkus application to `camel 4.4`.
 recipeList:
+  # to camel 4.1
   - io.quarkus.updates.camel.camel41.CamelCoreRecipe
   - io.quarkus.updates.camel.camel41.XmlDslRecipe
   - io.quarkus.updates.camel.camel41.YamlDslRecipe
   - org.openrewrite.java.camel.camel41.TracingTag
----
-type: specs.openrewrite.org/v1beta/recipe
-name: io.quarkus.updates.camel.camel44.CamelQuarkusMigrationRecipe
-displayName: Migrates `camel 4.3` application to `camel 4.4`
-description: Migrates `camel 4.3` quarkus application to `camel 4.4`.
-recipeList:
+  # to camel 4.2
+  - org.openrewrite.java.camel.camel42.canelMainDebugger
+  # to camel 4.3
+  # to camel 4.4
   - io.quarkus.updates.camel.camel44.CamelCoreRecipe
   - org.openrewrite.java.camel.camel44.RouteControllerProperties
   - org.openrewrite.java.camel.camel44.DefaultJsonSchemaLoader
@@ -50,6 +48,16 @@ recipeList:
   - org.openrewrite.java.ChangeType:
       oldFullyQualifiedTypeName: org.apache.camel.tracing.Tag
       newFullyQualifiedTypeName: org.apache.camel.tracing.TagConstants
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: org.openrewrite.java.camel.camel42.canelMainDebugger
+displayName: The option camel.main.debugger has been renamed
+description: The option camel.main.debugger has been renamed to camel.debug.enabled.
+recipeList:
+  - org.openrewrite.properties.ChangePropertyKey:
+      oldPropertyKey: (.*)camel.main.debugger
+      newPropertyKey: $1camel.debug.enabled
+      regex: true
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: org.openrewrite.java.camel.camel44.DefaultJsonSchemaLoader
