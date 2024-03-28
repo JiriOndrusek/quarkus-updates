@@ -15,7 +15,7 @@ public class CamelUpdate43Test implements RewriteTest {
     @Override
     public void defaults(RecipeSpec spec) {
         CamelQuarkusTestUtil.recipe3_8(spec)
-                .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-api", "camel-core-model", "camel-support", "camel-base-engine", "camel-endpointdsl"))
+                .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-api", "camel-core-model", "camel-support", "camel-base-engine", "camel-endpointdsl", "camel-kafka"))
                 .typeValidationOptions(TypeValidation.none());
     }
 
