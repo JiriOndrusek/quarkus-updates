@@ -15,7 +15,7 @@ public class CamelUpdate43Test implements RewriteTest {
     @Override
     public void defaults(RecipeSpec spec) {
         CamelQuarkusTestUtil.recipe3_8(spec)
-                .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-api", "camel-support", "camel-base-engine"))
+                .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-api", "camel-core-model", "camel-support", "camel-base-engine"))
                 .typeValidationOptions(TypeValidation.none());
     }
 
@@ -150,4 +150,86 @@ public class CamelUpdate43Test implements RewriteTest {
                 """));
     }
 
+
+    /**
+     * <p>Throttle now uses the number of concurrent requests as the throttling measure instead of the number of requests per period.</p>
+     *
+     * <p>Update throttle expressions configured with maxRequestsPerPeriod to use maxConcurrentRequests instead, and remove any timePeriodMillis option.</p>
+     *
+     * <p>See the <a href="https://camel.apache.org/manual/camel-4x-upgrade-guide-4_3.html#_throttle_eip"'>documentation</a></p>
+     */
+    @Test
+    void testThrottleEIP() {
+        //language=java
+        rewriteRun(java("""
+                    import org.apache.camel.builder.RouteBuilder;
+                    
+                    public class ThrottleEIPTest extends RouteBuilder {
+                        @Override
+                        public void configure() {
+                            long maxRequestsPerPeriod = 100L;
+                            Long maxRequests = Long.valueOf(maxRequestsPerPeriod);
+                    
+                            from("seda:a")
+                                    .throttle(maxRequestsPerPeriod).timePeriodMillis(500).asyncDelayed()
+                                    .to("seda:b");
+                    
+                            from("seda:a")
+                                    .throttle(maxRequestsPerPeriod).timePeriodMillis(500)
+                                    .to("seda:b");
+                    
+                            from("seda:c")
+                                    .throttle(maxRequestsPerPeriod)
+                                    .to("seda:d");
+                           
+                            from("seda:a")
+                                    .throttle(maxRequests).timePeriodMillis(500).asyncDelayed()
+                                    .to("seda:b");
+                    
+                            from("seda:a")
+                                    .throttle(maxRequests).timePeriodMillis(500)
+                                    .to("seda:b");
+                    
+                            from("seda:c")
+                                    .throttle(maxRequests)
+                                    .to("seda:d");
+                        }
+                    }
+                """,
+                """
+                import org.apache.camel.builder.RouteBuilder;
+                
+                public class ThrottleEIPTest extends RouteBuilder {
+                    @Override
+                    public void configure() {
+                        long maxRequestsPerPeriod = 100L;
+                        Long maxRequests = Long.valueOf(maxRequestsPerPeriod);
+                
+                        /* Throttle now uses the number of concurrent requests as the throttling measure instead of the number of requests per period.*/from("seda:a")
+                                .throttle(maxRequestsPerPeriod).asyncDelayed()
+                                .to("seda:b");
+                
+                        /* Throttle now uses the number of concurrent requests as the throttling measure instead of the number of requests per period.*/from("seda:a")
+                                .throttle(maxRequestsPerPeriod)
+                                .to("seda:b");
+                
+                        /* Throttle now uses the number of concurrent requests as the throttling measure instead of the number of requests per period.*/from("seda:c")
+                                .throttle(maxRequestsPerPeriod)
+                                .to("seda:d");
+                       
+                        /* Throttle now uses the number of concurrent requests as the throttling measure instead of the number of requests per period.*/from("seda:a")
+                                .throttle(maxRequests).asyncDelayed()
+                                .to("seda:b");
+                
+                        /* Throttle now uses the number of concurrent requests as the throttling measure instead of the number of requests per period.*/from("seda:a")
+                                .throttle(maxRequests)
+                                .to("seda:b");
+                
+                        /* Throttle now uses the number of concurrent requests as the throttling measure instead of the number of requests per period.*/from("seda:c")
+                                .throttle(maxRequests)
+                                .to("seda:d");
+                    }
+                }
+                        """));
+    }
 }

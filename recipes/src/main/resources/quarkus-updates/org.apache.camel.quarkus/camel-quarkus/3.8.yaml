@@ -37,7 +37,8 @@ recipeList:
   - io.quarkus.updates.camel.camel42.CamelSagaRecipe  
   # to camel 4.3
   - io.quarkus.updates.camel.camel43.StateRepository
-  - io.quarkus.updates.camel.camel43.CamelResequenceEIPRecipe
+  - io.quarkus.updates.camel.camel43.CamelResequenceEIPXmlRecipe
+  - io.quarkus.updates.camel.camel43.CamelThrottleEIPRecipe
   # to camel 4.4
   - io.quarkus.updates.camel.camel44.CamelCoreRecipe
   - io.quarkus.updates.camel.camel44.RouteControllerProperties

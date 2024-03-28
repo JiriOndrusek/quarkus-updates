@@ -45,7 +45,7 @@ public class CamelCoreRecipe extends Recipe {
                 J.MethodInvocation mi = super.doVisitMethodInvocation(method, context);
 
                 if (getMethodMatcher(M_TO_LOOKUP_LOOKUP).matches(mi, true)) {
-                    System.out.println(5);
+                    //todo
                 }
 
                 return mi;

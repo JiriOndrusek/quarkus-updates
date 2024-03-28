@@ -32,7 +32,7 @@ import org.openrewrite.xml.tree.Xml;
  *
  * <p>See the <a href=https://camel.apache.org/manual/camel-4x-upgrade-guide-4_3.html#_resequence_eip>documentation</a></p>
  */
-public class CamelResequenceEIPRecipe extends Recipe {
+public class CamelResequenceEIPXmlRecipe extends Recipe {
 
     private static final XPathMatcher XML_RESEQUENCE_STREAM_CONFIG_MATCHER = new XPathMatcher("*/route/resequence/stream-config");
     private static final XPathMatcher XML_RESEQUENCE_BATCH_CONFIG_MATCHER = new XPathMatcher("*/route/resequence/batch-config");
