@@ -323,27 +323,28 @@ public class CamelUpdate44Test implements RewriteTest {
     void testXpath1() {
         //language=java
         rewriteRun(java("""
-                    import org.apache.camel.builder.RouteBuilder;
-                    
-                    public class Xpath1Test extends RouteBuilder {
-                        @Override
-                        public void configure()  {
-                                from("direct:in").choice().when().xpath("/invoice/@orderType = 'premium'", "invoiceDetails")
-                                    .to("mock:premium");
-                        }
+                import org.apache.camel.builder.RouteBuilder;
+                
+                public class Xpath1Test extends RouteBuilder {
+                    @Override
+                    public void configure()  {
+                            from("direct:in").choice().when().xpath("/invoice/@orderType = 'premium'", "invoiceDetails")
+                                .to("mock:premium");
                     }
+                }
                 """,
             """
-                    import org.apache.camel.builder.RouteBuilder;
-                    
-                    public class Xpath1Test extends RouteBuilder {
-                        @Override
-                        public void configure()  {
-                            /*Some of the Java DSL for tokenize, xmlTokenize, xpath, xquery and jsonpath has been removed as part of making the DSL model consistent.
-                    See https://camel.apache.org/manual/camel-4x-upgrade-guide-4_4.html#_camel_core for more details.*/from("direct:in").choice().when().xpath("text", "header")
-                                    .to("mock:premium");
-                        }
+                import org.apache.camel.builder.RouteBuilder;
+                
+                public class Xpath1Test extends RouteBuilder {
+                    @Override
+                    public void configure()  {
+                            /*Some Java DSL for tokenize, xmlTokenize, xpath, xquery and jsonpath has been removed as part of making the DSL model consistent.
+                See https://camel.apache.org/manual/camel-4x-upgrade-guide-4_4.html#_camel_core for more details.
+                */from("direct:in").choice().when().removed_xpath("/invoice/@orderType = 'premium'", "invoiceDetails")
+                                .to("mock:premium");
                     }
+                }
                     """));
     }
 
@@ -370,8 +371,9 @@ public class CamelUpdate44Test implements RewriteTest {
                     public class Xpath2Test extends RouteBuilder {
                         @Override
                         public void configure()  {
-                            /*Some of the Java DSL for tokenize, xmlTokenize, xpath, xquery and jsonpath has been removed as part of making the DSL model consistent.
-                    See https://camel.apache.org/manual/camel-4x-upgrade-guide-4_4.html#_camel_core for more details.*/from("direct:in").choice().when().xpath("text", Object.class, "header")
+                            /*Some Java DSL for tokenize, xmlTokenize, xpath, xquery and jsonpath has been removed as part of making the DSL model consistent.
+                    See https://camel.apache.org/manual/camel-4x-upgrade-guide-4_4.html#_camel_core for more details.
+                    */from("direct:in").choice().when().removed_xpath("text", Object.class, "header")
                                     .to("mock:premium");
                         }
                     }
@@ -390,7 +392,7 @@ public class CamelUpdate44Test implements RewriteTest {
                     public class Xpath3Test extends RouteBuilder {
                         @Override
                         public void configure()  {
-                             from("direct:in").choice().when().xpath("text", Object.class, null, "header")
+                            from("direct:in").choice().when().xpath("text", Object.class, null, "header")
                                     .to("mock:premium");
                         }
                     }
@@ -398,7 +400,7 @@ public class CamelUpdate44Test implements RewriteTest {
             """
                     import org.apache.camel.builder.RouteBuilder;
                    
-                    public class Xquery2Test extends RouteBuilder {
+                    public class Xpath3Test extends RouteBuilder {
                         @Override
                         public void configure()  {
                             /*Some Java DSL for tokenize, xmlTokenize, xpath, xquery and jsonpath has been removed as part of making the DSL model consistent.

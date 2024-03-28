@@ -89,6 +89,16 @@ public class RecipesUtil {
         return new Xml.Comment(UUID.randomUUID(), null, Markers.EMPTY, text);
     }
 
+    public static boolean isCommentBeforeElement(J element, String comment) {
+        return element != null &&
+                element.getPrefix() != null &&
+                element.getPrefix().getComments() != null &&
+                !element.getPrefix().getComments().isEmpty() &&
+                element.getPrefix().getComments().stream()
+                        .filter(c -> (c instanceof TextComment && comment.equals(((TextComment) c).getText())))
+                        .findAny().isPresent();
+    }
+
     //--------------- typeCast helper --------------------------------
 
     public static J createTypeCast(Object type, Expression arg) {
