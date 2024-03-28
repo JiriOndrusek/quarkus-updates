@@ -36,6 +36,8 @@ recipeList:
   - io.quarkus.updates.camel.camel42.canelMainDebugger
   - io.quarkus.updates.camel.camel42.CamelSagaRecipe  
   # to camel 4.3
+  - io.quarkus.updates.camel.camel43.StateRepository
+  - io.quarkus.updates.camel.camel43.CamelResequenceEIPRecipe
   # to camel 4.4
   - io.quarkus.updates.camel.camel44.CamelCoreRecipe
   - io.quarkus.updates.camel.camel44.RouteControllerProperties
@@ -59,6 +61,18 @@ recipeList:
       oldPropertyKey: (.*)camel.main.debugger
       newPropertyKey: $1camel.debug.enabled
       regex: true
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.camel.camel43.StateRepository
+displayName: MemoryStateRepository and FileStateRepository were moved to another package and library
+description: Moved classes MemoryStateRepository and FileStateRepositor from camel-base-engine to  camel-support.
+recipeList:
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: org.apache.camel.impl.engine.MemoryStateRepository
+      newFullyQualifiedTypeName: org.apache.camel.support.processor.state.MemoryStateRepository
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: org.apache.camel.impl.engine.FileStateRepository
+      newFullyQualifiedTypeName: org.apache.camel.support.processor.state.FileStateRepository
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.quarkus.updates.camel.camel44.DefaultJsonSchemaLoader
