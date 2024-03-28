@@ -29,7 +29,7 @@ public class CamelCoreRecipe extends Recipe {
     private static final String M_EXPRESSION_CAUSE_JSONPATH2 = "org.apache.camel.builder.ExpressionClause jsonpathWriteAsString(java.lang.String, boolean, java.lang.String)";
     private static final String M_EXPRESSION_CAUSE_XPATH1 = "org.apache.camel.builder.ExpressionClause xpath(java.lang.String, java.lang.String)";
     private static final String M_EXPRESSION_CAUSE_XPATH2 = "org.apache.camel.builder.ExpressionClause xpath(java.lang.String, java.lang.Class, java.lang.String)";
-    private static final String M_EXPRESSION_CAUSE_XPATH3 = "org.apache.camel.builder.ExpressionClause xpath(java.lang.String, java.lang.Class, boolean, java.lang.String)";
+    private static final String M_EXPRESSION_CAUSE_XPATH3 = "org.apache.camel.builder.ExpressionClause xpath(java.lang.String, java.lang.Class, org.apache.camel.support.builder.Namespaces, java.lang.String)";
     private static final String M_EXPRESSION_CAUSE_TOKENIZE1 = "org.apache.camel.builder.ExpressionClause tokenize(java.lang.String, boolean, int, java.lang.String, boolean)";
     private static final String M_EXPRESSION_CAUSE_TOKENIZE2 = "org.apache.camel.builder.ExpressionClause tokenize(java.lang.String, java.lang.String)";
     private static final String M_EXPRESSION_CAUSE_TOKENIZE3 = "org.apache.camel.builder.ExpressionClause tokenize(java.lang.String, java.lang.String, boolean)";

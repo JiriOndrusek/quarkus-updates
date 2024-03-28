@@ -15,7 +15,7 @@ public class CamelUpdate43Test implements RewriteTest {
     @Override
     public void defaults(RecipeSpec spec) {
         CamelQuarkusTestUtil.recipe3_8(spec)
-                .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-api", "camel-core-model", "camel-support", "camel-base-engine"))
+                .parser(JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true).classpath("camel-api", "camel-core-model", "camel-support", "camel-base-engine", "camel-endpointdsl"))
                 .typeValidationOptions(TypeValidation.none());
     }
 
@@ -150,7 +150,6 @@ public class CamelUpdate43Test implements RewriteTest {
                 """));
     }
 
-
     /**
      * <p>Throttle now uses the number of concurrent requests as the throttling measure instead of the number of requests per period.</p>
      *
@@ -230,6 +229,65 @@ public class CamelUpdate43Test implements RewriteTest {
                                 .to("seda:d");
                     }
                 }
+                        """));
+    }
+
+    /**
+     * <p>The header name for the List<RecordMetadata> metadata has changed from org.apache.kafka.clients.producer.RecordMetadata
+     * to kafka.RECORD_META, and the header constant from KAFKA_RECORDMETA to KAFKA_RECORD_META.</p>
+     *
+     * <p>See the <a href="https://camel.apache.org/manual/camel-4x-upgrade-guide-4_3.html#_camel_kafka_2"'>documentation</a></p>
+     */
+    @Test
+    void testKafka() {
+        //language=java
+        rewriteRun(java("""
+                    import org.apache.camel.CamelContext;
+                    import org.apache.camel.Message;
+                    import org.apache.camel.builder.endpoint.EndpointRouteBuilder;
+                    import org.apache.camel.component.kafka.KafkaConstants;
+                    import org.apache.kafka.clients.producer.RecordMetadata;
+                    import org.apache.camel.support.DefaultMessage;
+                    
+                    import java.util.List;
+                    
+                    public class KafkaTest extends EndpointRouteBuilder {
+                        private CamelContext context;
+                        private final Message in = new DefaultMessage(context);
+                        
+                        @Override
+                        public void configure() throws Exception {
+                            
+                            List<RecordMetadata> recordMetaData1 = (List<RecordMetadata>) in.getHeader(KafkaConstants.KAFKA_RECORDMETA);
+                            
+                            
+                            from(kafka().orgApacheKafkaClientsProducerRecordmetadata()).to(mock("test"));
+                        }
+                    }
+                """,
+                """
+                    import org.apache.camel.CamelContext;
+                    import org.apache.camel.Message;
+                    import org.apache.camel.builder.endpoint.EndpointRouteBuilder;
+                    import org.apache.camel.component.kafka.KafkaConstants;
+                    import org.apache.kafka.clients.producer.RecordMetadata;
+                    import org.apache.camel.support.DefaultMessage;
+                    
+                    import java.util.List;
+                    
+                    public class KafkaTest extends EndpointRouteBuilder {
+                        private CamelContext context;
+                        private final Message in = new DefaultMessage(context);
+                        
+                        @Override
+                        public void configure() throws Exception {
+                            
+                            List<RecordMetadata> recordMetaData1 = (List<RecordMetadata>) in.getHeader(KafkaConstants.KAFKA_RECORD_META);
+                            
+                            
+                            from(kafka().kafkaRecordMeta()).to(mock("test"));
+                        }
+                    }
                         """));
     }
 }

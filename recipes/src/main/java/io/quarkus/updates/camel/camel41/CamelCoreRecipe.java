@@ -21,7 +21,8 @@ import java.util.regex.Pattern;
 @Value
 public class CamelCoreRecipe extends Recipe {
 
-    private static final String M_TO_LOOKUP_LOOKUP = "org.apache.camel.model.ProcessorDefinition to(..)";
+    private static final String M_TO = "org.apache.camel.model.ProcessorDefinition to(..)";
+    private static final String M_FROM = "org.apache.camel.model.ProcessorDefinition from(..)";
     private static final String AWS2_URL_WITH_QUEUE_REGEXP =  "(aws2-sns://[a-zA-z]+?.*)queueUrl=https://(.+)";
     private static final Pattern AWS2_URL_WITH_QUEUE_URL =  Pattern.compile(AWS2_URL_WITH_QUEUE_REGEXP);
 
@@ -41,27 +42,10 @@ public class CamelCoreRecipe extends Recipe {
 
         return new AbstractCamelQuarkusJavaVisitor() {
             @Override
-            protected J.MethodInvocation doVisitMethodInvocation(J.MethodInvocation method, ExecutionContext context) {
-                J.MethodInvocation mi = super.doVisitMethodInvocation(method, context);
-
-                if (getMethodMatcher(M_TO_LOOKUP_LOOKUP).matches(mi, true)) {
-                    //todo
-                }
-
-                return mi;
-            }
-
-            @Override
-            public Expression visitExpression(Expression expression, ExecutionContext context) {
-                return super.visitExpression(expression, context);
-            }
-
-            @Override
             public J.Literal visitLiteral(J.Literal literal, ExecutionContext context) {
                 J.Literal l =  super.visitLiteral(literal, context);
 
-
-                //todo precondition that aws2 is present
+                //is it possible to precondition that aws2 is present?
                 if(JavaType.Primitive.String.equals(l.getType()) && AWS2_URL_WITH_QUEUE_URL.matcher((String)l.getValue()).matches()) {
                     String newUrl = ((String) l.getValue()).replaceFirst(AWS2_URL_WITH_QUEUE_REGEXP, "$1queueArn=arn:aws:sqs:$2");
                     l = RecipesUtil.createStringLiteral(newUrl);

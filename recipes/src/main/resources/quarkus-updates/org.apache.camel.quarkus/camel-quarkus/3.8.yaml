@@ -33,12 +33,13 @@ recipeList:
   - io.quarkus.updates.camel.camel41.YamlDslRecipe
   - io.quarkus.updates.camel.camel41.TracingTag
   # to camel 4.2
-  - io.quarkus.updates.camel.camel42.canelMainDebugger
+  - io.quarkus.updates.camel.camel42.CamelMainDebugger
   - io.quarkus.updates.camel.camel42.CamelSagaRecipe  
   # to camel 4.3
   - io.quarkus.updates.camel.camel43.StateRepository
   - io.quarkus.updates.camel.camel43.CamelResequenceEIPXmlRecipe
   - io.quarkus.updates.camel.camel43.CamelThrottleEIPRecipe
+  - io.quarkus.updates.camel.camel43.KafkaMetadata
   # to camel 4.4
   - io.quarkus.updates.camel.camel44.CamelCoreRecipe
   - io.quarkus.updates.camel.camel44.RouteControllerProperties
@@ -54,7 +55,7 @@ recipeList:
       newFullyQualifiedTypeName: org.apache.camel.tracing.TagConstants
 ---
 type: specs.openrewrite.org/v1beta/recipe
-name: io.quarkus.updates.camel.camel42.canelMainDebugger
+name: io.quarkus.updates.camel.camel42.CamelMainDebugger
 displayName: The option camel.main.debugger has been renamed
 description: The option camel.main.debugger has been renamed to camel.debug.enabled.
 recipeList:
@@ -74,6 +75,18 @@ recipeList:
   - org.openrewrite.java.ChangeType:
       oldFullyQualifiedTypeName: org.apache.camel.impl.engine.FileStateRepository
       newFullyQualifiedTypeName: org.apache.camel.support.processor.state.FileStateRepository
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.camel.camel43.KafkaMetadata
+displayName: The header name for the List metadata has changed
+description: The header name for the List metadata has changed also the dsl method for metadata changed.
+recipeList:
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: org.apache.camel.builder.endpoint.dsl.KafkaEndpointBuilderFactory$KafkaHeaderNameBuilder orgApacheKafkaClientsProducerRecordmetadata()
+      newMethodName: kafkaRecordMeta
+  - org.openrewrite.java.ReplaceConstantWithAnotherConstant:
+      existingFullyQualifiedConstantName: org.apache.camel.component.kafka.KafkaConstants.KAFKA_RECORDMETA
+      fullyQualifiedConstantName: org.apache.camel.component.kafka.KafkaConstants.KAFKA_RECORD_META
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.quarkus.updates.camel.camel44.DefaultJsonSchemaLoader
