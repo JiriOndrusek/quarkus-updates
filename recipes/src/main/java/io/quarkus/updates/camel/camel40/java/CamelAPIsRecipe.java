@@ -44,6 +44,8 @@ public class CamelAPIsRecipe extends Recipe {
     private static final String MATCHER_CONTEXT_GET_ENDPOINT_MAP = "org.apache.camel.CamelContext getEndpointMap()";
     private static final String MATCHER_CONTEXT_GET_EXT = "org.apache.camel.CamelContext getExtension(java.lang.Class)";
     private static final String MATCHER_GET_NAME_RESOLVER = "org.apache.camel.ExtendedCamelContext getComponentNameResolver()";
+    private static final String MATCHER_GET_MODEL_JAXB_CONTEXT_FACTORY = "org.apache.camel.ExtendedCamelContext getModelJAXBContextFactory()";
+    private static final String MATCHER_GET_MODEL_TO_XML_DUMPER = "org.apache.camel.ExtendedCamelContext getModelToXMLDumper()";
     private static final String M_PRODUCER_TEMPLATE_ASYNC_CALLBACK = "org.apache.camel.ProducerTemplate asyncCallback(..)";
     private static final String M_CONTEXT_ADAPT = "org.apache.camel.CamelContext adapt(java.lang.Class)";
     private static final String M_CONTEXT_SET_DUMP_ROUTES = "org.apache.camel.CamelContext setDumpRoutes(java.lang.Boolean)";
@@ -53,6 +55,7 @@ public class CamelAPIsRecipe extends Recipe {
     private static final String M_EXCHANGE_REMOVE_PROPERTY = "org.apache.camel.Exchange removeProperty(org.apache.camel.ExchangePropertyKey)";
     private static final String M_EXCHANGE_SET_PROPERTY = "org.apache.camel.Exchange setProperty(..)";
     private static final String M_CATALOG_ARCHETYPE_AS_XML = "org.apache.camel.catalog.CamelCatalog archetypeCatalogAsXml()";
+    private static final Pattern EXTERNAL_CONTEXT_TYPE = Pattern.compile("org.apache.camel.ExtendedCamelContext");
 
     @Override
     public String getDisplayName() {
@@ -301,6 +304,33 @@ public class CamelAPIsRecipe extends Recipe {
                                 .apply(getCursor(), mi.getCoordinates().replace(), innerInvocation.getSelect());
                         doAfterVisit(new AddImport<>("org.apache.camel.support.PluginHelper", null, false));
                     }
+                }
+                // extendedContext.getModelJAXBContextFactory() -> PluginHelper.getModelJAXBContextFactory(extendedContext)
+                if (getMethodMatcher(MATCHER_GET_MODEL_JAXB_CONTEXT_FACTORY).matches(mi, false)) {
+                    if (mi.getSelect() instanceof J.MethodInvocation && getMethodMatcher(MATCHER_CONTEXT_GET_EXT).matches(((J.MethodInvocation) mi.getSelect()).getMethodType())) {
+                        J.MethodInvocation innerInvocation = (J.MethodInvocation) mi.getSelect();
+                        mi = JavaTemplate.builder("PluginHelper.getModelJAXBContextFactory(#{any(org.apache.camel.CamelContext)})")
+                                //.contextSensitive()
+                                .build()
+                                .apply(getCursor(), mi.getCoordinates().replace(), innerInvocation.getSelect());
+                        doAfterVisit(new AddImport<>("org.apache.camel.support.PluginHelper", null, false));
+                    }
+                    else if(mi.getSelect().getType().isAssignableFrom(EXTERNAL_CONTEXT_TYPE)) {
+                        mi = JavaTemplate.builder("PluginHelper.getModelJAXBContextFactory(#{any(org.apache.camel.ExtendedCamelContext)})")
+                                //.contextSensitive()
+                                .build()
+                                .apply(getCursor(), mi.getCoordinates().replace(), mi.getSelect());
+                        doAfterVisit(new AddImport<>("org.apache.camel.support.PluginHelper", null, false));
+                    }
+                }
+                // extendedContext.getModelToXMLDumper() -> PluginHelper.getModelToXMLDumper(extendedContext)
+                if (getMethodMatcher(MATCHER_GET_MODEL_TO_XML_DUMPER).matches(mi, false)
+                        && mi.getSelect().getType().isAssignableFrom(EXTERNAL_CONTEXT_TYPE)) {
+                    mi = JavaTemplate.builder("PluginHelper.getModelToXMLDumper(#{any(org.apache.camel.ExtendedCamelContext)})")
+                            //.contextSensitive()
+                            .build()
+                            .apply(getCursor(), mi.getCoordinates().replace(), mi.getSelect());
+                    doAfterVisit(new AddImport<>("org.apache.camel.support.PluginHelper", null, false));
                 }
                 // (CamelRuntimeCatalog) context.getExtension(RuntimeCamelCatalog.class) -> context.getCamelContextExtension().getContextPlugin(RuntimeCamelCatalog.class);
                 else if (getMethodMatcher(MATCHER_CONTEXT_GET_EXT).matches(mi, false)) {

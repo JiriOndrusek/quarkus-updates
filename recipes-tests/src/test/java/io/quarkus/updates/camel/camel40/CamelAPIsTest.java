@@ -544,6 +544,86 @@ public class CamelAPIsTest implements RewriteTest {
     }
 
     @Test
+    void testModelJAXBContextFactoryViaPluginHelper() {
+        //language=java
+        rewriteRun(java("""
+                            package org.apache.camel.quarkus.component.test.it;
+
+                            import org.apache.camel.CamelContext;
+                            import org.apache.camel.ExtendedCamelContext;
+                            import org.apache.camel.spi.ModelJAXBContextFactory;
+                            
+                            public class Test {
+                                
+                                ExtendedCamelContext ecc;
+                                CamelContext context;
+
+                                public void test() {
+                                    ModelJAXBContextFactory jcf = ecc.getModelJAXBContextFactory();
+                                    ComponentNameResolver jcf2  = context.getExtension(ExtendedCamelContext.class).getComponentNameResolver();
+                                }
+                            }
+                        """,
+                """
+                        package org.apache.camel.quarkus.component.test.it;
+    
+                        import org.apache.camel.CamelContext;
+                        import org.apache.camel.ExtendedCamelContext;
+                        import org.apache.camel.spi.ModelJAXBContextFactory;
+                        import org.apache.camel.support.PluginHelper;
+                        
+                        public class Test {
+                            
+                            ExtendedCamelContext ecc;
+                            CamelContext context;
+    
+                            public void test() {
+                                ModelJAXBContextFactory jcf = PluginHelper.getModelJAXBContextFactory(ecc);
+                                ComponentNameResolver jcf2  = PluginHelper.getModelJAXBContextFactory(context);
+                            }
+                        }
+                        """));
+    }
+
+    @Test
+    void testModelToXMLDumperViaPluginHelper() {
+        //language=java
+        rewriteRun(java("""
+                            package org.apache.camel.quarkus.component.test.it;
+
+                            import org.apache.camel.CamelContext;
+                            import org.apache.camel.ExtendedCamelContext;
+                            import org.apache.camel.spi.ModelToXMLDumper;
+                            
+                            public class Test {
+                                
+                                ExtendedCamelContext ecc;
+
+                                public void test() {
+                                    ModelToXMLDumper xd = ecc.getModelToXMLDumper();
+                                }
+                            }
+                        """,
+                        """
+                                package org.apache.camel.quarkus.component.test.it;
+    
+                                import org.apache.camel.CamelContext;
+                                import org.apache.camel.ExtendedCamelContext;
+                                import org.apache.camel.spi.ModelToXMLDumper;
+                                import org.apache.camel.support.PluginHelper;
+                                
+                                public class Test {
+                                    
+                                    ExtendedCamelContext ecc;
+    
+                                    public void test() {
+                                        ModelToXMLDumper xd = PluginHelper.getModelToXMLDumper(ecc);
+                                    }
+                                }
+                                """));
+    }
+
+    @Test
     void testRuntimeCatalog() {
         //language=java
         rewriteRun(java(
