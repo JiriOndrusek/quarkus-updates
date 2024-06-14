@@ -133,6 +133,13 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-tooling-updates</artifactId>
+            <version>4.7.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -205,6 +212,43 @@
                         <goals>
                             <goal>clean</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>extract-camel-recipes</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.camel</groupId>
+                                    <artifactId>camel-tooling-updates</artifactId>
+                                    <version>4.7.0-SNAPSHOT</version>
+                                    <outputDirectory>${project.build.outputDirectory}/quarkus-updates/org.apache.camel.quarkus/camel-quarkus</outputDirectory>
+                                    <includes>META-INF/rewrite/*.yaml</includes>
+                                    <fileMappers>
+                                        <org.codehaus.plexus.components.io.filemappers.FlattenFileMapper/>
+                                        <!-- Upgrade to Camel 4.0 ise used from Quarkus 3aplha) -->                                    -->
+                                        <org.codehaus.plexus.components.io.filemappers.RegExpFileMapper>
+                                            <pattern>^\Q4.0.yaml\E</pattern>
+                                            <replacement>3alpha_camelAlone.yaml</replacement>
+                                        </org.codehaus.plexus.components.io.filemappers.RegExpFileMapper>
+                                        <!-- Upgrade to Camel 4.4 is used from Quarkus 3.8) -->                                    -->
+                                        <org.codehaus.plexus.components.io.filemappers.RegExpFileMapper>
+                                            <pattern>^\Q4.4.yaml\E</pattern>
+                                            <replacement>3.8camelAlone.yaml</replacement>
+                                        </org.codehaus.plexus.components.io.filemappers.RegExpFileMapper>
+                                    </fileMappers>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
