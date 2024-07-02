@@ -231,21 +231,28 @@
                                     <groupId>org.apache.camel</groupId>
                                     <artifactId>camel-tooling-updates</artifactId>
                                     <version>4.7.0-SNAPSHOT</version>
-                                    <outputDirectory>${project.build.outputDirectory}/quarkus-updates/org.apache.camel.quarkus/camel-quarkus</outputDirectory>
+                                    <outputDirectory>${project.build.outputDirectory}/quarkus-updates/org.apache.camel.quarkus/camel-quarkus/_internal_camel_standalone</outputDirectory>
                                     <includes>META-INF/rewrite/*.yaml</includes>
                                     <fileMappers>
                                         <org.codehaus.plexus.components.io.filemappers.FlattenFileMapper/>
-                                        <!-- Upgrade to Camel 4.0 ise used from Quarkus 3aplha) -->                                    -->
+                                        <!-- Upgrade to Camel 4.0 ise used from Quarkus 3aplha) -->
                                         <org.codehaus.plexus.components.io.filemappers.RegExpFileMapper>
                                             <pattern>^\Q4.0.yaml\E</pattern>
-                                            <replacement>3alpha_camelAlone.yaml</replacement>
+                                            <replacement>c4.0_cq3alpha.yaml</replacement>
                                         </org.codehaus.plexus.components.io.filemappers.RegExpFileMapper>
-                                        <!-- Upgrade to Camel 4.4 is used from Quarkus 3.8) -->                                    -->
+                                        <!-- Upgrade to Camel 4.4 is used from Quarkus 3.8) -->
                                         <org.codehaus.plexus.components.io.filemappers.RegExpFileMapper>
                                             <pattern>^\Q4.4.yaml\E</pattern>
-                                            <replacement>3.8camelAlone.yaml</replacement>
+                                            <replacement>c4.4_cq3.8.yaml</replacement>
                                         </org.codehaus.plexus.components.io.filemappers.RegExpFileMapper>
                                     </fileMappers>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.camel</groupId>
+                                    <artifactId>camel-tooling-updates</artifactId>
+                                    <version>4.7.0-SNAPSHOT</version>
+                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                    <includes>org/**</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
