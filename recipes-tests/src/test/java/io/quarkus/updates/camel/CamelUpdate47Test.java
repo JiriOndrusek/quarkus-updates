@@ -1,13 +1,12 @@
-package io.quarkus.updates.camel.camel40;
+package io.quarkus.updates.camel;
 
-import io.quarkus.updates.camel.CamelQuarkusTestUtil;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.TypeValidation;
 
-public class CameXmlDslRecipeTest extends org.apache.camel.updates.camel40.CameXmlDslRecipeTest {
+public class CamelUpdate47Test extends org.apache.camel.updates.CamelUpdate47Test {
     @Override
     public void defaults(RecipeSpec spec) {
-        CamelQuarkusTestUtil.recipe3alpha(spec)
+        CamelQuarkusTestUtil.recipe3_15(spec)
                 .parser(parser())
                 .typeValidationOptions(TypeValidation.none());
     }
