@@ -50,32 +50,36 @@ public class CamelQuarkusTestUtil {
 
     private static RecipeSpec recipe(RecipeSpec spec, String version) {
         String[] defaultRecipes = switch (version) {
-            case "3.8" -> new String[] {"io.quarkus.updates.camel.camel44.CamelQuarkusMigrationRecipe"};
+            case "3.8" -> new String[] {"io.quarkus.updates.camel.camel44.CamelQuarkusMigrationRecipe222"};
             case "3alpha" -> new String[] {"io.quarkus.updates.camel.camel40.CamelQuarkusMigrationRecipe"};
             default -> throw new IllegalArgumentException("Version '" + version + "' is not allowed!");
         };
         return recipe(spec, version, defaultRecipes);
     }
 
-
     public static RecipeSpec recipe(RecipeSpec spec, String version, String... activerecipes) {
-//        Path recipeFile = Path.of("quarkus-updates/org.apache.camel.quarkus/camel-quarkus/3.8.yaml");
-//        Collection<Recipe> recipes;
-//        try (InputStream yamlRecipeInputStream = CoreTestUtil.class.getClassLoader().getResourceAsStream(recipeFile.toString())) {
-//            YamlResourceLoader yamlResourceLoader = new YamlResourceLoader(yamlRecipeInputStream, recipeFile.toUri(), new Properties());
-//            recipes = yamlResourceLoader.listRecipes();
-//
-////            return spec.recipeFromResource(Path.of("/").resolve(recipeFile).toAbsolutePath().toString(), recipes.stream()
-////                    .map(r -> r.getName()).toArray(String[]::new));
-//        } catch (IOException e) {
-//            throw new UncheckedIOException("Unable to open recipe file " + recipeFile, e);
-//        }
-//
-        RecipeSpec camelQuarkusRecipe = spec.recipe(CamelQuarkusTestUtil.class.getResourceAsStream("/quarkus-updates/org.apache.camel.quarkus/camel-quarkus/3.8.yaml"));
+        return spec.recipeFromResource("/quarkus-updates/org.apache.camel.quarkus/camel-quarkus/" + version + ".yaml", activerecipes);
+    }
+
+
+//    public static RecipeSpec recipe(RecipeSpec spec, String version, String... activerecipes) {
+////        Path recipeFile = Path.of("quarkus-updates/org.apache.camel.quarkus/camel-quarkus/3.8.yaml");
+////        Collection<Recipe> recipes;
+////        try (InputStream yamlRecipeInputStream = CoreTestUtil.class.getClassLoader().getResourceAsStream(recipeFile.toString())) {
+////            YamlResourceLoader yamlResourceLoader = new YamlResourceLoader(yamlRecipeInputStream, recipeFile.toUri(), new Properties());
+////            recipes = yamlResourceLoader.listRecipes();
+////
+//////            return spec.recipeFromResource(Path.of("/").resolve(recipeFile).toAbsolutePath().toString(), recipes.stream()
+//////                    .map(r -> r.getName()).toArray(String[]::new));
+////        } catch (IOException e) {
+////            throw new UncheckedIOException("Unable to open recipe file " + recipeFile, e);
+////        }
+////
+////        RecipeSpec camelQuarkusRecipe = spec.recipe(CamelQuarkusTestUtil.class.getResourceAsStream("/quarkus-updates/org.apache.camel.quarkus/camel-quarkus/3.8.yaml"));
 //        RecipeSpec recipeSpec = spec.recipes(camelQuarkusRecipe.getRecipe()).allSources(spec.getAllSources());
 //        return recipeSpec;
-//        return spec.recipes(RewriteTest.defaults());
-        return null;
-    }
+////        return spec.recipes(RewriteTest.defaults());
+////        return null;
+//    }
 
 }
