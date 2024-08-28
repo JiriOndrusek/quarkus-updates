@@ -2,6 +2,7 @@ package io.quarkus.updates.camel;
 
 import io.quarkus.updates.core.CoreTestUtil;
 import org.openrewrite.Recipe;
+import org.openrewrite.config.Environment;
 import org.openrewrite.config.YamlResourceLoader;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
@@ -9,6 +10,7 @@ import org.openrewrite.test.RewriteTest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,7 +52,7 @@ public class CamelQuarkusTestUtil {
 
     private static RecipeSpec recipe(RecipeSpec spec, String version) {
         String[] defaultRecipes = switch (version) {
-            case "3.8" -> new String[] {"io.quarkus.updates.camel.camel44.CamelQuarkusMigrationRecipe222"};
+            case "3.8" -> new String[] {"io.quarkus.updates.camel.camel44.CamelQuarkusMigrationRecipe"};
             case "3alpha" -> new String[] {"io.quarkus.updates.camel.camel40.CamelQuarkusMigrationRecipe"};
             default -> throw new IllegalArgumentException("Version '" + version + "' is not allowed!");
         };
@@ -58,7 +60,20 @@ public class CamelQuarkusTestUtil {
     }
 
     public static RecipeSpec recipe(RecipeSpec spec, String version, String... activerecipes) {
-        return spec.recipeFromResource("/quarkus-updates/org.apache.camel.quarkus/camel-quarkus/" + version + ".yaml", activerecipes);
+//        return spec.recipeFromResources("/quarkus-updates/org.apache.camel.quarkus/camel-quarkus/" + version + ".yaml");
+//    }
+
+        YamlResourceLoader yrl = new YamlResourceLoader(
+                CamelQuarkusTestUtil.class.getResourceAsStream("/quarkus-updates/org.apache.camel.quarkus/camel-quarkus/" + version + ".yaml"), URI.create("rewrite.yml"), new Properties());
+        Recipe r = Environment.builder()
+                .scanYamlResources()
+                .load(yrl)
+                .build()
+                .activateRecipes(activerecipes);
+
+        spec.recipes(r);
+        return spec;
+//        spec.parser(parser);
     }
 
 

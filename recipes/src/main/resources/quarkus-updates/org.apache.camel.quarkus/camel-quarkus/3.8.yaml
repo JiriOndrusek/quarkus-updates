@@ -29,3 +29,4 @@ description: Migrates `camel 4.0` quarkus application to `camel 4.4`.
 recipeList:
 #  use the recipe from camel standalone migration
   - org.apache.camel.updates.camel44.CamelMigrationRecipe
+#  - recipe: /META-INF/rewrite/4.4.yaml
