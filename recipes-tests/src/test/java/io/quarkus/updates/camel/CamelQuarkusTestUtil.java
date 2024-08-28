@@ -1,6 +1,12 @@
 package io.quarkus.updates.camel;
 
+import org.openrewrite.Recipe;
+import org.openrewrite.config.Environment;
+import org.openrewrite.config.YamlResourceLoader;
 import org.openrewrite.test.RecipeSpec;
+
+import java.net.URI;
+import java.util.Properties;
 
 public class CamelQuarkusTestUtil {
 
@@ -30,7 +36,18 @@ public class CamelQuarkusTestUtil {
     }
 
     public static RecipeSpec recipe(RecipeSpec spec, String version, String... activerecipes) {
-        return spec.recipeFromResource("/quarkus-updates/org.apache.camel.quarkus/camel-quarkus/" + version + ".yaml", activerecipes);
+//
+
+        YamlResourceLoader yrl = new YamlResourceLoader(
+                CamelQuarkusTestUtil.class.getResourceAsStream("/quarkus-updates/org.apache.camel.quarkus/camel-quarkus/" + version + ".yaml"), URI.create("rewrite.yml"), new Properties());
+        Recipe r = Environment.builder()
+                .scanYamlResources()
+                .load(yrl)
+                .build()
+                .activateRecipes(activerecipes);
+
+        spec.recipes(r);
+        return spec;
     }
 
 }
