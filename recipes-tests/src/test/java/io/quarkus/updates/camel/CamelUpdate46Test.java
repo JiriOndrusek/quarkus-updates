@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Disabled;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.TypeValidation;
 
-public class CamelUpdate46Test extends org.apache.camel.updates.CamelUpdate46Test {
+public class CamelUpdate46Test extends org.apache.camel.upgrade.CamelUpdate46Test {
 
 //    public CamelUpdate46Test() {
 //        setSkipUnknownDependencies(true);
@@ -15,7 +15,7 @@ public class CamelUpdate46Test extends org.apache.camel.updates.CamelUpdate46Tes
         //let the parser be initialized in the camel parent
         super.defaults(spec);
         //recipe has to be loaded differently
-        CamelQuarkusTestUtil.recipe3_14(spec)
+        CamelQuarkusTestUtil.recipe3_15(spec)
                 .typeValidationOptions(TypeValidation.none());
     }
 

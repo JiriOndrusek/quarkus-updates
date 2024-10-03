@@ -67,7 +67,7 @@
         <!--   https://plugins.gradle.org/plugin/org.openrewrite.rewrite -->
         <rewrite-gradle-plugin.version>6.18.0</rewrite-gradle-plugin.version>
         <!-- https://github.com/apache/camel-upgrade-recipes -->
-        <camel-upgrade-recipes.version>4.7.0-SNAPSHOT</camel-upgrade-recipes.version>
+        <camel-upgrade-recipes.version>4.8.0</camel-upgrade-recipes.version>
         <!-- align with https://central.sonatype.com/artifact/org.openrewrite/rewrite-core -->
         <micrometer-core.version>1.9.17</micrometer-core.version>
         <!-- tests-->
@@ -86,6 +86,20 @@
         <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>apache.staging.camel</id>
+            <url>https://repository.apache.org/content/repositories/orgapachecamel-1750</url>
+            <name>Apache Camel Upgrade Recipes 4.8.0 Staging Repo</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
     <modules>
         <module>recipes</module>

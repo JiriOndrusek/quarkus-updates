@@ -22,8 +22,8 @@ public class CamelQuarkusTestUtil {
         return recipeForVersion("3.8", spec, activeRecipes);
     }
 
-    public static RecipeSpec recipe3_14(RecipeSpec spec, String... activeRecipes) {
-        return recipeForVersion("3.14", spec, activeRecipes);
+    public static RecipeSpec recipe3_15(RecipeSpec spec, String... activeRecipes) {
+        return recipeForVersion("3.15", spec, activeRecipes);
     }
 
     private static RecipeSpec recipeForVersion(String version, RecipeSpec spec, String... activeRecipes) {

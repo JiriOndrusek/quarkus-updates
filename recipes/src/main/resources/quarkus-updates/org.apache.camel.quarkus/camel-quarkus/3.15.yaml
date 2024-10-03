@@ -28,6 +28,6 @@ displayName: Migrates `camel 4.4` application to `camel 4.7`
 description: Migrates `camel 4.4` quarkus application to `camel 4.7`.
 recipeList:
 #  use the recipe from camel upgrade recipes project
-  - org.apache.camel.updates.camel45.CamelMigrationRecipe
-  - org.apache.camel.updates.camel46.CamelMigrationRecipe
-  - org.apache.camel.updates.camel47.CamelMigrationRecipe
+  - org.apache.camel.upgrade.camel45.CamelMigrationRecipe
+  - org.apache.camel.upgrade.camel46.CamelMigrationRecipe
+  - org.apache.camel.upgrade.camel47.CamelMigrationRecipe

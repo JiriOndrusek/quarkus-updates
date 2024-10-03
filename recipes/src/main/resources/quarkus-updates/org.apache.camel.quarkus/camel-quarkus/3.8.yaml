@@ -28,4 +28,4 @@ displayName: Migrates `camel 4.0` application to `camel 4.4`
 description: Migrates `camel 4.0` quarkus application to `camel 4.4`.
 recipeList:
 #  use the recipe from camel standalone migration
-  - org.apache.camel.updates.camel44.CamelMigrationRecipe
+  - org.apache.camel.upgrade.camel44.CamelMigrationRecipe
