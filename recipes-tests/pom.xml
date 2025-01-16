@@ -35,6 +35,7 @@
         <test.camel-quarkus-3-15.camel-version>4.8.0</test.camel-quarkus-3-15.camel-version>
         <test.camel-quarkus-3-15.jakarta-servlet-api-version>6.0.0</test.camel-quarkus-3-15.jakarta-servlet-api-version>
         <test.camel-quarkus-3-17.camel-version>4.9.0</test.camel-quarkus-3-17.camel-version>
+        <test.camel-quarkus-3-18.camel-version>4.10.0</test.camel-quarkus-3-18.camel-version>
 
     </properties>
 
@@ -409,6 +410,58 @@
                                     <groupId>jakarta.servlet</groupId>
                                     <artifactId>jakarta.servlet-api</artifactId>
                                     <version>${test.camel-quarkus-3-15.jakarta-servlet-api-version}</version>
+                                    <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
+                                </artifactItem>
+
+                                <!-- Apache HTTP Client -->
+                                <artifactItem>
+                                    <groupId>org.apache.httpcomponents</groupId>
+                                    <artifactId>httpclient</artifactId>
+                                    <version>${http-client.version}</version>
+                                    <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.httpcomponents</groupId>
+                                    <artifactId>httpcore</artifactId>
+                                    <version>${http-core.version}</version>
+                                    <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
+                                </artifactItem>
+
+                                <!-- Servlet API -->
+                                <artifactItem>
+                                    <groupId>jakarta.servlet</groupId>
+                                    <artifactId>jakarta.servlet-api</artifactId>
+                                    <version>6.0.0</version>
+                                    <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
+                                </artifactItem>
+
+                                <!-- JAXB -->
+                                <artifactItem>
+                                    <groupId>javax.xml.bind</groupId>
+                                    <artifactId>jaxb-api</artifactId>
+                                    <version>2.3.1</version>
+                                    <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>jakarta.xml.bind</groupId>
+                                    <artifactId>jakarta.xml.bind-api</artifactId>
+                                    <version>4.0.2</version>
+                                    <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
+                                </artifactItem>
+
+                                <!-- @Inject API -->
+                                <artifactItem>
+                                    <groupId>jakarta.inject</groupId>
+                                    <artifactId>jakarta.inject-api</artifactId>
+                                    <version>2.0.0</version>
+                                    <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
+                                </artifactItem>
+
+                                <!-- Jakarta RS -->
+                                <artifactItem>
+                                    <groupId>jakarta.ws.rs</groupId>
+                                    <artifactId>jakarta.ws.rs-api</artifactId>
+                                    <version>3.1.0</version>
                                     <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
                                 </artifactItem>
                                 <!-- camel quarkus 3.17 test dependencies-->
