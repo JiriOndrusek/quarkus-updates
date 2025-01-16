@@ -142,6 +142,20 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>apache.staging.camel</id>
+            <url>https://repository.apache.org/content/repositories/orgapachecamel-1788</url>
+            <name>Acamel-upgrade-recipes 4.9.0f</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
     <build>
         <resources>
             <resource>
