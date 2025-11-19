@@ -574,6 +574,33 @@
                                     <version>3.1.0</version>
                                     <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
                                 </artifactItem>
+
+                                <!-- Milo Server -->
+                                <artifactItem>
+                                    <groupId>org.eclipse.milo</groupId>
+                                    <artifactId>stack-core</artifactId>
+                                    <version>0.6.8</version>
+                                    <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.eclipse.milo</groupId>
+                                    <artifactId>stack-server</artifactId>
+                                    <version>0.6.8</version>
+                                    <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.eclipse.milo</groupId>
+                                    <artifactId>stack-client</artifactId>
+                                    <version>0.6.8</version>
+                                    <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.eclipse.milo</groupId>
+                                    <artifactId>sdk-client</artifactId>
+                                    <version>0.6.8</version>
+                                    <outputDirectory>${rewrite-tmp-classpath}</outputDirectory>
+                                </artifactItem>
+
                             </artifactItems>
                         </configuration>
                     </execution>
