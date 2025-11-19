@@ -23,7 +23,7 @@
 #####
 ---
 type: specs.openrewrite.org/v1beta/recipe
-name: io.quarkus.updates.camel.camel415.CamelQuarkusMigrationRecipe
+name: io.quarkus.updates.camel.camel416.CamelQuarkusMigrationRecipe
 displayName: Migrates `camel 4.15` application to `camel 4.16`
 description: Migrates `camel 4.15` Quarkus application to `camel 4.16`.
 recipeList:
