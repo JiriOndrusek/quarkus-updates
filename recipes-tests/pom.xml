@@ -40,6 +40,7 @@
         <test.camel-quarkus-3-23.camel-version>4.12.0</test.camel-quarkus-3-23.camel-version>
         <test.camel-quarkus-3-29.camel-version>4.14.0</test.camel-quarkus-3-29.camel-version>
         <test.camel-quarkus-3-31.camel-version>4.17.0</test.camel-quarkus-3-31.camel-version>
+        <test.camel-quarkus-3-33.camel-version>4.20.0</test.camel-quarkus-3-33.camel-version>
 
         <test.camel-tahu-version>1.0.18</test.camel-tahu-version>
     </properties>
