@@ -1,0 +1,14 @@
+type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.cxf.cxf320.UpdateAll
+displayName: Migrate quarkus-cxf to 3.20
+description: >-
+  Renames client authentication properties for quarkus-cxf 3.20.0.
+recipeList:
+  - org.openrewrite.quarkus.ChangeQuarkusPropertyKey:
+      oldPropertyKey: quarkus\.cxf\.client\.([^.]+)\.username
+      newPropertyKey: quarkus.cxf.client.$1.auth.username
+      changeAllProfiles: true
+  - org.openrewrite.quarkus.ChangeQuarkusPropertyKey:
+      oldPropertyKey: quarkus\.cxf\.client\.([^.]+)\.password
+      newPropertyKey: quarkus.cxf.client.$1.auth.password
+      changeAllProfiles: true

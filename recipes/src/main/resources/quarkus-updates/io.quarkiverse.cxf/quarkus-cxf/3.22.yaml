@@ -1,0 +1,12 @@
+type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.cxf.cxf322.UpdateAll
+displayName: Migrate quarkus-cxf to 3.22
+description: >-
+  Removes HC5 transport extension and HttpClientHTTPConduitFactory
+  property for quarkus-cxf 3.22.0.
+recipeList:
+  - org.openrewrite.java.dependencies.RemoveDependency:
+      groupId: io.quarkiverse.cxf
+      artifactId: quarkus-cxf-rt-transports-http-hc5
+  - org.openrewrite.quarkus.DeleteQuarkusProperty:
+      propertyKey: quarkus\.cxf\.(client\..+\.)?http-conduit-factory

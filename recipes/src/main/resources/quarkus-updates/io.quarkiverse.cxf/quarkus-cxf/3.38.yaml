@@ -1,0 +1,15 @@
+type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.cxf.cxf338.UpdateAll
+displayName: Migrate quarkus-cxf to 3.38
+description: >-
+  Migrates WS-Addressing system properties to Quarkus configuration
+  for quarkus-cxf 3.38.0.
+recipeList:
+  - org.openrewrite.quarkus.ChangeQuarkusPropertyKey:
+      oldPropertyKey: org\.apache\.cxf\.ws\.addressing\.decoupled\.enabled
+      newPropertyKey: quarkus.cxf.endpoint.addressing.decoupled.enabled
+      changeAllProfiles: true
+  - org.openrewrite.quarkus.ChangeQuarkusPropertyKey:
+      oldPropertyKey: org\.apache\.cxf\.ws\.addressing\.decoupled\.allowedSchemes
+      newPropertyKey: quarkus.cxf.endpoint.addressing.decoupled.allowed-schemes
+      changeAllProfiles: true

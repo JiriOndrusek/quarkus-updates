@@ -1,0 +1,16 @@
+type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.cxf.cxf38.UpdateAll
+displayName: Migrate quarkus-cxf to 3.8
+description: >-
+  Removes deprecated logging extension and updates Santuario XMLSec
+  dependency coordinates for quarkus-cxf 3.8.0.
+recipeList:
+  - org.openrewrite.java.dependencies.RemoveDependency:
+      groupId: io.quarkiverse.cxf
+      artifactId: quarkus-cxf-rt-features-logging
+  - org.openrewrite.java.dependencies.ChangeDependency:
+      oldGroupId: io.quarkiverse.xmlsec
+      oldArtifactId: quarkus-xmlsec
+      newGroupId: io.quarkiverse.cxf
+      newArtifactId: quarkus-cxf-santuario-xmlsec
+      newVersion: 3.8.0
