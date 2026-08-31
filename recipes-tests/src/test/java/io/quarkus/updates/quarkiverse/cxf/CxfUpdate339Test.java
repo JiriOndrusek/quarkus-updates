@@ -122,6 +122,132 @@ public class CxfUpdate339Test implements RewriteTest {
     }
 
     @Test
+    void noChangeWhenQuarkusJacksonExcludedFromQuarkusCxf() {
+        // an exclusion is an explicit decision against quarkus-jackson, made while quarkus-cxf
+        // still pulled it transitively; the migration must not add the dependency back
+        rewriteRun(
+                mavenProject("test-project",
+                        srcMainJava(
+                                //language=java
+                                java(
+                                        """
+                                                import com.fasterxml.jackson.databind.ObjectMapper;
+
+                                                public class UsesJackson {
+                                                    ObjectMapper mapper = new ObjectMapper();
+                                                }
+                                                """)),
+                        //language=xml
+                        pomXml(
+                                """
+                                        <project>
+                                            <modelVersion>4.0.0</modelVersion>
+                                            <groupId>org.acme</groupId>
+                                            <artifactId>test-project</artifactId>
+                                            <version>1.0.0-SNAPSHOT</version>
+                                            <dependencies>
+                                                <dependency>
+                                                    <groupId>io.quarkiverse.cxf</groupId>
+                                                    <artifactId>quarkus-cxf</artifactId>
+                                                    <version>3.39.0</version>
+                                                    <exclusions>
+                                                        <exclusion>
+                                                            <groupId>io.quarkus</groupId>
+                                                            <artifactId>quarkus-jackson</artifactId>
+                                                        </exclusion>
+                                                    </exclusions>
+                                                </dependency>
+                                            </dependencies>
+                                        </project>
+                                        """)));
+    }
+
+    @Test
+    void noChangeWhenWildcardExclusionOnQuarkusCxf() {
+        // Maven exclusions support the * wildcard per coordinate, which also covers quarkus-jackson
+        rewriteRun(
+                mavenProject("test-project",
+                        srcMainJava(
+                                //language=java
+                                java(
+                                        """
+                                                import com.fasterxml.jackson.databind.ObjectMapper;
+
+                                                public class UsesJackson {
+                                                    ObjectMapper mapper = new ObjectMapper();
+                                                }
+                                                """)),
+                        //language=xml
+                        pomXml(
+                                """
+                                        <project>
+                                            <modelVersion>4.0.0</modelVersion>
+                                            <groupId>org.acme</groupId>
+                                            <artifactId>test-project</artifactId>
+                                            <version>1.0.0-SNAPSHOT</version>
+                                            <dependencies>
+                                                <dependency>
+                                                    <groupId>io.quarkiverse.cxf</groupId>
+                                                    <artifactId>quarkus-cxf</artifactId>
+                                                    <version>3.39.0</version>
+                                                    <exclusions>
+                                                        <exclusion>
+                                                            <groupId>*</groupId>
+                                                            <artifactId>*</artifactId>
+                                                        </exclusion>
+                                                    </exclusions>
+                                                </dependency>
+                                            </dependencies>
+                                        </project>
+                                        """)));
+    }
+
+    @Test
+    void addQuarkusJacksonDespiteUnrelatedExclusionOnQuarkusCxf() {
+        // only an exclusion of io.quarkus:quarkus-jackson expresses a decision about Jackson
+        rewriteRun(
+                mavenProject("test-project",
+                        srcMainJava(
+                                //language=java
+                                java(
+                                        """
+                                                import com.fasterxml.jackson.databind.ObjectMapper;
+
+                                                public class UsesJackson {
+                                                    ObjectMapper mapper = new ObjectMapper();
+                                                }
+                                                """)),
+                        //language=xml
+                        pomXml(
+                                """
+                                        <project>
+                                            <modelVersion>4.0.0</modelVersion>
+                                            <groupId>org.acme</groupId>
+                                            <artifactId>test-project</artifactId>
+                                            <version>1.0.0-SNAPSHOT</version>
+                                            <dependencies>
+                                                <dependency>
+                                                    <groupId>io.quarkiverse.cxf</groupId>
+                                                    <artifactId>quarkus-cxf</artifactId>
+                                                    <version>3.39.0</version>
+                                                    <exclusions>
+                                                        <exclusion>
+                                                            <groupId>com.example</groupId>
+                                                            <artifactId>whatever</artifactId>
+                                                        </exclusion>
+                                                    </exclusions>
+                                                </dependency>
+                                            </dependencies>
+                                        </project>
+                                        """,
+                                spec -> spec.after(pom -> {
+                                    assertThat(pom)
+                                            .contains("<artifactId>quarkus-jackson</artifactId>");
+                                    return pom;
+                                }))));
+    }
+
+    @Test
     void noChangeWhenJacksonStillTransitive() {
         // quarkus-cxf 3.38.0 still pulls quarkus-jackson transitively, nothing to add
         rewriteRun(

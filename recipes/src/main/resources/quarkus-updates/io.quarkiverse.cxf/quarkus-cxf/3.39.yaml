@@ -18,11 +18,10 @@ description: >-
   Adds io.quarkus:quarkus-jackson to applications depending on io.quarkiverse.cxf:quarkus-cxf
   that use Jackson types in their sources, because quarkus-cxf stopped pulling quarkus-jackson
   transitively in 3.39.0. The dependency is not added when it is already available transitively
-  through another extension.
+  through another extension, or when the application explicitly excludes io.quarkus:quarkus-jackson
+  from a quarkus-cxf dependency.
 preconditions:
-  - org.openrewrite.maven.search.FindDependency:
-      groupId: io.quarkiverse.cxf
-      artifactId: quarkus-cxf
+  - io.quarkus.updates.quarkiverse.cxf.cxf339.FindQuarkusCxfWithoutJacksonExclusion
 recipeList:
   - org.openrewrite.maven.AddDependency:
       groupId: io.quarkus
