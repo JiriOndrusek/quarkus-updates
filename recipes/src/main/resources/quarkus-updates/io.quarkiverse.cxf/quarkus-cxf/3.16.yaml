@@ -1,0 +1,13 @@
+#####
+# Rules coming from https://docs.quarkiverse.io/quarkus-cxf/dev/release-notes/3.16.0.html
+#####
+type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.cxf.cxf316.UpdateAll
+displayName: Migrate quarkus-cxf to 3.16
+description: >-
+  Migrates hostname-verifier=AllowAllHostnameVerifier (which throws at runtime with the new default
+  Vert.x HttpClient based HTTP conduit) to a named Quarkus TLS registry configuration with
+  hostname-verification-algorithm=NONE, moving the client trust store along with it, for
+  quarkus-cxf 3.16.0.
+recipeList:
+  - io.quarkus.updates.quarkiverse.cxf.cxf316.MigrateHostnameVerifier

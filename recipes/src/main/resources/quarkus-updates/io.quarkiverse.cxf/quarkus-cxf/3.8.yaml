@@ -1,0 +1,20 @@
+#####
+# Rules coming from https://docs.quarkiverse.io/quarkus-cxf/dev/release-notes/3.8.0.html
+#####
+type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.cxf.cxf38.UpdateAll
+displayName: Migrate quarkus-cxf to 3.8
+description: >-
+  Removes the retired logging extension (its functionality moved to io.quarkiverse.cxf:quarkus-cxf
+  in 2.6.0, configuration properties unchanged) and relocates the Santuario XMLSec extension
+  for quarkus-cxf 3.8.0.
+recipeList:
+  - org.openrewrite.java.dependencies.RemoveDependency:
+      groupId: io.quarkiverse.cxf
+      artifactId: quarkus-cxf-rt-features-logging
+  - org.openrewrite.java.dependencies.ChangeDependency:
+      oldGroupId: io.quarkiverse.xmlsec
+      oldArtifactId: quarkus-xmlsec
+      newGroupId: io.quarkiverse.cxf
+      newArtifactId: quarkus-cxf-santuario-xmlsec
+      newVersion: 3.x
