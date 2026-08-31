@@ -15,6 +15,6 @@ recipeList:
       groupId: io.quarkiverse.cxf
       artifactId: quarkus-cxf-rt-transports-http-hc5
   - org.openrewrite.quarkus.DeleteQuarkusProperty:
-      propertyKey: quarkus\.cxf\.(client\..+\.)?http-conduit-factory
+      propertyKey: quarkus\.cxf\.(client\.[^.]+\.)?http-conduit-factory
       oldValue: HttpClientHTTPConduitFactory
       deleteFromAllProfiles: true

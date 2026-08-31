@@ -228,6 +228,37 @@ public class CxfUpdate316Test implements RewriteTest {
     }
 
     @Test
+    void noChangeWhenUnrecognizedTrustStoreType() {
+        // only jks and pkcs12 map to the quarkus.tls.<name>.trust-store.<ext> sub-keys, a client
+        // with any other trust-store-type is left for manual migration
+        //language=properties
+        rewriteRun(
+                properties(
+                        """
+                                quarkus.cxf.client.myService.trust-store-type=jceks
+                                quarkus.cxf.client.myService.trust-store=client-truststore.jceks
+                                quarkus.cxf.client.myService.trust-store-password=secret
+                                quarkus.cxf.client.myService.hostname-verifier=AllowAllHostnameVerifier
+                                """,
+                        spec -> spec.path("src/main/resources/application.properties"))
+        );
+    }
+
+    @Test
+    void noChangeWhenTlsConfigurationNameAlreadyPresent() {
+        // an existing tls-configuration-name is an already migrated or hand written TLS setup
+        //language=properties
+        rewriteRun(
+                properties(
+                        """
+                                quarkus.cxf.client.myService.tls-configuration-name=myTls
+                                quarkus.cxf.client.myService.hostname-verifier=AllowAllHostnameVerifier
+                                """,
+                        spec -> spec.path("src/main/resources/application.properties"))
+        );
+    }
+
+    @Test
     void noChangeWhenTrustStoreInDifferentOverlappingProfile() {
         // the %prod trust store cannot be moved together with the default scoped verifier; migrating the
         // verifier alone would combine the inherited tls-configuration-name with trust-store in prod,

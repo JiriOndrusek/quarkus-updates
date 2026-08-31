@@ -70,6 +70,58 @@ public class CxfUpdate339Test implements RewriteTest {
     }
 
     @Test
+    void addQuarkusJacksonWithoutVersionWhenManagedByImportedBom() {
+        // quarkus-jackson is managed by the imported quarkus-bom, so AddDependency must not
+        // write a hard coded <version> resolved from latest.release into the pom
+        rewriteRun(
+                mavenProject("test-project",
+                        srcMainJava(
+                                //language=java
+                                java(
+                                        """
+                                                import com.fasterxml.jackson.databind.ObjectMapper;
+
+                                                public class UsesJackson {
+                                                    ObjectMapper mapper = new ObjectMapper();
+                                                }
+                                                """)),
+                        //language=xml
+                        pomXml(
+                                """
+                                        <project>
+                                            <modelVersion>4.0.0</modelVersion>
+                                            <groupId>org.acme</groupId>
+                                            <artifactId>test-project</artifactId>
+                                            <version>1.0.0-SNAPSHOT</version>
+                                            <dependencyManagement>
+                                                <dependencies>
+                                                    <dependency>
+                                                        <groupId>io.quarkus</groupId>
+                                                        <artifactId>quarkus-bom</artifactId>
+                                                        <version>3.39.1</version>
+                                                        <type>pom</type>
+                                                        <scope>import</scope>
+                                                    </dependency>
+                                                </dependencies>
+                                            </dependencyManagement>
+                                            <dependencies>
+                                                <dependency>
+                                                    <groupId>io.quarkiverse.cxf</groupId>
+                                                    <artifactId>quarkus-cxf</artifactId>
+                                                    <version>3.39.0</version>
+                                                </dependency>
+                                            </dependencies>
+                                        </project>
+                                        """,
+                                spec -> spec.after(pom -> {
+                                    assertThat(pom)
+                                            .contains("<artifactId>quarkus-jackson</artifactId>")
+                                            .doesNotContainPattern("quarkus-jackson</artifactId>\\s*<version>");
+                                    return pom;
+                                }))));
+    }
+
+    @Test
     void noChangeWhenJacksonStillTransitive() {
         // quarkus-cxf 3.38.0 still pulls quarkus-jackson transitively, nothing to add
         rewriteRun(
