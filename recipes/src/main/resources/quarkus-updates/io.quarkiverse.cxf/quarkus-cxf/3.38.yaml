@@ -1,0 +1,20 @@
+#####
+# Rules coming from https://docs.quarkiverse.io/quarkus-cxf/dev/release-notes/3.38.0.html
+#####
+type: specs.openrewrite.org/v1beta/recipe
+name: io.quarkus.updates.cxf.cxf338.UpdateAll
+displayName: Migrate quarkus-cxf to 3.38
+description: >-
+  Replaces the plain CXF WS-Addressing decoupled endpoint system properties with the
+  quarkus.cxf.endpoint.addressing.decoupled.* configuration options introduced in
+  quarkus-cxf 3.38.0. Note that occurrences passed as JVM -D flags (e.g. in surefire
+  systemPropertyVariables) have to be migrated manually.
+recipeList:
+  - org.openrewrite.quarkus.ChangeQuarkusPropertyKey:
+      oldPropertyKey: org\.apache\.cxf\.ws\.addressing\.decoupled\.enabled
+      newPropertyKey: quarkus.cxf.endpoint.addressing.decoupled.enabled
+      changeAllProfiles: true
+  - org.openrewrite.quarkus.ChangeQuarkusPropertyKey:
+      oldPropertyKey: org\.apache\.cxf\.ws\.addressing\.decoupled\.allowedSchemes
+      newPropertyKey: quarkus.cxf.endpoint.addressing.decoupled.allowed-schemes
+      changeAllProfiles: true
