@@ -12,6 +12,9 @@ recipeList:
   - org.openrewrite.java.dependencies.RemoveDependency:
       groupId: io.quarkiverse.cxf
       artifactId: quarkus-cxf-rt-features-logging
+  # newVersion is only written when the project does not manage quarkus-cxf-santuario-xmlsec itself:
+  # with an imported quarkus-cxf (platform) BOM the managed version wins and the version tag is
+  # dropped from the dependency (overrideManagedVersion defaults to false)
   - org.openrewrite.java.dependencies.ChangeDependency:
       oldGroupId: io.quarkiverse.xmlsec
       oldArtifactId: quarkus-xmlsec
