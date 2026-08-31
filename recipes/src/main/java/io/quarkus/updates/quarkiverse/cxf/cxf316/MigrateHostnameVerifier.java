@@ -10,6 +10,8 @@ import org.openrewrite.properties.PropertiesIsoVisitor;
 import org.openrewrite.properties.tree.Properties;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +33,8 @@ public class MigrateHostnameVerifier extends Recipe {
             .compile("(%[^.]+\\.)?quarkus\\.cxf\\.client\\.([^.]+)\\.http-conduit-factory");
     private static final Pattern KEY_STORE_PATTERN = Pattern
             .compile("(%[^.]+\\.)?quarkus\\.cxf\\.client\\.([^.]+)\\.(key-store|key-store-password|key-store-type|key-password)");
+    private static final Pattern TRUST_STORE_PATTERN = Pattern
+            .compile("(%[^.]+\\.)?quarkus\\.cxf\\.client\\.([^.]+)\\.(trust-store|trust-store-password|trust-store-type)");
     private static final Pattern TLS_CONFIGURATION_NAME_PATTERN = Pattern
             .compile("(%[^.]+\\.)?quarkus\\.cxf\\.client\\.([^.]+)\\.tls-configuration-name");
 
@@ -45,9 +49,13 @@ public class MigrateHostnameVerifier extends Recipe {
                 "configuration with `quarkus.tls.<name>.hostname-verification-algorithm=NONE` referenced via " +
                 "`quarkus.cxf.client.<name>.tls-configuration-name`, moving the deprecated `trust-store*` options of the " +
                 "client into the same TLS configuration (setting `tls-configuration-name` next to `trust-store*` fails " +
-                "at runtime). Clients using a key store, an unrecognized trust store type, an already present " +
-                "`tls-configuration-name` or a non-Vert.x `http-conduit-factory` (where `hostname-verifier` keeps " +
-                "working and `hostname-verification-algorithm` is unsupported) are left untouched.";
+                "at runtime). Every `hostname-verifier` entry is decided per profile scope: it is only migrated when the " +
+                "effective `http-conduit-factory` (per client pin over global, profile scoped pin over default scoped) is " +
+                "the Vert.x one in every profile the entry applies to (`hostname-verifier` keeps working on the " +
+                "`URLConnectionHTTPConduitFactory` conduit, where `hostname-verification-algorithm` is unsupported), and " +
+                "when no key store, no already present `tls-configuration-name` and no differently scoped `trust-store*` " +
+                "option interferes in an overlapping profile. Entries with an unrecognized trust store type are also " +
+                "left untouched.";
     }
 
     private static boolean isVertxConduit(String value) {
@@ -75,6 +83,123 @@ public class MigrateHostnameVerifier extends Recipe {
         return "jks";
     }
 
+    /** A property value together with the profile scope of its key. */
+    private static final class ScopedValue {
+        final String prefix;
+        final Set<String> profiles;
+        final String value;
+
+        ScopedValue(String prefix, String value) {
+            this.prefix = prefix == null ? "" : prefix;
+            this.profiles = profilesOf(this.prefix);
+            this.value = value;
+        }
+    }
+
+    /** {@code ""} is the default scope (empty set), {@code "%dev,test."} the {dev, test} scope. */
+    private static Set<String> profilesOf(String prefix) {
+        if (prefix == null || prefix.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return new HashSet<>(Arrays.asList(prefix.substring(1, prefix.length() - 1).split(",")));
+    }
+
+    /** The default scope applies in every profile, so it overlaps everything. */
+    private static boolean overlaps(Set<String> a, Set<String> b) {
+        if (a.isEmpty() || b.isEmpty()) {
+            return true;
+        }
+        for (String profile : a) {
+            if (b.contains(profile)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean anyOverlapping(List<ScopedValue> scopedValues, Set<String> scope) {
+        if (scopedValues == null) {
+            return false;
+        }
+        for (ScopedValue scopedValue : scopedValues) {
+            if (overlaps(scopedValue.profiles, scope)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean anyForeignOverlapping(List<ScopedValue> scopedValues, Set<String> scope, String prefix) {
+        if (scopedValues == null) {
+            return false;
+        }
+        for (ScopedValue scopedValue : scopedValues) {
+            if (!scopedValue.prefix.equals(prefix) && overlaps(scopedValue.profiles, scope)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The hostname-verifier entry applies in every profile of its scope - for the default scope also in every
+     * profile that only overrides the conduit. {@code hostname-verification-algorithm} is supported by the
+     * Vert.x conduit only, so the entry may be migrated when the effective conduit is the Vert.x one in each
+     * of those profiles.
+     */
+    private static boolean isVertxConduitEverywhere(Set<String> scope, List<ScopedValue> clientPins,
+            List<ScopedValue> globalPins) {
+        Set<String> profilesToCheck = new HashSet<>(scope);
+        if (scope.isEmpty()) {
+            collectProfiles(clientPins, profilesToCheck);
+            collectProfiles(globalPins, profilesToCheck);
+            if (!isVertxConduitIn(null, clientPins, globalPins)) {
+                return false;
+            }
+        }
+        for (String profile : profilesToCheck) {
+            if (!isVertxConduitIn(profile, clientPins, globalPins)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void collectProfiles(List<ScopedValue> pins, Set<String> collected) {
+        if (pins == null) {
+            return;
+        }
+        for (ScopedValue pin : pins) {
+            collected.addAll(pin.profiles);
+        }
+    }
+
+    /** Effective conduit of one profile ({@code null} is the default profile): the client pin wins over the global one. */
+    private static boolean isVertxConduitIn(String profile, List<ScopedValue> clientPins, List<ScopedValue> globalPins) {
+        String value = pinnedConduit(profile, clientPins);
+        if (value == null) {
+            value = pinnedConduit(profile, globalPins);
+        }
+        // no pin: the default conduit is the Vert.x one since 3.16.0
+        return value == null || isVertxConduit(value);
+    }
+
+    /** A profile scoped pin overrides the default scoped one. */
+    private static String pinnedConduit(String profile, List<ScopedValue> pins) {
+        if (pins == null) {
+            return null;
+        }
+        String defaultScoped = null;
+        for (ScopedValue pin : pins) {
+            if (pin.profiles.isEmpty()) {
+                defaultScoped = pin.value;
+            } else if (profile != null && pin.profiles.contains(profile)) {
+                return pin.value;
+            }
+        }
+        return defaultScoped;
+    }
+
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new PropertiesIsoVisitor<ExecutionContext>() {
@@ -90,23 +215,39 @@ public class MigrateHostnameVerifier extends Recipe {
                     }
                 }
 
-                Set<String> skippedClients = new HashSet<>();
+                List<ScopedValue> globalConduits = new ArrayList<>();
+                Map<String, List<ScopedValue>> clientConduits = new HashMap<>();
+                Map<String, List<ScopedValue>> keyStores = new HashMap<>();
+                Map<String, List<ScopedValue>> trustStores = new HashMap<>();
+                Map<String, List<ScopedValue>> tlsConfigurationNames = new HashMap<>();
                 for (Map.Entry<String, String> e : valuesByKey.entrySet()) {
-                    if (GLOBAL_CONDUIT_PATTERN.matcher(e.getKey()).matches() && !isVertxConduit(e.getValue())) {
-                        // hostname-verifier keeps working with the pinned non-Vert.x conduit
-                        return f;
+                    Matcher matcher = GLOBAL_CONDUIT_PATTERN.matcher(e.getKey());
+                    if (matcher.matches()) {
+                        globalConduits.add(new ScopedValue(matcher.group(1), e.getValue()));
+                        continue;
                     }
-                    Matcher clientConduit = CLIENT_CONDUIT_PATTERN.matcher(e.getKey());
-                    if (clientConduit.matches() && !isVertxConduit(e.getValue())) {
-                        skippedClients.add(clientConduit.group(2));
+                    matcher = CLIENT_CONDUIT_PATTERN.matcher(e.getKey());
+                    if (matcher.matches()) {
+                        clientConduits.computeIfAbsent(matcher.group(2), k -> new ArrayList<>())
+                                .add(new ScopedValue(matcher.group(1), e.getValue()));
+                        continue;
                     }
-                    Matcher keyStore = KEY_STORE_PATTERN.matcher(e.getKey());
-                    if (keyStore.matches()) {
-                        skippedClients.add(keyStore.group(2));
+                    matcher = KEY_STORE_PATTERN.matcher(e.getKey());
+                    if (matcher.matches()) {
+                        keyStores.computeIfAbsent(matcher.group(2), k -> new ArrayList<>())
+                                .add(new ScopedValue(matcher.group(1), e.getValue()));
+                        continue;
                     }
-                    Matcher tlsConfigurationName = TLS_CONFIGURATION_NAME_PATTERN.matcher(e.getKey());
-                    if (tlsConfigurationName.matches()) {
-                        skippedClients.add(tlsConfigurationName.group(2));
+                    matcher = TRUST_STORE_PATTERN.matcher(e.getKey());
+                    if (matcher.matches()) {
+                        trustStores.computeIfAbsent(matcher.group(2), k -> new ArrayList<>())
+                                .add(new ScopedValue(matcher.group(1), e.getValue()));
+                        continue;
+                    }
+                    matcher = TLS_CONFIGURATION_NAME_PATTERN.matcher(e.getKey());
+                    if (matcher.matches()) {
+                        tlsConfigurationNames.computeIfAbsent(matcher.group(2), k -> new ArrayList<>())
+                                .add(new ScopedValue(matcher.group(1), e.getValue()));
                     }
                 }
 
@@ -122,7 +263,22 @@ public class MigrateHostnameVerifier extends Recipe {
                     }
                     String prefix = matcher.group(1) != null ? matcher.group(1) : "";
                     String clientName = matcher.group(2);
-                    if (skippedClients.contains(clientName)) {
+                    Set<String> scope = profilesOf(prefix);
+
+                    if (anyOverlapping(keyStores.get(clientName), scope)
+                            || anyOverlapping(tlsConfigurationNames.get(clientName), scope)) {
+                        // mapping a key store automatically is not safe, an existing tls-configuration-name is
+                        // an already migrated or hand written setup; both block every profile they overlap with
+                        continue;
+                    }
+                    if (!isVertxConduitEverywhere(scope, clientConduits.get(clientName), globalConduits)) {
+                        // hostname-verifier keeps working on a non-Vert.x conduit in at least one profile the
+                        // entry applies to, and hostname-verification-algorithm would fail at runtime there
+                        continue;
+                    }
+                    if (anyForeignOverlapping(trustStores.get(clientName), scope, prefix)) {
+                        // a trust store of another overlapping scope cannot be moved together with this entry
+                        // and would clash with the generated tls-configuration-name at runtime
                         continue;
                     }
                     String oldStorePrefix = prefix + "quarkus.cxf.client." + clientName + ".trust-store";

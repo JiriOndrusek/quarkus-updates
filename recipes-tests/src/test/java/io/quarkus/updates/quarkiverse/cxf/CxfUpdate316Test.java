@@ -156,4 +156,90 @@ public class CxfUpdate316Test implements RewriteTest {
                         spec -> spec.path("src/main/resources/application.properties"))
         );
     }
+
+    @Test
+    void noChangeWhenOtherProfilePinsUrlConnectionConduit() {
+        // the default scoped verifier also applies in the prod profile, where the URLConnection conduit
+        // keeps it working; migrating the default scope would make prod inherit tls-configuration-name
+        // with hostname-verification-algorithm, which fails at runtime on that conduit
+        //language=properties
+        rewriteRun(
+                properties(
+                        """
+                                quarkus.cxf.client.myService.hostname-verifier=AllowAllHostnameVerifier
+                                %prod.quarkus.cxf.client.myService.http-conduit-factory=URLConnectionHTTPConduitFactory
+                                """,
+                        spec -> spec.path("src/main/resources/application.properties"))
+        );
+    }
+
+    @Test
+    void noChangeWhenProfileGlobalUrlConnectionConduitOverlapsDefaultVerifier() {
+        //language=properties
+        rewriteRun(
+                properties(
+                        """
+                                %test.quarkus.cxf.http-conduit-factory=URLConnectionHTTPConduitFactory
+                                quarkus.cxf.client.myService.hostname-verifier=AllowAllHostnameVerifier
+                                """,
+                        spec -> spec.path("src/main/resources/application.properties"))
+        );
+    }
+
+    @Test
+    void migrateWhenClientPinnedToVertxDespiteProfileGlobalUrlConnection() {
+        // the per client Vert.x pin overrides the %test global URLConnection pin in every profile, so this
+        // client is safe to migrate; a profile scoped global pin no longer suppresses the whole file
+        //language=properties
+        rewriteRun(
+                properties(
+                        """
+                                %test.quarkus.cxf.http-conduit-factory=URLConnectionHTTPConduitFactory
+                                quarkus.cxf.client.myService.http-conduit-factory=VertxHttpClientHTTPConduitFactory
+                                quarkus.cxf.client.myService.hostname-verifier=AllowAllHostnameVerifier
+                                """,
+                        """
+                                %test.quarkus.cxf.http-conduit-factory=URLConnectionHTTPConduitFactory
+                                quarkus.cxf.client.myService.http-conduit-factory=VertxHttpClientHTTPConduitFactory
+                                quarkus.tls.myService.hostname-verification-algorithm=NONE
+                                quarkus.cxf.client.myService.tls-configuration-name=myService
+                                """,
+                        spec -> spec.path("src/main/resources/application.properties"))
+        );
+    }
+
+    @Test
+    void migrateProfileVerifierWhenKeyStoreInDisjointProfile() {
+        // the %prod key store does not apply in the dev profile, so the %dev verifier can be migrated
+        //language=properties
+        rewriteRun(
+                properties(
+                        """
+                                %dev.quarkus.cxf.client.myService.hostname-verifier=AllowAllHostnameVerifier
+                                %prod.quarkus.cxf.client.myService.key-store=client-keystore.pkcs12
+                                """,
+                        """
+                                %dev.quarkus.tls.myService.hostname-verification-algorithm=NONE
+                                %dev.quarkus.cxf.client.myService.tls-configuration-name=myService
+                                %prod.quarkus.cxf.client.myService.key-store=client-keystore.pkcs12
+                                """,
+                        spec -> spec.path("src/main/resources/application.properties"))
+        );
+    }
+
+    @Test
+    void noChangeWhenTrustStoreInDifferentOverlappingProfile() {
+        // the %prod trust store cannot be moved together with the default scoped verifier; migrating the
+        // verifier alone would combine the inherited tls-configuration-name with trust-store in prod,
+        // which fails at runtime
+        //language=properties
+        rewriteRun(
+                properties(
+                        """
+                                quarkus.cxf.client.myService.hostname-verifier=AllowAllHostnameVerifier
+                                %prod.quarkus.cxf.client.myService.trust-store=prod-truststore.jks
+                                """,
+                        spec -> spec.path("src/main/resources/application.properties"))
+        );
+    }
 }
