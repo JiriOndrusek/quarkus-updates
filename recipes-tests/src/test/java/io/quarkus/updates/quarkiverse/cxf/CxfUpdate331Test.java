@@ -109,4 +109,20 @@ public class CxfUpdate331Test implements RewriteTest {
                         spec -> spec.path("src/main/resources/application.properties"))
         );
     }
+
+    @Test
+    void noChangeForOrphanProxyOptionsWithoutProxyServer() {
+        // the migration is triggered by proxy-server; renaming the other options alone would
+        // create an incomplete, unreferenced quarkus.proxy configuration
+        //language=properties
+        rewriteRun(
+                properties(
+                        """
+                                quarkus.cxf.client.myService.proxy-username=orphanUser
+                                quarkus.cxf.client.myService.proxy-password=orphanPass
+                                quarkus.cxf.client.myService.non-proxy-hosts=localhost|*.example.com
+                                """,
+                        spec -> spec.path("src/main/resources/application.properties"))
+        );
+    }
 }
