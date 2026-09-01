@@ -163,6 +163,55 @@ public class CxfUpdate339Test implements RewriteTest {
     }
 
     @Test
+    void noChangeWhenQuarkusJacksonExcludedOnManagedQuarkusCxf() {
+        // Maven also applies exclusions declared on the dependencyManagement entry, so an
+        // exclusion there is the same explicit decision against quarkus-jackson
+        rewriteRun(
+                mavenProject("test-project",
+                        srcMainJava(
+                                //language=java
+                                java(
+                                        """
+                                                import com.fasterxml.jackson.databind.ObjectMapper;
+
+                                                public class UsesJackson {
+                                                    ObjectMapper mapper = new ObjectMapper();
+                                                }
+                                                """)),
+                        //language=xml
+                        pomXml(
+                                """
+                                        <project>
+                                            <modelVersion>4.0.0</modelVersion>
+                                            <groupId>org.acme</groupId>
+                                            <artifactId>test-project</artifactId>
+                                            <version>1.0.0-SNAPSHOT</version>
+                                            <dependencyManagement>
+                                                <dependencies>
+                                                    <dependency>
+                                                        <groupId>io.quarkiverse.cxf</groupId>
+                                                        <artifactId>quarkus-cxf</artifactId>
+                                                        <version>3.39.0</version>
+                                                        <exclusions>
+                                                            <exclusion>
+                                                                <groupId>io.quarkus</groupId>
+                                                                <artifactId>quarkus-jackson</artifactId>
+                                                            </exclusion>
+                                                        </exclusions>
+                                                    </dependency>
+                                                </dependencies>
+                                            </dependencyManagement>
+                                            <dependencies>
+                                                <dependency>
+                                                    <groupId>io.quarkiverse.cxf</groupId>
+                                                    <artifactId>quarkus-cxf</artifactId>
+                                                </dependency>
+                                            </dependencies>
+                                        </project>
+                                        """)));
+    }
+
+    @Test
     void noChangeWhenWildcardExclusionOnQuarkusCxf() {
         // Maven exclusions support the * wildcard per coordinate, which also covers quarkus-jackson
         rewriteRun(
