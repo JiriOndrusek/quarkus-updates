@@ -11,6 +11,14 @@ import java.nio.file.Path;
 
 import static org.openrewrite.properties.Assertions.properties;
 
+/**
+ * The old proxy options are migrated already at their 3.31 deprecation (not at the announced
+ * 4.0.0 removal): the rewrite is a 1:1 equivalent of the recommended replacement and runs while
+ * both mechanisms still coexist (verifiable, reversible) - at 4.0.0 the old keys disappear and
+ * unmigrated clients would silently lose their proxy. It also fixes the 3.31+
+ * NoSuchElementException for proxy-server without proxy-server-port and silences the
+ * per-startup deprecation warnings.
+ */
 public class CxfUpdate331Test implements RewriteTest {
 
     @Override
