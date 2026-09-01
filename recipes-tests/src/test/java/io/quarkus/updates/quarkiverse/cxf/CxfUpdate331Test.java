@@ -84,43 +84,19 @@ public class CxfUpdate331Test implements RewriteTest {
     }
 
     @Test
-    void noChangeForSocksProxy() {
-        // socks cannot be mapped automatically, quarkus.proxy.*.type distinguishes socks4 and socks5
+    void notChanged() {
+        // all three no-change paths in one file: an already present proxy-configuration-name,
+        // orphan proxy options without proxy-server, and a socks proxy
         //language=properties
         rewriteRun(
                 properties(
                         """
-                                quarkus.cxf.client.myService.proxy-server=proxy.example.com
-                                quarkus.cxf.client.myService.proxy-server-type=socks
-                                """,
-                        spec -> spec.path("src/main/resources/application.properties"))
-        );
-    }
-
-    @Test
-    void noChangeWhenProxyConfigurationNameAlreadyPresent() {
-        //language=properties
-        rewriteRun(
-                properties(
-                        """
-                                quarkus.cxf.client.myService.proxy-server=proxy.example.com
-                                quarkus.cxf.client.myService.proxy-configuration-name=corporate
-                                """,
-                        spec -> spec.path("src/main/resources/application.properties"))
-        );
-    }
-
-    @Test
-    void noChangeForOrphanProxyOptionsWithoutProxyServer() {
-        // the migration is triggered by proxy-server; renaming the other options alone would
-        // create an incomplete, unreferenced quarkus.proxy configuration
-        //language=properties
-        rewriteRun(
-                properties(
-                        """
-                                quarkus.cxf.client.myService.proxy-username=orphanUser
-                                quarkus.cxf.client.myService.proxy-password=orphanPass
-                                quarkus.cxf.client.myService.non-proxy-hosts=localhost|*.example.com
+                                quarkus.cxf.client.named.proxy-server=proxy.example.com
+                                quarkus.cxf.client.named.proxy-configuration-name=corporate
+                                quarkus.cxf.client.orphan.proxy-username=orphanUser
+                                quarkus.cxf.client.orphan.non-proxy-hosts=localhost|*.example.com
+                                quarkus.cxf.client.socks.proxy-server=socks.example.com
+                                quarkus.cxf.client.socks.proxy-server-type=socks
                                 """,
                         spec -> spec.path("src/main/resources/application.properties"))
         );
