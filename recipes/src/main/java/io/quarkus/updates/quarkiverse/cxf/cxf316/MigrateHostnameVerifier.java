@@ -208,6 +208,8 @@ public class MigrateHostnameVerifier extends Recipe {
                 Properties.File f = super.visitFile(file, ctx);
 
                 Map<String, String> valuesByKey = new HashMap<>();
+                // plain loop instead of Collectors.toMap: duplicate keys are parseable input and
+                // must keep the last-wins semantics of put(), where toMap would throw
                 for (Properties.Content content : f.getContent()) {
                     if (content instanceof Properties.Entry) {
                         Properties.Entry entry = (Properties.Entry) content;
