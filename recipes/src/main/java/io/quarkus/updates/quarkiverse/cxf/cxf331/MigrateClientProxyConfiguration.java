@@ -60,6 +60,12 @@ public class MigrateClientProxyConfiguration extends Recipe {
                     }
                 }
 
+                // an existing proxy-configuration-name next to proxy-server is an ambiguous, user
+                // authored mid-migration state where every automatic resolution is unsafe:
+                // overwriting the name destroys explicit intent, removing the old keys activates a
+                // previously ignored (possibly nonexistent or shared) configuration and silently
+                // changes behavior; skipping keeps the client working, because proxy-server wins
+                // at runtime anyway
                 Set<String> skippedClients = new HashSet<>();
                 for (String key : valuesByKey.keySet()) {
                     Matcher matcher = PROXY_CONFIGURATION_NAME_PATTERN.matcher(key);

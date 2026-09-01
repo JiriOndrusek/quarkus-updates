@@ -92,8 +92,9 @@ public class CxfUpdate331Test implements RewriteTest {
     }
 
     @Test
-    void notChanged() {
-        // all three no-change paths in one file: an already present proxy-configuration-name,
+    void alreadyMidMigrationOrphanOrSocksNotChanged() {
+        // all three no-change paths in one file: a client already mid-migration (existing
+        // proxy-configuration-name next to proxy-server, where proxy-server wins at runtime),
         // orphan proxy options without proxy-server, and a socks proxy
         //language=properties
         rewriteRun(
