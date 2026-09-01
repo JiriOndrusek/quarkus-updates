@@ -43,6 +43,17 @@ public class MigrateClientProxyConfiguration extends Recipe {
                 "because the SOCKS version (`socks4` or `socks5`) cannot be determined automatically.";
     }
 
+    /** Profile prefix and client name captured from a migrated proxy-server key. */
+    private static final class MigrationTarget {
+        final String prefix;
+        final String clientName;
+
+        MigrationTarget(String prefix, String clientName) {
+            this.prefix = prefix;
+            this.clientName = clientName;
+        }
+    }
+
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new PropertiesIsoVisitor<ExecutionContext>() {
@@ -74,8 +85,8 @@ public class MigrateClientProxyConfiguration extends Recipe {
                     }
                 }
 
-                // key of the proxy-server entry -> client name, per migrated (profile, client) scope
-                Map<String, String> proxyServersToMigrate = new HashMap<>();
+                // key of the proxy-server entry -> its captured profile prefix and client name
+                Map<String, MigrationTarget> proxyServersToMigrate = new HashMap<>();
                 // old proxy option key -> new quarkus.proxy key
                 Map<String, String> renames = new HashMap<>();
                 Set<String> keysToDelete = new HashSet<>();
@@ -94,7 +105,7 @@ public class MigrateClientProxyConfiguration extends Recipe {
                     if (serverType != null && !"http".equals(serverType.toLowerCase(Locale.ROOT))) {
                         continue;
                     }
-                    proxyServersToMigrate.put(e.getKey(), clientName);
+                    proxyServersToMigrate.put(e.getKey(), new MigrationTarget(prefix, clientName));
                     String newPrefix = prefix + "quarkus.proxy." + clientName + ".";
                     renames.put(oldPrefix + "proxy-server-port", newPrefix + "port");
                     renames.put(oldPrefix + "proxy-username", newPrefix + "username");
@@ -116,17 +127,14 @@ public class MigrateClientProxyConfiguration extends Recipe {
                         continue;
                     }
                     Properties.Entry entry = (Properties.Entry) content;
-                    String clientName = proxyServersToMigrate.get(entry.getKey());
-                    if (clientName != null) {
-                        Matcher matcher = PROXY_SERVER_PATTERN.matcher(entry.getKey());
-                        matcher.matches();
-                        String prefix = matcher.group(1) != null ? matcher.group(1) : "";
-                        newContent.add(entry.withKey(prefix + "quarkus.proxy." + clientName + ".host"));
+                    MigrationTarget target = proxyServersToMigrate.get(entry.getKey());
+                    if (target != null) {
+                        newContent.add(entry.withKey(target.prefix + "quarkus.proxy." + target.clientName + ".host"));
                         newContent.add(entry
                                 .withId(Tree.randomId())
                                 .withPrefix("\n")
-                                .withKey(prefix + "quarkus.cxf.client." + clientName + ".proxy-configuration-name")
-                                .withValue(entry.getValue().withText(clientName)));
+                                .withKey(target.prefix + "quarkus.cxf.client." + target.clientName + ".proxy-configuration-name")
+                                .withValue(entry.getValue().withText(target.clientName)));
                     } else if (renames.containsKey(entry.getKey())) {
                         Properties.Entry renamed = entry.withKey(renames.get(entry.getKey()));
                         if (renames.get(entry.getKey()).endsWith(".non-proxy-hosts")) {

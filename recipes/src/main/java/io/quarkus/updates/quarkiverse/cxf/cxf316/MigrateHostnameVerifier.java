@@ -96,6 +96,17 @@ public class MigrateHostnameVerifier extends Recipe {
         }
     }
 
+    /** Profile prefix and client name captured from a migrated hostname-verifier key. */
+    private static final class MigrationTarget {
+        final String prefix;
+        final String clientName;
+
+        MigrationTarget(String prefix, String clientName) {
+            this.prefix = prefix;
+            this.clientName = clientName;
+        }
+    }
+
     /** {@code ""} is the default scope (empty set), {@code "%dev,test."} the {dev, test} scope. */
     private static Set<String> profilesOf(String prefix) {
         if (prefix == null || prefix.isEmpty()) {
@@ -253,8 +264,8 @@ public class MigrateHostnameVerifier extends Recipe {
                     }
                 }
 
-                // key of the hostname-verifier entry -> client name, per migrated (profile, client) scope
-                Map<String, String> verifiersToMigrate = new HashMap<>();
+                // key of the hostname-verifier entry -> its captured profile prefix and client name
+                Map<String, MigrationTarget> verifiersToMigrate = new HashMap<>();
                 // old trust store key -> new TLS registry key
                 Map<String, String> trustStoreRenames = new HashMap<>();
                 Set<String> keysToDelete = new HashSet<>();
@@ -289,7 +300,7 @@ public class MigrateHostnameVerifier extends Recipe {
                         // unrecognized trust-store-type, do not touch this client
                         continue;
                     }
-                    verifiersToMigrate.put(e.getKey(), clientName);
+                    verifiersToMigrate.put(e.getKey(), new MigrationTarget(prefix, clientName));
                     String newStorePrefix = prefix + "quarkus.tls." + clientName + ".trust-store." + extension;
                     if (valuesByKey.containsKey(oldStorePrefix)) {
                         trustStoreRenames.put(oldStorePrefix, newStorePrefix + ".path");
@@ -312,19 +323,16 @@ public class MigrateHostnameVerifier extends Recipe {
                         continue;
                     }
                     Properties.Entry entry = (Properties.Entry) content;
-                    String clientName = verifiersToMigrate.get(entry.getKey());
-                    if (clientName != null) {
-                        Matcher matcher = HOSTNAME_VERIFIER_PATTERN.matcher(entry.getKey());
-                        matcher.matches();
-                        String prefix = matcher.group(1) != null ? matcher.group(1) : "";
+                    MigrationTarget target = verifiersToMigrate.get(entry.getKey());
+                    if (target != null) {
                         newContent.add(entry
-                                .withKey(prefix + "quarkus.tls." + clientName + ".hostname-verification-algorithm")
+                                .withKey(target.prefix + "quarkus.tls." + target.clientName + ".hostname-verification-algorithm")
                                 .withValue(entry.getValue().withText("NONE")));
                         newContent.add(entry
                                 .withId(Tree.randomId())
                                 .withPrefix("\n")
-                                .withKey(prefix + "quarkus.cxf.client." + clientName + ".tls-configuration-name")
-                                .withValue(entry.getValue().withText(clientName)));
+                                .withKey(target.prefix + "quarkus.cxf.client." + target.clientName + ".tls-configuration-name")
+                                .withValue(entry.getValue().withText(target.clientName)));
                     } else if (trustStoreRenames.containsKey(entry.getKey())) {
                         newContent.add(entry.withKey(trustStoreRenames.get(entry.getKey())));
                     } else if (!keysToDelete.contains(entry.getKey())) {
